@@ -40,6 +40,153 @@ class TestALSInstance:
 class TestALSPool:
     """Tests for ALSPool class."""
 
+    @pytest.mark.asyncio
+    async def test_selected_parent_owns_sources_below_nested_gpr(self, tmp_path):
+        """An unselected nested probe cannot replace an explicit parent view."""
+        root = tmp_path / "project"
+        nested = root / "tests"
+        nested.mkdir(parents=True)
+        parent_gpr = root / "parent.gpr"
+        parent_gpr.write_text("project Parent is end Parent;")
+        nested_gpr = nested / "probe.gpr"
+        nested_gpr.write_text("project Probe is end Probe;")
+        source = nested / "other.adb"
+        source.write_text("procedure Other is begin null; end Other;")
+        pool = ALSPool()
+        client = MagicMock()
+        client.is_running = True
+        monitor = MagicMock()
+
+        with patch(
+            "ada_mcp.server.start_als_with_monitoring",
+            new_callable=AsyncMock,
+            return_value=(client, monitor),
+        ) as start:
+            selected = await pool.get_client(str(parent_gpr), gpr_file=parent_gpr)
+            await pool.select_client(selected)
+            reused = await pool.get_client(str(source))
+
+        assert reused is selected
+        assert start.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_explicit_nested_view_overrides_selected_parent(self, tmp_path):
+        """A separately selected child view wins only below its own root."""
+        root = tmp_path / "project"
+        nested = root / "tests"
+        nested.mkdir(parents=True)
+        parent_gpr = root / "parent.gpr"
+        parent_gpr.write_text("project Parent is end Parent;")
+        nested_gpr = nested / "probe.gpr"
+        nested_gpr.write_text("project Probe is end Probe;")
+        source = nested / "probe.adb"
+        source.write_text("procedure Probe is begin null; end Probe;")
+        parent_source = root / "main.adb"
+        parent_source.write_text("procedure Main is begin null; end Main;")
+        pool = ALSPool()
+        clients = [MagicMock(), MagicMock()]
+        for client in clients:
+            client.is_running = True
+        monitor = MagicMock()
+
+        with patch(
+            "ada_mcp.server.start_als_with_monitoring",
+            new_callable=AsyncMock,
+            side_effect=[(clients[0], monitor), (clients[1], monitor)],
+        ) as start:
+            parent = await pool.get_client(str(parent_gpr), gpr_file=parent_gpr)
+            await pool.select_client(parent)
+            child = await pool.get_client(str(nested_gpr), gpr_file=nested_gpr)
+            await pool.select_client(child)
+            assert await pool.get_client(str(source)) is child
+            assert await pool.get_client(str(parent_source)) is parent
+
+        assert start.call_count == 2
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias_kind", ["symlink", "parent"])
+    async def test_selected_view_keeps_lexical_root_across_symlink_alias(
+        self, tmp_path, alias_kind
+    ):
+        """An alias selection cannot replace the real root's distinct view."""
+        root = tmp_path / "project"
+        nested = root / "tests"
+        nested.mkdir(parents=True)
+        if alias_kind == "symlink":
+            alias = tmp_path / "alias"
+            alias.symlink_to(root, target_is_directory=True)
+        else:
+            child = root / "child"
+            child.mkdir()
+            alias = child / ".."
+        first_gpr = root / "first.gpr"
+        first_gpr.write_text("project First is end First;")
+        second_gpr = root / "second.gpr"
+        second_gpr.write_text("project Second is end Second;")
+        nested_gpr = nested / "probe.gpr"
+        nested_gpr.write_text("project Probe is end Probe;")
+        source = nested / "other.adb"
+        source.write_text("procedure Other is begin null; end Other;")
+        pool = ALSPool()
+        clients = [MagicMock(), MagicMock()]
+        for client in clients:
+            client.is_running = True
+        monitor = MagicMock()
+
+        with patch(
+            "ada_mcp.server.start_als_with_monitoring",
+            new_callable=AsyncMock,
+            side_effect=[(client, monitor) for client in clients],
+        ) as start:
+            alias_view = await pool.get_client(str(alias / "first.gpr"), gpr_file=first_gpr)
+            await pool.select_client(alias_view)
+            real_view = await pool.get_client(str(second_gpr), gpr_file=second_gpr)
+            await pool.select_client(real_view)
+            assert await pool.get_client(str(source)) is real_view
+            assert await pool.get_client(str(alias / "tests" / "other.adb")) is alias_view
+
+        assert start.call_count == 2
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("parent_traversal", [False, True])
+    async def test_selected_parent_does_not_capture_sibling_or_forced_root(
+        self, tmp_path, parent_traversal
+    ):
+        """Path boundaries and ADA_PROJECT_ROOT still constrain selection."""
+        root = tmp_path / "project"
+        sibling = tmp_path / "project-extra"
+        nested = root / "tests"
+        for directory in (root, sibling, nested):
+            directory.mkdir(exist_ok=True)
+        parent_gpr = root / "parent.gpr"
+        parent_gpr.write_text("project Parent is end Parent;")
+        sibling_gpr = sibling / "sibling.gpr"
+        sibling_gpr.write_text("project Sibling is end Sibling;")
+        sibling_request = (
+            root / ".." / sibling.name / sibling_gpr.name if parent_traversal else sibling_gpr
+        )
+        nested_gpr = nested / "probe.gpr"
+        nested_gpr.write_text("project Probe is end Probe;")
+        pool = ALSPool()
+        clients = [MagicMock() for _ in range(3)]
+        for client in clients:
+            client.is_running = True
+        monitor = MagicMock()
+
+        with patch(
+            "ada_mcp.server.start_als_with_monitoring",
+            new_callable=AsyncMock,
+            side_effect=[(client, monitor) for client in clients],
+        ) as start:
+            parent = await pool.get_client(str(parent_gpr), gpr_file=parent_gpr)
+            await pool.select_client(parent)
+            assert await pool.get_client(str(sibling_request)) is clients[1]
+            with patch.dict("os.environ", {"ADA_PROJECT_ROOT": str(nested)}):
+                assert await pool.get_client(str(nested_gpr)) is clients[2]
+
+        assert start.call_args_list[1].args[0] == sibling_request.parent
+        assert start.call_args_list[2].args[0] == nested
+
     def test_pool_creation(self):
         """Test creating a pool with default settings."""
         pool = ALSPool()

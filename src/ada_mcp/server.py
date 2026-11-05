@@ -161,6 +161,21 @@ class ALSPool:
         )
 
         async with self._pool_lock:
+            if requested_project is None and file_path and not os.environ.get("ADA_PROJECT_ROOT"):
+                # An explicitly selected ancestor view owns file-only tools.
+                # Merely discovering a nested GPR must not replace that view;
+                # a separately selected nested view still takes precedence.
+                # Keep lexical roots distinct: symlink aliases can select
+                # different project files and scenario contexts.
+                source = Path(file_path).absolute()
+                ancestors = [
+                    root
+                    for root in self._selected_projects
+                    if source.is_relative_to(root.absolute())
+                    and ".." not in source.relative_to(root.absolute()).parts
+                ]
+                if ancestors:
+                    project_root = max(ancestors, key=lambda root: len(root.absolute().parts))
             selected_project = self._selected_projects.get(project_root)
             if requested_project is not None:
                 project_file = requested_project
