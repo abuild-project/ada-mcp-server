@@ -3,7 +3,6 @@
 """Package the already tested source/image without rebuilding either."""
 
 import argparse
-import email
 import gzip
 import hashlib
 import io
@@ -14,10 +13,14 @@ import shutil
 import subprocess
 import sys
 import tarfile
-import zipfile
 from pathlib import Path
 from typing import Any
 
+from distribution_receipt import (
+    committed_archive_sha256,
+    distribution_files,
+    validate_receipt,
+)
 from version import ROOT, project_version
 
 sys.path.insert(0, str(ROOT / "tooling"))
@@ -209,42 +212,12 @@ def package(root: Path, output: Path, source_sha: str, image_id: str, archive: P
     }
 
 
-def validate_python_distributions(folder: Path, version: str) -> list[Path]:
-    """Reject stale/misnamed distributions instead of relabeling their version."""
-    python_version = version.replace("-rc.", "rc")
-    expected = {
-        f"ada_mcp_server-{python_version}-py3-none-any.whl",
-        f"ada_mcp_server-{python_version}.tar.gz",
-    }
-    distributions = list(folder.glob("*"))
-    if {path.name for path in distributions} != expected or not all(
-        path.is_file() for path in distributions
-    ):
-        raise ValueError("provide exactly the two checked Python distributions for this version")
-    for path in distributions:
-        if path.suffix == ".whl":
-            with zipfile.ZipFile(path) as wheel:
-                names = [name for name in wheel.namelist() if name.endswith(".dist-info/METADATA")]
-                if len(names) != 1:
-                    raise ValueError("wheel must have one metadata record")
-                metadata = wheel.read(names[0])
-        else:
-            with tarfile.open(path) as archive:
-                members = [
-                    member
-                    for member in archive
-                    if member.name.count("/") == 1 and member.name.endswith("/PKG-INFO")
-                ]
-                if len(members) != 1 or not members[0].isfile():
-                    raise ValueError("sdist must have one regular package metadata record")
-                stream = archive.extractfile(members[0])
-                assert stream is not None
-                with stream:
-                    metadata = stream.read()
-        message = email.message_from_bytes(metadata)
-        if message["Name"] != "ada-mcp-server" or message["Version"] != python_version:
-            raise ValueError("Python distribution metadata differs from the canonical version")
-    return distributions
+def validate_python_distributions(
+    folder: Path, version: str, source_sha: str, archive_sha256: str
+) -> tuple[list[Path], JSON]:
+    """Require the completed check's source/hash receipt, even for the same version."""
+    receipt = validate_receipt(folder, version, source_sha, archive_sha256)
+    return distribution_files(folder, version), receipt
 
 
 def main() -> None:
@@ -263,6 +236,10 @@ def main() -> None:
     dirty = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain"], text=True)
     if dirty:
         raise ValueError("commit all candidate changes before creating release artifacts")
+    version = project_version()
+    distributions, provenance = validate_python_distributions(
+        options.python_dist, version, source_sha, committed_archive_sha256(ROOT, source_sha)
+    )
     docker = ["docker"]
     if options.docker_host:
         docker.extend(["--host", options.docker_host])
@@ -280,10 +257,8 @@ def main() -> None:
         raise ValueError("expected a Linux/AMD64 image")
     if state["Labels"].get("org.opencontainers.image.revision") != source_sha:
         raise ValueError("image source revision differs from the committed candidate")
-    version = project_version()
     if state["Labels"].get("org.opencontainers.image.version") != version:
         raise ValueError("image version differs from the source")
-    distributions = validate_python_distributions(options.python_dist, version)
     image_archive = options.output / f"ada-mcp-image-{version}-linux-amd64.tar.gz"
     process = subprocess.Popen(docker + ["image", "save", state["Id"]], stdout=subprocess.PIPE)
     assert process.stdout is not None
@@ -294,7 +269,14 @@ def main() -> None:
         raise RuntimeError("Docker image export failed")
     manifest = package(ROOT, options.output, source_sha, state["Id"], image_archive)
     for distribution in distributions:
-        shutil.copy2(distribution, options.output / distribution.name)
+        copied = options.output / distribution.name
+        shutil.copy2(distribution, copied)
+        if sha256_file(copied) != provenance["distributions_sha256"][distribution.name]:
+            raise ValueError("Python distribution changed during packaging: " + distribution.name)
+    (options.output / "python-distributions-provenance.json").write_text(
+        json.dumps(provenance, indent=2, sort_keys=True) + "\n"
+    )
+    manifest["python_distributions"] = provenance
     source_archive = options.output / f"ada-mcp-source-{version}.tar.gz"
     with source_archive.open("xb") as stream:
         subprocess.run(

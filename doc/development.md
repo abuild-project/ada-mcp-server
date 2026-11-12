@@ -80,6 +80,16 @@ python3 scripts/host_acceptance.py --release /absolute/new-release-artifacts \
 For the default build/check output, artifacts.py's existing --python-dist
 default is build/check/python-dist. A different check output needs the explicit
 matching --python-dist shown above; never substitute stale distributions.
+The complete committed-source check writes python-dist/provenance.json only
+after every check passes. It records the exact generating commit, Git tar
+snapshot SHA256 and both distribution hashes, verifies that the checked source
+still matches that snapshot, and compares both package payloads to the committed
+server files. docker/check supplies the source SHA and read-only snapshot;
+invoking a build alone does not produce this completed-check receipt.
+Default and explicit --python-dist paths require the receipt. Missing/stale
+source or changed bytes are rejected before image export/packaging, even when
+the version matches. The generated release retains that receipt as
+python-distributions-provenance.json and rechecks copied distribution hashes.
 The artifact command checks the source label against the clean Git revision,
 saves the inspected immutable target once, and checks the archived config's
 source/version/platform. It records a canonical config digest separately from

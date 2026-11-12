@@ -56,6 +56,21 @@ def validate_calls(calls: Any) -> list[JSON]:
     return calls
 
 
+def create_private_directory(path: Path) -> None:
+    """Create only new directories, each owner-only, without chmod of existing paths."""
+    if path.exists() or path.is_symlink():
+        raise FileExistsError(path)
+    missing = []
+    parent = path
+    while not parent.exists():
+        if parent.is_symlink():
+            raise FileExistsError(parent)
+        missing.append(parent)
+        parent = parent.parent
+    for directory in reversed(missing):
+        directory.mkdir(mode=0o700)
+
+
 class Session:
     """Own one MCP subprocess and preserve request/result boundaries."""
 
@@ -73,7 +88,7 @@ class Session:
         self.server_exit: int | None = None
         if log_dir is not None:
             root = Path(log_dir)
-            root.mkdir(parents=True, exist_ok=False)
+            create_private_directory(root)
             self.events = (root / "protocol.jsonl").open("w")
             self.error_log = (root / "server-stderr.log").open("w")
             (root / "command.json").write_text(json.dumps(command, indent=2) + "\n")

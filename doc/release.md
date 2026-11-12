@@ -22,6 +22,11 @@ lightweight skill pins the full tooling and runtime manifest. Image IDs and
 future registry digests are generated artifact metadata, not edited back into
 source after a build. No latest tag or mutable branch is a trust identifier.
 
+Python wheel/sdist bytes come from the completed check's source/hash receipt.
+Same-version files without matching committed-source provenance are refused;
+promotion retains those checked bytes and their receipt rather than rebuilding
+replacement Python distributions.
+
 Before publication, release-manifest.json truthfully has registry_digest=null.
 The later promotion loads the checked image archive, tags/pushes those bytes,
 records the actual pushed registry digest and verifies config-image identity

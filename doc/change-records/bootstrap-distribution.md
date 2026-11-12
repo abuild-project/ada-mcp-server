@@ -9,6 +9,8 @@ The standalone AMD64 Trixie recipe pins the Ada toolchain, ALS and Python
 dependencies. Generic host tools preserve explicit GPR views, nonroot numeric
 identity, read-only sources, isolated networking and private temporary HOME.
 Bindings/configuration fragments are created only at explicit new paths.
+The launcher rejects symlinked roots and ancestors before Docker, while new
+Session/Mac evidence directories are private before sensitive writes.
 Build inputs come from the exact committed Git tree, so ignored local files
 cannot enter a source-labeled image. CI uses private executable scratch for
 test fixtures while production temporary files remain nonexecutable.
@@ -34,6 +36,9 @@ Command receipts survive timeouts and process-start failures with their
 available partial streams.
 Repeated container checks require a new output directory, preserving prior
 evidence and selecting matching Python distributions for artifact generation.
+The completed check binds wheel/sdist hashes to the generating commit and exact
+committed-source snapshot. Packaging rejects missing, stale or changed-byte
+receipts even when versions match, and retains the checked Python bytes.
 
 This candidate prepares release promotion; it does not publish artifacts.
 Actual Mac/native-other-client behavior, registry transport/public access,

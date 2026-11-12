@@ -11,7 +11,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from mcp_client import Session, add_launch_arguments, launcher_command
+from mcp_client import Session, add_launch_arguments, create_private_directory, launcher_command
 
 JSON = dict[str, Any]
 
@@ -185,7 +185,7 @@ def main() -> int:
     image_id = None
     try:
         cases = read_cases(options.cases)
-        output.mkdir(parents=True, exist_ok=False)
+        create_private_directory(output)
         owns_output = True
         # Exercise Apple's system Bash explicitly, even if Homebrew Bash is on PATH.
         command = ["/bin/bash"] + launcher_command(options)

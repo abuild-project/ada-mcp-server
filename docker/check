@@ -32,6 +32,7 @@ mkdir -p "$(dirname "$output")"
 mkdir "$output"
 docker run --rm --platform linux/amd64 --network none --read-only \
     --user "$runtime_uid:$runtime_gid" --cap-drop ALL --security-opt no-new-privileges \
+    --env "ADA_MCP_CHECK_SOURCE_SHA=$source_sha" \
     --tmpfs /tmp:rw,nosuid,nodev,noexec \
     --tmpfs "/ci-work:rw,nosuid,nodev,exec,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
     --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \

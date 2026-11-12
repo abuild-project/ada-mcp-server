@@ -11,7 +11,8 @@ gprbuild --version > "$output/gprbuild-version.txt"
 ruff check src tests tooling scripts
 ruff format --check src tests tooling scripts
 mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
-    scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py
+    scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py \
+    scripts/distribution_receipt.py
 python -m pytest tests -m 'not integration' -q --tb=short \
     --cov=ada_mcp --cov=tooling --cov-report=term-missing \
     --cov-report="xml:$output/coverage.xml" --cov-report="html:$output/htmlcov"
@@ -23,3 +24,6 @@ python scripts/real_parent_view.py > "$output/real-parent-view.log" 2>&1
 python scripts/real_diagnostics.py --output "$output/diagnostic-control" \
     > "$output/real-diagnostic-control.log" 2>&1
 python -m pytest tests/test_e2e.py -q --tb=short > "$output/mcp-e2e.log" 2>&1
+python scripts/distribution_receipt.py --folder "$output/python-dist" \
+    --source-sha "${ADA_MCP_CHECK_SOURCE_SHA:?docker/check must supply the committed source SHA}" \
+    --source-archive /ci-source.tar > "$output/python-distributions-provenance.log"

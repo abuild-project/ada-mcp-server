@@ -64,6 +64,9 @@ while [[ $# -gt 0 ]]; do
             done
             [[ "$root" != / ]] || fail 'sharing the entire filesystem is not supported'
             [[ -d "$root" ]] || fail "root is not an existing directory: $root"
+            physical="$(cd -P -- "$root" && pwd -P)" || fail 'cannot resolve physical root'
+            [[ "$physical" != / && "$physical" == "$root" ]] ||
+                fail '--root must be a physical absolute directory without symlink aliases'
             duplicate=false
             if [[ ${#roots[@]} -gt 0 ]]; then
                 for selected in "${roots[@]}"; do

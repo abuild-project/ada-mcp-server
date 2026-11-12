@@ -79,3 +79,14 @@ optional OCI archive root, and validate the supplementary graph even when the
 native target is the canonical config ID. Bind runtime config descriptor sizes
 to the actual config byte count and carry that count into the trusted runtime
 metadata and host-binding checks.
+
+## 2026-11-12: Checked Python bytes and private host boundaries
+
+Decision: issue a Python distribution provenance receipt only after the complete
+committed-source check succeeds. Bind the generating SHA, exact source snapshot
+and tested wheel/sdist hashes; compare their server payloads to the committed
+files. Require that receipt for both default and explicit packaging inputs.
+
+Decision: reject nonphysical launcher roots before Docker access, including
+symlinked ancestors. Create every new Session/Mac evidence directory owner-only
+before records are written, preserving existing unrelated directories.

@@ -79,6 +79,9 @@ Existing bindings are never migrated or overwritten. If a different store
 requires another target, choose a new explicit binding.
 
 Roots are physical absolute directories, mounted read-only at the same paths.
+The launcher resolves each root with physical-directory semantics before any
+Docker use and rejects aliases, including symlinked ancestor components and
+symlinks to the filesystem root. Select the physical path reported by `pwd -P`.
 Include dependency roots and parents for future worktrees. Additional roots
 outside those parents need a new binding/server restart. Paths with spaces and
 Unicode are supported; comma, double quote, newline and path aliases are refused.
@@ -126,6 +129,11 @@ authorize explicit removal. Doctor excludes Config.Env from inspect requests.
 Keep argv/protocol/stderr logs private; they contain caller paths and Docker's
 own diagnostics. Direct command timeouts retain available stdout/stderr before
 failure propagates. The legacy Mac smoke retains full private inspect records.
+New Session log and Mac-smoke evidence directories, including newly created
+parents, are owner-only before any records are opened or written. Existing
+directories are refused rather than chmodded or reused. Logs can contain source
+and scenario values; Mac full-inspect evidence can contain Config.Env. Permission
+unit controls on Linux do not establish actual macOS runtime acceptance.
 
 ## Native clients and discovery
 
