@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [abuild-gh, abuild/maintained]
+    branches: [main, 'codex/**']
   pull_request:
     branches: [main]
 
@@ -13,118 +13,48 @@ concurrency:
   group: ada-mcp-ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  ALS_VERSION: 2026.3.202607051
-  ALS_SHA256: 9dfa29af05418913ff445be0c6875f7a51ebad5fc781f3446d3e2c3903d09787
-
 jobs:
-  test:
+  standalone:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12']
-
+    timeout-minutes: 45
     steps:
-      - name: Check out sources
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      - name: Check out the immutable candidate
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Build the standalone AMD64 Trixie candidate once
+        run: docker/build --tag ada-mcp-server:candidate
+      - name: Complete unit, quality, coverage, package, docs and actual ALS chain
+        run: docker/check ada-mcp-server:candidate
+      - name: Package the same tested image and Python distributions
+        run: python3 scripts/artifacts.py --image ada-mcp-server:candidate --output "$RUNNER_TEMP/release"
+      - name: Obtain public pinned Arca, Spawn and Anet source cases
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Run unit tests
-        run: python -m pytest tests/ -q --tb=short
-
-  quality:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Check out sources
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+          git clone https://github.com/abuild-project/arca-Ada.git "$RUNNER_TEMP/arca"
+          git -C "$RUNNER_TEMP/arca" checkout --detach 20564468d00024e6f949e92c1da79850abf59086
+          git clone https://github.com/abuild-project/spawn-manager.git "$RUNNER_TEMP/spawn"
+          git -C "$RUNNER_TEMP/spawn" checkout --detach 18a0ac53be29da845e9059a77c274399b1cbf5ee
+          git clone https://github.com/mweidle73/anet.git "$RUNNER_TEMP/anet"
+          git -C "$RUNNER_TEMP/anet" checkout --detach 27a6e5a8746fa0779698db982b8ae9f414adf598
+      - name: Actual generated-artifact provisioning and two Linux identities
+        run: |
+          python3 scripts/host_acceptance.py --release "$RUNNER_TEMP/release" \
+            --output "$RUNNER_TEMP/host-evidence" --arca "$RUNNER_TEMP/arca" \
+            --spawn "$RUNNER_TEMP/spawn" --anet "$RUNNER_TEMP/anet"
+      - name: Upload exact tested release candidates without publishing
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          python-version: '3.13'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Check source and test formatting
-        run: |
-          ruff check src tests scripts
-          ruff format --check src tests scripts
-
-      - name: Check strict typing
-        run: mypy src/ada_mcp --ignore-missing-imports
-
-      - name: Run coverage suite
-        run: |
-          python -m pytest tests/ -q --tb=short \
-            --cov=ada_mcp \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml \
-            --cov-report=html:htmlcov
-
-      - name: Build and inspect distributions
-        run: |
-          python -m build
-          python -m twine check dist/*
-
-      - name: Upload coverage report
+          name: release-candidate
+          path: ${{ runner.temp }}/release/
+          retention-days: 14
+      - name: Preserve check evidence including failures
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          name: coverage-report
+          name: validation-evidence
           path: |
-            coverage.xml
-            htmlcov/
+            build/check/
+            ${{ runner.temp }}/host-evidence/
           if-no-files-found: warn
-          retention-days: 7
-
-  als-integration:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Check out sources
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        with:
-          python-version: '3.13'
-
-      - name: Install Ada MCP
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
-
-      - name: Install pinned Ada Language Server
-        run: |
-          curl --fail --location --silent --show-error \
-            "https://github.com/AdaCore/ada_language_server/releases/download/${ALS_VERSION}/als-${ALS_VERSION}-linux-x64.tar.gz" \
-            --output /tmp/als.tar.gz
-          echo "${ALS_SHA256}  /tmp/als.tar.gz" | sha256sum --check -
-          mkdir -p /tmp/als
-          tar -xzf /tmp/als.tar.gz \
-            -C /tmp/als \
-            --strip-components=5 \
-            integration/vscode/ada/x64/linux/ada_language_server
-          chmod 0755 /tmp/als/ada_language_server
-
-      - name: Run real ALS protocol probe
-        env:
-          ALS_PATH: /tmp/als/ada_language_server
-        run: python scripts/test_integration.py
+          retention-days: 14

@@ -1,3 +1,5 @@
 """Ada MCP Server - MCP server wrapping Ada Language Server."""
 
-__version__ = "0.1.0"
+from ada_mcp._version import VERSION
+
+__version__ = VERSION.replace("-rc.", "rc")

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+root="$(cd "$(dirname "$0")/.." && pwd -P)"
+tag=ada-mcp-server:development
+proxy_ca=''
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --tag) tag="$2"; shift 2 ;;
+        --proxy-ca) proxy_ca="$2"; shift 2 ;;
+        *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
+    esac
+done
+if [[ -n "$(git -C "$root" status --porcelain --untracked-files=normal)" ]]; then
+    printf 'Commit the candidate before building a source-labeled image.\n' >&2
+    exit 2
+fi
+source_sha="$(git -C "$root" rev-parse HEAD)"
+# Read metadata from the committed object, not the mutable working directory.
+project_version="$(git -C "$root" show "$source_sha:src/ada_mcp/_version.py" | python3 -c '
+import ast, sys
+tree = ast.parse(sys.stdin.read())
+print(next(ast.literal_eval(node.value) for node in tree.body
+           if isinstance(node, ast.Assign)
+           and any(isinstance(target, ast.Name) and target.id == "VERSION"
+                   for target in node.targets)))
+')"
+context_archive="$(mktemp "${TMPDIR:-/tmp}/ada-mcp-context.XXXXXXXX")"
+trap 'rm -f "$context_archive"' EXIT
+trap 'exit 1' HUP INT TERM
+git -C "$root" archive --format=tar "$source_sha" > "$context_archive"
+args=(build --platform linux/amd64 --file docker/Dockerfile
+    --build-arg "SOURCE_SHA=$source_sha" --build-arg "PROJECT_VERSION=$project_version" --tag "$tag")
+if [[ -n "$proxy_ca" ]]; then args+=(--secret "id=proxy_ca,src=$proxy_ca"); fi
+# Docker receives only committed files, including its recipe, through stdin.
+docker "${args[@]}" - < "$context_archive"

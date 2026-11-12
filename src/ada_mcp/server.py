@@ -13,6 +13,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
+from ada_mcp import __version__
 from ada_mcp.als.client import ALSClient
 from ada_mcp.als.process import (
     ALSHealthMonitor,
@@ -55,7 +56,7 @@ logger = logging.getLogger(__name__)
 ProjectKey = tuple[Path, Path | None, ALSProjectContext]
 
 # Create the MCP server instance
-server = Server("ada-mcp-server")
+server = Server("ada-mcp-server", version=__version__)
 
 # =============================================================================
 # Multi-Project ALS Pool

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+[[ $# -eq 1 ]] || { printf 'Usage: docker/check IMAGE\n' >&2; exit 2; }
+root="$(cd "$(dirname "$0")/.." && pwd -P)"
+runtime_uid="$(id -u)"
+runtime_gid="$(id -g)"
+[[ "$runtime_uid" -gt 0 && "$runtime_gid" -gt 0 ]] || exit 2
+if [[ -n "$(git -C "$root" status --porcelain --untracked-files=normal)" ]]; then
+    printf 'Check the immutable committed candidate, without source changes.\n' >&2
+    exit 2
+fi
+source_sha="$(git -C "$root" rev-parse HEAD)"
+image_info="$(docker image inspect --format '{{.Id}} {{.Os}}/{{.Architecture}} {{index .Config.Labels "org.opencontainers.image.revision"}}' "$1")"
+[[ "$image_info" == *" linux/amd64 $source_sha" ]] || {
+    printf 'Image platform/source does not match the candidate.\n' >&2
+    exit 2
+}
+resolved_image="${image_info%% *}"
+context_archive="$(mktemp "${TMPDIR:-/tmp}/ada-mcp-check.XXXXXXXX")"
+trap 'rm -f "$context_archive"' EXIT
+trap 'exit 1' HUP INT TERM
+git -C "$root" archive --format=tar "$source_sha" > "$context_archive"
+mkdir -p "$root/build/check"
+docker run --rm --platform linux/amd64 --network none --read-only \
+    --user "$runtime_uid:$runtime_gid" --cap-drop ALL --security-opt no-new-privileges \
+    --tmpfs /tmp:rw,nosuid,nodev,noexec \
+    --tmpfs "/ci-work:rw,nosuid,nodev,exec,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
+    --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
+    --mount "type=bind,src=$context_archive,dst=/ci-source.tar,readonly" \
+    --mount "type=bind,src=$root/build/check,dst=/evidence" \
+    --workdir /ci-work --entrypoint /bin/bash "$resolved_image" -c \
+    'set -eu; mkdir -m 0700 /ci-work/tmp /ci-work/source; export TMPDIR=/ci-work/tmp; tar -xf /ci-source.tar -C /ci-work/source; cd /ci-work/source; export PYTHONPATH=/ci-work/source/src; scripts/ci /evidence'

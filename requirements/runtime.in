@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+mcp==1.28.1
+anyio==4.14.2
+pydantic==2.13.4
