@@ -23,6 +23,10 @@ future registry digests are generated artifact metadata, not edited back into
 source after a build. No latest tag or mutable branch is a trust identifier.
 
 Python wheel/sdist bytes come from the completed check's source/hash receipt.
+Receipt version 2 also pins the exact native image target actually checked.
+The selected packaging target must match before export, even at the same
+source/version, and promotion retains this tested-target relationship alongside
+the authenticated canonical config/OCI identity proof.
 Same-version files without matching committed-source provenance are refused;
 promotion retains those checked bytes and their receipt rather than rebuilding
 replacement Python distributions.

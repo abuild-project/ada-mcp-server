@@ -79,6 +79,11 @@ def test_release_plan_refuses_unapproved_source_and_tampering(tmp_path):
         "image_id": "sha256:" + "b" * 64,
         "image_identity": classic_identity("sha256:" + "b" * 64),
         "platform": "linux/amd64",
+        "python_distributions": {
+            "version": 2,
+            "tested_image_target": "sha256:" + "b" * 64,
+            "tested_image_platform": "linux/amd64",
+        },
         "artifacts_sha256": {archive.name: expected},
         "image_archive": record,
         "tooling": record,

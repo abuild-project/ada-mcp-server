@@ -81,11 +81,20 @@ For the default build/check output, artifacts.py's existing --python-dist
 default is build/check/python-dist. A different check output needs the explicit
 matching --python-dist shown above; never substitute stale distributions.
 The complete committed-source check writes python-dist/provenance.json only
-after every check passes. It records the exact generating commit, Git tar
+after every check passes. Receipt version 2 records the exact native immutable
+image target actually passed to docker/check's container and its linux/amd64
+platform, the exact generating commit, Git tar
 snapshot SHA256 and both distribution hashes, verifies that the checked source
 still matches that snapshot, and compares both package payloads to the committed
 server files. docker/check supplies the source SHA and read-only snapshot;
 invoking a build alone does not produce this completed-check receipt.
+Packaging compares the selected native inspect ID to that checked target before
+any image export/runtime use. Selecting another immutable image, even at the
+same source/version, needs a new complete check and new output receipt. A new
+tag for the identical tested target does not change its identity. Legacy receipts
+without the checked image binding are refused. A native ID can be a Classic
+config ID or an OCI index/manifest ID. It does not replace the canonical config
+digest.
 Default and explicit --python-dist paths require the receipt. Missing/stale
 source or changed bytes are rejected before image export/packaging, even when
 the version matches. The generated release retains that receipt as
@@ -108,6 +117,14 @@ The tester retains every failed attempt and does not silently replace evidence.
 Host-command receipts include attempted argv, cwd, timeout and available partial
 streams even if the command times out or cannot start. Existing receipts are
 not replaced by a later attempt.
+
+Production Python starts in isolated mode, excluding project cwd, user-site and
+Python environment paths from imports while retaining installed venv modules
+and the actual project cwd for explicit Ada views. The stdlib-only Docker-exec
+probes, generated acquisition stdin and build version parser are also isolated.
+The CI harness intentionally overrides the image entrypoint and imports the
+committed check snapshot through its explicit PYTHONPATH; those source tests
+remain separate from the installed production server's imports.
 
 ## Release and hosted review
 

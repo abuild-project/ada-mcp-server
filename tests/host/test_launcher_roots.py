@@ -3,8 +3,11 @@
 import json
 import os
 import subprocess
+from pathlib import Path
 
+import ada_mcp_setup as setup
 import pytest
+from test_setup_boundaries import binding
 from version import ROOT
 
 
@@ -71,3 +74,61 @@ def test_physical_unicode_and_space_paths_keep_same_path_readonly_mount(tmp_path
     calls = [json.loads(line) for line in capture.read_text().splitlines()]
     assert calls[-1][0] == "run"
     assert "type=bind,src=" + str(root) + ",dst=" + str(root) + ",readonly" in calls[-1]
+
+
+@pytest.mark.parametrize("reserved", setup.RESERVED_RUNTIME_PATHS)
+@pytest.mark.parametrize("suffix", ["", "/synthetic-project"])
+def test_reserved_runtime_equal_or_descendant_rejected_before_docker(docker_stub, reserved, suffix):
+    capture, environment = docker_stub
+    result = subprocess.run(
+        [str(ROOT / "tooling/ada-mcp-launch"), "--image", "fixture", "--root", reserved + suffix],
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2 and "reserved runtime" in result.stderr
+    assert not capture.exists()
+
+
+@pytest.mark.parametrize("root", ["/opt", "/usr", "/usr/local"])
+def test_reserved_runtime_ancestors_rejected_before_docker(docker_stub, root):
+    capture, environment = docker_stub
+    result = subprocess.run(
+        [str(ROOT / "tooling/ada-mcp-launch"), "--image", "fixture", "--root", root],
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2 and "reserved runtime" in result.stderr
+    assert not capture.exists()
+
+
+@pytest.mark.parametrize(
+    "root",
+    ["/opt/my-project", "/usr/local/src", "/opt/ada-mcp-extra", "/usr/lib-extra", "/etcetera"],
+)
+def test_reserved_policy_preserves_component_disjoint_project_paths(docker_stub, root):
+    setup.validate_root_placement(Path(root))
+    _, environment = docker_stub
+    result = subprocess.run(
+        [str(ROOT / "tooling/ada-mcp-launch"), "--image", "fixture", "--root", root],
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
+    assert "reserved runtime" not in result.stderr
+    if Path(root).is_dir() and str(Path(root).resolve()) == root:
+        assert result.returncode == 0
+    else:
+        assert result.returncode == 2
+
+
+@pytest.mark.parametrize(
+    "root", ["/opt/ada-mcp", "/opt/ada-mcp/venv/bin", "/opt", "/usr/local/lib", "/etc"]
+)
+def test_binding_rejects_reserved_roots_before_filesystem_or_docker(tmp_path, root):
+    candidate = binding(tmp_path)
+    candidate["roots"] = [root]
+    manifest = {"image_id": candidate["image_id"], "image_identity": candidate["image_identity"]}
+    with pytest.raises(RuntimeError, match="reserved runtime"):
+        setup.validate_binding(candidate, manifest)

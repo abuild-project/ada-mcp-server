@@ -24,6 +24,9 @@ image_info="$(docker image inspect --format '{{.Id}} {{.Os}}/{{.Architecture}} {
     exit 2
 }
 resolved_image="${image_info%% *}"
+[[ "$resolved_image" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+    printf 'Docker did not return one immutable native image target.\n' >&2; exit 2;
+}
 context_archive="$(mktemp "${TMPDIR:-/tmp}/ada-mcp-check.XXXXXXXX")"
 trap 'rm -f "$context_archive"' EXIT
 trap 'exit 1' HUP INT TERM
@@ -33,6 +36,8 @@ mkdir "$output"
 docker run --rm --platform linux/amd64 --network none --read-only \
     --user "$runtime_uid:$runtime_gid" --cap-drop ALL --security-opt no-new-privileges \
     --env "ADA_MCP_CHECK_SOURCE_SHA=$source_sha" \
+    --env "ADA_MCP_CHECK_IMAGE_TARGET=$resolved_image" \
+    --env ADA_MCP_CHECK_IMAGE_PLATFORM=linux/amd64 \
     --tmpfs /tmp:rw,nosuid,nodev,noexec \
     --tmpfs "/ci-work:rw,nosuid,nodev,exec,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
     --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \

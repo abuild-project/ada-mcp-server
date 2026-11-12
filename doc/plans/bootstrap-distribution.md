@@ -90,3 +90,20 @@ files. Require that receipt for both default and explicit packaging inputs.
 Decision: reject nonphysical launcher roots before Docker access, including
 symlinked ancestors. Create every new Session/Mac evidence directory owner-only
 before records are written, preserving existing unrelated directories.
+
+## 2026-11-12: Scoped maintainer exception and runtime boundary
+
+Decision: the maintainer explicitly approved one additional bundled correction
+beyond the normal PR limit, confined to shared-project Python import isolation
+and immutable checked-image receipt binding. This is a specific exception;
+the general AGENTS workflow limit and the completed local phase are unchanged.
+
+Decision: isolate the installed server and stdlib-only production/acquisition
+Python starts while retaining explicit project cwd/GPR views and intentional
+CI source imports. Reject component-wise overlap between shared roots and the
+installation/runtime executable, library and startup prefixes before Docker.
+
+Decision: completed-check receipt version 2 carries the native immutable target
+actually used by the check container and its platform. Match that target before
+packaging exports or runs an image; leave canonical config/OCI authentication
+to the existing archive proof and never infer tested identity from labels alone.

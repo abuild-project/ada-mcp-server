@@ -184,6 +184,8 @@ elif sys.argv[1] != 'run': raise SystemExit('unexpected Docker call')
     new = repository / "build/another-check"
     subprocess.run(command + ["--output", str(new)], env=environment, check=True)
     before = calls.read_bytes()
+    assert b"ADA_MCP_CHECK_IMAGE_TARGET=sha256:" + b"a" * 64 in before
+    assert b"ADA_MCP_CHECK_IMAGE_PLATFORM=linux/amd64" in before
     assert new.is_dir() and evidence.read_bytes() == b"original frozen evidence"
     result = subprocess.run(command + ["--output", str(new)], env=environment, capture_output=True)
     assert result.returncode == 2 and calls.read_bytes() == before

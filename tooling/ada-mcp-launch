@@ -63,6 +63,15 @@ while [[ $# -gt 0 ]]; do
                 root="${root%/}"
             done
             [[ "$root" != / ]] || fail 'sharing the entire filesystem is not supported'
+            # Component-wise overlap, not a blanket /opt or /usr exclusion.
+            for reserved in /opt/ada-mcp /bin /sbin /lib /lib64 /usr/bin /usr/sbin \
+                /usr/lib /usr/lib64 /usr/libexec /usr/local/bin /usr/local/sbin \
+                /usr/local/lib /usr/local/lib64 /usr/local/libexec /etc; do
+                if [[ "$root" == "$reserved" || "$root" == "$reserved/"* ||
+                    "$reserved" == "$root/"* ]]; then
+                    fail "root overlaps a reserved runtime path: $reserved"
+                fi
+            done
             [[ -d "$root" ]] || fail "root is not an existing directory: $root"
             physical="$(cd -P -- "$root" && pwd -P)" || fail 'cannot resolve physical root'
             [[ "$physical" != / && "$physical" == "$root" ]] ||

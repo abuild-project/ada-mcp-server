@@ -25,6 +25,24 @@ SCRIPT_ROOT = Path(__file__).resolve().parent
 SKILL_ROOT = SCRIPT_ROOT.parent
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IMAGE_ID = re.compile(r"^sha256:[0-9a-f]{64}$")
+RESERVED_RUNTIME_PATHS = (
+    "/opt/ada-mcp",
+    "/bin",
+    "/sbin",
+    "/lib",
+    "/lib64",
+    "/usr/bin",
+    "/usr/sbin",
+    "/usr/lib",
+    "/usr/lib64",
+    "/usr/libexec",
+    "/usr/local/bin",
+    "/usr/local/sbin",
+    "/usr/local/lib",
+    "/usr/local/lib64",
+    "/usr/local/libexec",
+    "/etc",
+)
 
 
 def require(condition: object, message: str) -> None:
@@ -128,6 +146,7 @@ def validate_binding(binding: JSON, manifest: JSON) -> JSON:
     for root in binding["roots"]:
         require(isinstance(root, str), "root must be a string")
         path = absolute_path(root, "root")
+        validate_root_placement(path)
         require(
             path.is_dir() and root != "/" and str(path.resolve()) == root,
             "root must be an existing physical absolute directory: " + root,
@@ -181,6 +200,17 @@ def validate_binding(binding: JSON, manifest: JSON) -> JSON:
         else:
             raise RuntimeError("unknown image source kind")
     return binding
+
+
+def validate_root_placement(path: Path) -> None:
+    """Do not let shared-data mounts replace installed runtime or startup code."""
+    for reserved in map(Path, RESERVED_RUNTIME_PATHS):
+        require(
+            not (
+                path == reserved or path.is_relative_to(reserved) or reserved.is_relative_to(path)
+            ),
+            "root overlaps a reserved runtime path: " + str(reserved),
+        )
 
 
 def read_binding(path: Path, manifest: JSON) -> JSON:
@@ -653,7 +683,8 @@ def doctor(
         )
         runtime = json.loads(
             command_run(
-                docker + ["exec", state["Id"], "python", "-c", probe, json.dumps(binding["roots"])],
+                docker
+                + ["exec", state["Id"], "python", "-I", "-c", probe, json.dumps(binding["roots"])],
                 environment,
                 report,
                 command_timeout,

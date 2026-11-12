@@ -64,4 +64,4 @@ ENV PATH=/opt/ada-mcp/venv/bin:/opt/ada-mcp/bin:${PATH}
 ENV PYTHONDONTWRITEBYTECODE=1
 USER 1000:1000
 WORKDIR /workspace
-ENTRYPOINT ["/opt/ada-mcp/venv/bin/python", "-m", "ada_mcp"]
+ENTRYPOINT ["/opt/ada-mcp/venv/bin/python", "-I", "-B", "-m", "ada_mcp"]

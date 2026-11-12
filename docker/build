@@ -17,7 +17,7 @@ if [[ -n "$(git -C "$root" status --porcelain --untracked-files=normal)" ]]; the
 fi
 source_sha="$(git -C "$root" rev-parse HEAD)"
 # Read metadata from the committed object, not the mutable working directory.
-project_version="$(git -C "$root" show "$source_sha:src/ada_mcp/_version.py" | python3 -c '
+project_version="$(git -C "$root" show "$source_sha:src/ada_mcp/_version.py" | python3 -I -c '
 import ast, sys
 tree = ast.parse(sys.stdin.read())
 print(next(ast.literal_eval(node.value) for node in tree.body

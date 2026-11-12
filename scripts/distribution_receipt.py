@@ -150,18 +150,53 @@ def verify_package_payloads(paths: list[Path], expected: dict[str, str]) -> None
             raise ValueError("Python package payload differs from committed source: " + path.name)
 
 
-def write_receipt(root: Path, folder: Path, source_sha: str, source_archive: Path) -> JSON:
+def validate_checked_target(receipt: JSON, target: str, platform: str) -> None:
+    """Keep the tested native target distinct from canonical config/image identity."""
+    if (
+        not isinstance(receipt, dict)
+        or type(receipt.get("version")) is not int
+        or receipt["version"] != 2
+        or not isinstance(receipt.get("tested_image_target"), str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", receipt["tested_image_target"])
+        or receipt.get("tested_image_platform") != "linux/amd64"
+        or target != receipt["tested_image_target"]
+        or platform != receipt["tested_image_platform"]
+    ):
+        raise ValueError(
+            "selected immutable image target/platform was not checked by this CI receipt"
+        )
+
+
+def write_receipt(
+    root: Path,
+    folder: Path,
+    source_sha: str,
+    source_archive: Path,
+    image_target: str,
+    image_platform: str,
+) -> JSON:
     """Write once, only after the complete CI chain has checked these bytes."""
     if not re.fullmatch("[0-9a-f]{40}", source_sha):
         raise ValueError("provide the committed source SHA from docker/check")
+    validate_checked_target(
+        {
+            "version": 2,
+            "tested_image_target": image_target,
+            "tested_image_platform": image_platform,
+        },
+        image_target,
+        image_platform,
+    )
     snapshot_sha, package_hashes = verify_checked_snapshot(root, source_archive)
     paths = distribution_files(folder, project_version(root))
     verify_package_payloads(paths, package_hashes)
     receipt = {
-        "version": 1,
+        "version": 2,
         "source_sha": source_sha,
         "source_archive_sha256": snapshot_sha,
         "project_version": project_version(root),
+        "tested_image_target": image_target,
+        "tested_image_platform": image_platform,
         "distributions_sha256": {path.name: sha256_file(path) for path in paths},
     }
     with (folder / RECEIPT).open("x") as stream:
@@ -175,20 +210,26 @@ def validate_receipt(folder: Path, version: str, source_sha: str, archive_sha256
     if not path.is_file() or path.is_symlink():
         raise ValueError("checked Python distribution provenance receipt is missing")
     receipt: JSON = json.loads(path.read_text())
-    if set(receipt) != {
+    if not isinstance(receipt, dict) or set(receipt) != {
         "version",
         "source_sha",
         "source_archive_sha256",
         "project_version",
         "distributions_sha256",
+        "tested_image_target",
+        "tested_image_platform",
     }:
         raise ValueError("invalid Python distribution provenance fields")
     if (
-        receipt["version"] != 1
+        type(receipt["version"]) is not int
+        or receipt["version"] != 2
         or receipt["source_sha"] != source_sha
         or receipt["source_archive_sha256"] != archive_sha256
     ):
         raise ValueError("Python distributions were not checked from this committed source")
+    validate_checked_target(
+        receipt, receipt["tested_image_target"], receipt["tested_image_platform"]
+    )
     if receipt["project_version"] != version:
         raise ValueError("Python distribution provenance version differs")
     paths = distribution_files(folder, version)
@@ -207,10 +248,19 @@ def main() -> None:
     parser.add_argument("--folder", type=Path, required=True)
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--source-archive", type=Path, required=True)
+    parser.add_argument("--image-target", required=True)
+    parser.add_argument("--image-platform", required=True)
     options = parser.parse_args()
     print(
         json.dumps(
-            write_receipt(ROOT, options.folder, options.source_sha, options.source_archive),
+            write_receipt(
+                ROOT,
+                options.folder,
+                options.source_sha,
+                options.source_archive,
+                options.image_target,
+                options.image_platform,
+            ),
             indent=2,
         )
     )

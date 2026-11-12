@@ -82,6 +82,17 @@ Roots are physical absolute directories, mounted read-only at the same paths.
 The launcher resolves each root with physical-directory semantics before any
 Docker use and rejects aliases, including symlinked ancestor components and
 symlinks to the filesystem root. Select the physical path reported by `pwd -P`.
+Shared roots cannot equal, contain or sit below a reserved runtime path. The
+required installation prefix is `/opt/ada-mcp`. A conservative system policy
+also reserves `/bin`, `/sbin`, `/lib`, `/lib64`, `/usr/bin`, `/usr/sbin`,
+`/usr/lib`, `/usr/lib64`, `/usr/libexec`, `/usr/local/bin`, `/usr/local/sbin`,
+`/usr/local/lib`, `/usr/local/lib64`, `/usr/local/libexec` and `/etc` for executable,
+library, loader and Python startup state. This is an explicit mount-placement
+policy, not an inventory of currently active files. Broad ancestors such as
+`/opt` and `/usr` overlap these prefixes and are refused. Component-disjoint
+physical directories such as `/opt/my-project`, `/usr/local/src` and
+`/opt/ada-mcp-extra` remain eligible; ordinary project paths are not globally
+excluded merely for being below `/opt` or `/usr`.
 Include dependency roots and parents for future worktrees. Additional roots
 outside those parents need a new binding/server restart. Paths with spaces and
 Unicode are supported; comma, double quote, newline and path aliases are refused.
@@ -95,6 +106,15 @@ inherited host/context/TLS selection for that command only. The managed Cloud
 host may require `--docker-host unix:///var/run/docker.sock`. Mac normally uses
 its existing Docker Desktop/Colima context and must separately verify AMD64
 emulation, filesystem sharing and GUI PATH.
+
+The installed server uses isolated Python imports, so project-local Python
+packages, user-site startup files and PYTHONPATH/PYTHONHOME cannot replace its
+server or standard-library imports. The project remains the process cwd and
+explicit GPR/search/scenario selection still controls Ada analysis. Isolated
+imports and reserved mount placement work together: a shared directory must not
+replace the interpreter, installed server, ALS or their startup libraries.
+Verified host helper scripts retain their sibling-module imports; no host Python
+installation or global configuration is changed.
 
 ## Doctor and actual queries
 

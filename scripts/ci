@@ -26,4 +26,6 @@ python scripts/real_diagnostics.py --output "$output/diagnostic-control" \
 python -m pytest tests/test_e2e.py -q --tb=short > "$output/mcp-e2e.log" 2>&1
 python scripts/distribution_receipt.py --folder "$output/python-dist" \
     --source-sha "${ADA_MCP_CHECK_SOURCE_SHA:?docker/check must supply the committed source SHA}" \
+    --image-target "${ADA_MCP_CHECK_IMAGE_TARGET:?docker/check must supply the checked native target}" \
+    --image-platform "${ADA_MCP_CHECK_IMAGE_PLATFORM:?docker/check must supply the checked platform}" \
     --source-archive /ci-source.tar > "$output/python-distributions-provenance.log"

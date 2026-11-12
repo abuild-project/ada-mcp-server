@@ -14,6 +14,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from distribution_receipt import validate_checked_target
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tooling"))
 
 JSON = dict[str, Any]
@@ -43,6 +45,11 @@ def validate_release(release: Path, source_sha: str) -> JSON:
     validate_identity(manifest["image_identity"], manifest["image_id"])
     if manifest["platform"] != "linux/amd64":
         raise ValueError("unsupported release platform")
+    validate_checked_target(
+        manifest["python_distributions"],
+        manifest["image_identity"]["target"]["digest"],
+        manifest["platform"],
+    )
     for name, expected in manifest["artifacts_sha256"].items():
         if Path(name).name != name or name in {"", ".", ".."}:
             raise ValueError("unsafe artifact name")

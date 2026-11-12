@@ -11,6 +11,9 @@ identity, read-only sources, isolated networking and private temporary HOME.
 Bindings/configuration fragments are created only at explicit new paths.
 The launcher rejects symlinked roots and ancestors before Docker, while new
 Session/Mac evidence directories are private before sensitive writes.
+Isolated production imports keep shared project Python files out of the server
+and probe import paths. Component-wise reserved runtime placement prevents
+mounts replacing trusted interpreter, server, ALS or system startup code.
 Build inputs come from the exact committed Git tree, so ignored local files
 cannot enter a source-labeled image. CI uses private executable scratch for
 test fixtures while production temporary files remain nonexecutable.
@@ -39,6 +42,9 @@ evidence and selecting matching Python distributions for artifact generation.
 The completed check binds wheel/sdist hashes to the generating commit and exact
 committed-source snapshot. Packaging rejects missing, stale or changed-byte
 receipts even when versions match, and retains the checked Python bytes.
+The successful receipt also pins the immutable native image target actually
+tested; packaging rejects another same-source/version image before export,
+preserving the distinct canonical config and OCI identity proof.
 
 This candidate prepares release promotion; it does not publish artifacts.
 Actual Mac/native-other-client behavior, registry transport/public access,

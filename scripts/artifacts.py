@@ -19,6 +19,7 @@ from typing import Any
 from distribution_receipt import (
     committed_archive_sha256,
     distribution_files,
+    validate_checked_target,
     validate_receipt,
 )
 from version import ROOT, project_version
@@ -135,7 +136,7 @@ The archive and runtime manifest are pinned to the hashes generated with this
 skill. No downloaded helper runs before complete verification.
 
 ```sh
-python3 - --url "{tooling["download_url"]}" \\
+python3 -I - --url "{tooling["download_url"]}" \\
   --sha256 {tooling["sha256"]} \\
   --manifest-sha256 {tooling["runtime_manifest_sha256"]} \\
   --destination /absolute/new-ada-runtime <<'PY'
@@ -259,6 +260,7 @@ def main() -> None:
         raise ValueError("image source revision differs from the committed candidate")
     if state["Labels"].get("org.opencontainers.image.version") != version:
         raise ValueError("image version differs from the source")
+    validate_checked_target(provenance, state["Id"], state["Os"] + "/" + state["Architecture"])
     image_archive = options.output / f"ada-mcp-image-{version}-linux-amd64.tar.gz"
     process = subprocess.Popen(docker + ["image", "save", state["Id"]], stdout=subprocess.PIPE)
     assert process.stdout is not None

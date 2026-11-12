@@ -229,7 +229,7 @@ def main() -> int:
             'home_writable=os.access(os.environ["HOME"],os.W_OK))))'
         )
         runtime = json.loads(
-            run(docker + ["exec", state["Id"], "python", "-c", probe], environment).stdout
+            run(docker + ["exec", state["Id"], "python", "-I", "-c", probe], environment).stdout
         )
         require(
             runtime["uid"] == (options.uid if options.uid is not None else os.getuid()) != 0,
