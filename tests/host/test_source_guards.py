@@ -124,3 +124,66 @@ def test_ci_scratch_is_private_executable_and_separate_from_production_tmp():
     production = (ROOT / "tooling/ada-mcp-launch").read_text()
     assert "/tmp:rw,nosuid,nodev,noexec" in production
     assert "/ci-work" not in production
+
+
+def test_repeated_check_rejects_existing_output_before_docker_or_writes(tmp_path):
+    repository = tmp_path / "source"
+    (repository / "docker").mkdir(parents=True)
+    shutil.copy2(ROOT / "docker/check", repository / "docker/check")
+    (repository / ".gitignore").write_text("build/\n")
+    git = ["git", "-C", str(repository)]
+    subprocess.run(
+        git + ["init", "--initial-branch", "codex/check"], check=True, capture_output=True
+    )
+    subprocess.run(
+        git + ["-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "add", "."],
+        check=True,
+    )
+    subprocess.run(
+        git
+        + [
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "-m",
+            "Fixture source",
+        ],
+        check=True,
+        capture_output=True,
+    )
+    sha = subprocess.check_output(git + ["rev-parse", "HEAD"], text=True).strip()
+    old = repository / "build/check"
+    old.mkdir(parents=True)
+    evidence = old / "original.txt"
+    evidence.write_bytes(b"original frozen evidence")
+    binary = tmp_path / "bin"
+    binary.mkdir()
+    fake = binary / "docker"
+    calls = tmp_path / "calls"
+    fake.write_text("""#!/usr/bin/env python3
+import os,sys
+from pathlib import Path
+with Path(os.environ['CALLS']).open('a') as stream: stream.write(' '.join(sys.argv[1:])+'\\n')
+if sys.argv[1:3] == ['image','inspect']:
+    print('sha256:' + 'a'*64 + ' linux/amd64 ' + os.environ['SOURCE_SHA'])
+elif sys.argv[1] != 'run': raise SystemExit('unexpected Docker call')
+""")
+    fake.chmod(0o755)
+    environment = dict(
+        os.environ,
+        PATH=str(binary) + os.pathsep + os.environ["PATH"],
+        CALLS=str(calls),
+        SOURCE_SHA=sha,
+    )
+    command = [str(repository / "docker/check"), "fixture:image"]
+    result = subprocess.run(command, env=environment, capture_output=True, text=True)
+    assert result.returncode == 2 and "prior evidence" in result.stderr
+    assert not calls.exists() and evidence.read_bytes() == b"original frozen evidence"
+    new = repository / "build/another-check"
+    subprocess.run(command + ["--output", str(new)], env=environment, check=True)
+    before = calls.read_bytes()
+    assert new.is_dir() and evidence.read_bytes() == b"original frozen evidence"
+    result = subprocess.run(command + ["--output", str(new)], env=environment, capture_output=True)
+    assert result.returncode == 2 and calls.read_bytes() == before

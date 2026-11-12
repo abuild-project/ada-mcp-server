@@ -58,3 +58,24 @@ Decision: observe MCP/ALS parentage and process start ticks through core Linux
 procfs records rather than an optional task children interface. Require one
 identifiable live ALS child and stable observed process births; missing or
 ambiguous data must fail instead of being replaced by log-only evidence.
+
+## 2026-11-12: Portable image identity and retained evidence
+
+Decision: keep the canonical config digest separate from the locally executable
+Docker target. Authenticate the target-to-config relationship using bounded
+Classic/OCI archive metadata and immutable descriptor hashes/sizes. Verify the
+loaded target as data before execution, including conversions between stores.
+Reuse this identity contract for bindings, queries and prepared promotion.
+
+Decision: reject reused check outputs before execution and require an explicit
+new output for another attempt. Keep matching Python distributions explicit.
+Retain safe inspect/graph metadata and partial command-timeout streams, and
+ship the authoritative support guide inside the hash-verified tooling bundle.
+
+## 2026-11-12: Hybrid exports and config byte counts
+
+Decision: preserve the inspected native execution target independently of an
+optional OCI archive root, and validate the supplementary graph even when the
+native target is the canonical config ID. Bind runtime config descriptor sizes
+to the actual config byte count and carry that count into the trusted runtime
+metadata and host-binding checks.

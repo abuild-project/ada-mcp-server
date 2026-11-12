@@ -13,15 +13,19 @@ project version, not the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
 CI builds the source image once, runs the full check chain and packages that
-exact image ID and source commit. It saves the image once and hashes all
-artifacts. The full tooling runtime manifest pins the image/archive and the
+exact immutable Docker target and source commit. It saves that target once,
+derives the canonical config digest from the archived bytes and hashes all
+artifacts. A verified descriptor proof binds an OCI index/manifest target to
+exactly one AMD64 runtime config; classic config targets remain distinct from
+OCI target IDs. The full tooling runtime manifest pins the image/archive and the
 lightweight skill pins the full tooling and runtime manifest. Image IDs and
 future registry digests are generated artifact metadata, not edited back into
 source after a build. No latest tag or mutable branch is a trust identifier.
 
 Before publication, release-manifest.json truthfully has registry_digest=null.
 The later promotion loads the checked image archive, tags/pushes those bytes,
-records the actual registry digest and verifies config-image identity. It does
+records the actual pushed registry digest and verifies config-image identity
+after an anonymous digest-pinned pull and local-target export. It does
 not rebuild a replacement image or repackage different tooling. Final promoted
 metadata and checksums record the digest and exact tested artifact hashes.
 
@@ -40,8 +44,10 @@ metadata and checksums record the digest and exact tested artifact hashes.
    setting and permission failure instead of assuming success.
 4. GHCR packages initially can be private even for a public repository. Explicitly
    set/verify public package visibility. Then perform a separate anonymous
-   registry-manifest/pull check with no account credentials and verify its
-   digest/image ID. An authenticated pull is not public-access evidence.
+   digest-pinned pull with a new empty client config and verify its actual
+   target-to-config relationship. An authenticated pull is not public-access
+   evidence. The prepared code requires this check before creating a release;
+   actual registry transport and publication are still unvalidated.
 5. Check that the actual public versioned file URLs return the pinned bytes.
    Only then claim public availability, update the existing account plugin
    with separate authorization and test a fresh managed Cloud task using

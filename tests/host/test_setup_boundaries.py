@@ -12,6 +12,7 @@ import tomllib
 import ada_mcp_setup as setup
 import mcp_client
 import pytest
+from image_fixtures import classic_identity
 
 
 def image_archive(config=None, extra=None):
@@ -41,8 +42,9 @@ def image_archive(config=None, extra=None):
 
 def binding(root, image_id="sha256:" + "b" * 64):
     return {
-        "version": 1,
+        "version": 2,
         "image_id": image_id,
+        "image_identity": classic_identity(image_id),
         "roots": [str(root)],
         "docker_host": None,
         "docker_context": None,
@@ -131,7 +133,10 @@ def test_root_identity_is_refused_before_runtime(tmp_path, key):
     candidate = binding(tmp_path)
     candidate[key] = 0
     with pytest.raises(RuntimeError, match="nonzero"):
-        setup.validate_binding(candidate, {"image_id": candidate["image_id"]})
+        setup.validate_binding(
+            candidate,
+            {"image_id": candidate["image_id"], "image_identity": candidate["image_identity"]},
+        )
 
 
 def test_explicit_docker_selection_clears_only_conflicting_selectors(tmp_path, monkeypatch):

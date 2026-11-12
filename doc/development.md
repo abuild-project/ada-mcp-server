@@ -31,8 +31,15 @@ needed for directly executed scripts and test fixtures. `/tmp` remains noexec;
 the production launcher and its read-only/noexec runtime boundaries are unchanged.
 The harness runs scripts/ci under
 the caller's nonroot identity, no network, readonly source/root mounts, dropped
-capabilities and private HOME/tmp. Evidence is written to build/check. The
-chain runs Ruff/format, strict Mypy, unit tests with coverage, distributions,
+capabilities and private HOME/tmp. Evidence defaults to build/check. An existing
+output is rejected before Docker/check execution or evidence writes. To repeat
+the chain, retain that directory and select a new absolute output:
+
+```sh
+docker/check ada-mcp-server:candidate --output /absolute/new-check-attempt
+```
+
+The chain runs Ruff/format, strict Mypy, unit tests with coverage, distributions,
 documentation/link/example validation, and real ALS protocol, parent-GPR and
 diagnostic-publication probes. The required diagnostic control changes a new
 malformed source to valid text and back in one MCP/ALS session, requiring
@@ -63,15 +70,26 @@ After committing the candidate and passing container checks:
 
 ```sh
 python3 scripts/artifacts.py --image ada-mcp-server:candidate \
-  --output /absolute/new-release-artifacts
+  --output /absolute/new-release-artifacts \
+  --python-dist /absolute/new-check-attempt/python-dist
 python3 scripts/host_acceptance.py --release /absolute/new-release-artifacts \
   --output /absolute/new-host-evidence \
   --arca /absolute/arca --spawn /absolute/spawn --anet /absolute/anet
 ```
 
-The artifact command checks the image's source label against the clean Git
-revision, saves that image once, and creates the full tooling, lightweight
-plugin, source and release manifest. Host acceptance acquires the generated
+For the default build/check output, artifacts.py's existing --python-dist
+default is build/check/python-dist. A different check output needs the explicit
+matching --python-dist shown above; never substitute stale distributions.
+The artifact command checks the source label against the clean Git revision,
+saves the inspected immutable target once, and checks the archived config's
+source/version/platform. It records a canonical config digest separately from
+the executable Docker target. OCI index/manifest descriptors must authenticate
+the path to exactly one AMD64 runtime config; attestations are not runtime
+candidates. Safe bounded inspect/descriptor metadata is retained in
+image-inspect-evidence.json and image-identity-evidence.json, including failures,
+and the hosted evidence upload includes them. Config.Env is excluded.
+The command creates the full tooling, lightweight plugin, source and release
+manifest. Host acceptance acquires the generated
 tooling instead of importing source helpers. It uses exact GPRs/scenarios and
 real source-bound calls for both identities 1000:1000 and 501:20. It creates
 new readable copies for identity tests and never chmods original source roots.

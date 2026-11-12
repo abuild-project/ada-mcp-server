@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 
+import ada_mcp_setup as setup
 import host_acceptance
 import pytest
 
@@ -47,3 +48,29 @@ def test_nonzero_exit_retains_streams_and_existing_receipts_are_not_replaced(tmp
     with pytest.raises(FileExistsError):
         host_acceptance.checked(command, tmp_path, "nonzero")
     assert path.read_bytes() == before
+
+
+def test_setup_actual_timeout_retains_both_partial_streams():
+    report = {}
+    command = [
+        sys.executable,
+        "-c",
+        "import sys,time; print('load progress',flush=True); "
+        "print('load warning',file=sys.stderr,flush=True); time.sleep(30)",
+    ]
+    with pytest.raises(subprocess.TimeoutExpired):
+        setup.command_run(command, None, report, 1)
+    receipt = report["commands"][0]
+    assert receipt["rc"] is None and receipt["timed_out"] is True
+    assert receipt["timeout_seconds"] == 1
+    assert "load progress" in receipt["stdout"] and "load warning" in receipt["stderr"]
+
+
+def test_setup_failed_start_retains_attempt_without_invented_streams(tmp_path):
+    report = {}
+    command = [str(tmp_path / "missing-docker")]
+    with pytest.raises(FileNotFoundError):
+        setup.command_run(command, None, report, 1)
+    assert report["commands"][0]["argv"] == command
+    assert report["commands"][0]["error"].startswith("FileNotFoundError:")
+    assert report["commands"][0]["stdout"] == report["commands"][0]["stderr"] == ""

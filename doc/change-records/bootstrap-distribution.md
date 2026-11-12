@@ -14,6 +14,11 @@ cannot enter a source-labeled image. CI uses private executable scratch for
 test fixtures while production temporary files remain nonexecutable.
 
 Versioned tooling and image archives carry source/image/hash metadata. The
+canonical config digest is separate from the executable Docker target, with
+checked Classic/OCI descriptor linkage retained across import. It preserves
+native execution targets alongside optional OCI layout wrappers and binds
+config descriptor sizes to the actual config bytes. The standalone tooling
+includes the hash-verified support matrix beside its setup guide. The
 small skill obtains the complete archive through a pinned HTTPS URL/hash with
 safe materialization, rather than requiring Plugin Creator owner access or
 unsupported remote resource reads. Source and imported own tooling use MIT;
@@ -27,6 +32,8 @@ The required real diagnostic control observes malformed, repaired and malformed
 text in the same MCP/ALS processes; an always-clean result is rejected.
 Command receipts survive timeouts and process-start failures with their
 available partial streams.
+Repeated container checks require a new output directory, preserving prior
+evidence and selecting matching Python distributions for artifact generation.
 
 This candidate prepares release promotion; it does not publish artifacts.
 Actual Mac/native-other-client behavior, registry transport/public access,

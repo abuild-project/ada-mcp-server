@@ -8,15 +8,21 @@ import gzip
 import hashlib
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import zipfile
 from pathlib import Path
 from typing import Any
 
 from version import ROOT, project_version
+
+sys.path.insert(0, str(ROOT / "tooling"))
+from ada_mcp_setup import inspect_image
+from image_identity import archive_identity
 
 JSON = dict[str, Any]
 REPOSITORY = "https://github.com/abuild-project/ada-mcp-server"
@@ -45,13 +51,14 @@ def write_tar(path: Path, files: dict[str, bytes]) -> None:
 
 
 def tooling_files(
-    root: Path, source_sha: str, image_id: str, image_archive: JSON
+    root: Path, source_sha: str, identity: JSON, image_archive: JSON
 ) -> dict[str, bytes]:
     """Build immutable runtime metadata from the produced image and exact source."""
     files = {
         "LICENSE": (root / "LICENSE").read_bytes(),
         "SKILL.md": (root / "integrations/full-skill.md").read_bytes(),
         "references/setup.md": (root / "doc/setup.md").read_bytes(),
+        "references/support.md": (root / "doc/support.md").read_bytes(),
     }
     for name in [
         "ada-mcp-launch",
@@ -59,6 +66,7 @@ def tooling_files(
         "mac_smoke.py",
         "mcp_client.py",
         "acquire.py",
+        "image_identity.py",
     ]:
         files["scripts/" + name] = (root / "tooling" / name).read_bytes()
     cases = [
@@ -86,7 +94,8 @@ def tooling_files(
         "project_version": version,
         "python_version": version.replace("-rc.", "rc"),
         "source_sha": source_sha,
-        "image_id": image_id,
+        "image_id": identity["image_id"],
+        "image_identity": identity,
         "platform": "linux/amd64",
         "available_archive": image_archive,
         "server_tools": sorted(
@@ -155,6 +164,15 @@ Never replace the repository's compiler/coverage/test/documentation chain.
 def package(root: Path, output: Path, source_sha: str, image_id: str, archive: Path) -> JSON:
     """Create tooling/plugin manifests around an existing exported image archive."""
     version = project_version(root)
+    evidence: JSON = {}
+    try:
+        with archive.open("rb") as stream:
+            identity = archive_identity(stream, expected_target=image_id, evidence=evidence)
+        image = evidence["image_validation"]
+        if image["source_revision"] != source_sha or image["project_version"] != version:
+            raise ValueError("archived image source/version differs from checked candidate")
+    finally:
+        (output / "image-identity-evidence.json").write_text(json.dumps(evidence, indent=2) + "\n")
     base_url = f"{REPOSITORY}/releases/download/v{version}/"
     image_record = {
         "filename": archive.name,
@@ -162,7 +180,7 @@ def package(root: Path, output: Path, source_sha: str, image_id: str, archive: P
         "bytes": archive.stat().st_size,
         "download_url": base_url + archive.name,
     }
-    files = tooling_files(root, source_sha, image_id, image_record)
+    files = tooling_files(root, source_sha, identity, image_record)
     tooling_path = output / f"ada-mcp-tooling-{version}.tar.gz"
     write_tar(tooling_path, files)
     tooling = {
@@ -180,7 +198,8 @@ def package(root: Path, output: Path, source_sha: str, image_id: str, archive: P
         "version": version,
         "python_version": version.replace("-rc.", "rc"),
         "source_sha": source_sha,
-        "image_id": image_id,
+        "image_id": identity["image_id"],
+        "image_identity": identity,
         "platform": "linux/amd64",
         "registry_digest": None,
         "registry_public_access": "not published or verified",
@@ -247,18 +266,24 @@ def main() -> None:
     docker = ["docker"]
     if options.docker_host:
         docker.extend(["--host", options.docker_host])
-    state = json.loads(
-        subprocess.check_output(docker + ["image", "inspect", options.image], text=True)
-    )[0]
+    options.output.mkdir(parents=True)
+    evidence: JSON = {}
+    try:
+        state = inspect_image(docker, dict(os.environ), options.image, evidence, 60)
+        if state is None:
+            raise ValueError("checked image is unavailable")
+    finally:
+        (options.output / "image-inspect-evidence.json").write_text(
+            json.dumps(evidence, indent=2) + "\n"
+        )
     if state["Os"] != "linux" or state["Architecture"] != "amd64":
         raise ValueError("expected a Linux/AMD64 image")
-    if state["Config"]["Labels"].get("org.opencontainers.image.revision") != source_sha:
+    if state["Labels"].get("org.opencontainers.image.revision") != source_sha:
         raise ValueError("image source revision differs from the committed candidate")
     version = project_version()
-    if state["Config"]["Labels"].get("org.opencontainers.image.version") != version:
+    if state["Labels"].get("org.opencontainers.image.version") != version:
         raise ValueError("image version differs from the source")
     distributions = validate_python_distributions(options.python_dist, version)
-    options.output.mkdir(parents=True)
     image_archive = options.output / f"ada-mcp-image-{version}-linux-amd64.tar.gz"
     process = subprocess.Popen(docker + ["image", "save", state["Id"]], stdout=subprocess.PIPE)
     assert process.stdout is not None

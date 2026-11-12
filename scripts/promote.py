@@ -38,6 +38,9 @@ def validate_release(release: Path, source_sha: str) -> JSON:
         raise ValueError("invalid coordinated release version")
     if not re.fullmatch("sha256:[0-9a-f]{64}", manifest["image_id"]):
         raise ValueError("invalid immutable image ID")
+    from image_identity import validate_identity
+
+    validate_identity(manifest["image_identity"], manifest["image_id"])
     if manifest["platform"] != "linux/amd64":
         raise ValueError("unsupported release platform")
     for name, expected in manifest["artifacts_sha256"].items():
@@ -75,7 +78,12 @@ def execute(release: Path, manifest: JSON) -> JSON:
     """Publish only after explicit approval and verify public access before release."""
     if os.environ.get("ADA_MCP_PUBLISH_APPROVED_SOURCE") != manifest["source_sha"]:
         raise PermissionError("publication needs explicit source-bound maintainer approval")
-    from ada_mcp_setup import validate_docker_archive
+    from ada_mcp_setup import (
+        inspect_image,
+        loaded_candidates,
+        resolve_candidates,
+        validate_docker_archive,
+    )
 
     archive_evidence: JSON = {}
     with (release / manifest["image_archive"]["filename"]).open("rb") as stream:
@@ -103,55 +111,60 @@ def execute(release: Path, manifest: JSON) -> JSON:
         )["object"]
     if target["type"] != "commit" or target["sha"] != manifest["source_sha"]:
         raise ValueError("existing release tag does not identify the approved source")
-    subprocess.run(
-        [
-            "docker",
-            "image",
-            "load",
-            "--input",
-            str(release / manifest["image_archive"]["filename"]),
-        ],
-        check=True,
-    )
-    subprocess.run(
-        ["docker", "tag", manifest["image_id"], proposal["registry_reference"]], check=True
-    )
-    subprocess.run(["docker", "push", proposal["registry_reference"]], check=True)
-    remote = json.loads(
-        subprocess.check_output(
-            ["docker", "manifest", "inspect", "--verbose", proposal["registry_reference"]],
+    with (release / manifest["image_archive"]["filename"]).open("rb") as stream:
+        validate_docker_archive(stream, manifest["image_id"], archive_evidence)
+        stream.seek(0)
+        loaded = subprocess.run(
+            ["docker", "image", "load"],
+            stdin=stream,
+            capture_output=True,
             text=True,
+            check=True,
+            timeout=300,
         )
+    identity_report: JSON = {}
+    identity = resolve_candidates(
+        ["docker"],
+        dict(os.environ),
+        loaded_candidates(loaded.stdout, manifest["image_identity"]),
+        manifest["image_id"],
+        identity_report,
+        300,
     )
-    remote_manifest = remote.get("OCIManifest") or remote.get("SchemaV2Manifest")
-    if not remote_manifest or remote_manifest["config"]["digest"] != manifest["image_id"]:
-        raise ValueError("pushed registry config differs from the tested image")
-    registry_digest = remote["Descriptor"]["digest"]
-    if not re.fullmatch("sha256:[0-9a-f]{64}", registry_digest):
-        raise ValueError("invalid pushed registry digest")
+    subprocess.run(
+        ["docker", "tag", identity["target"]["digest"], proposal["registry_reference"]], check=True
+    )
+    pushed = subprocess.run(
+        ["docker", "push", proposal["registry_reference"]],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=300,
+    )
+    digests = set(re.findall(r"digest: (sha256:[0-9a-f]{64})", pushed.stdout))
+    if len(digests) != 1:
+        raise ValueError("Docker push did not report one immutable registry digest")
+    registry_digest = digests.pop()
+    pinned = proposal["registry_reference"].split(":v", 1)[0] + "@" + registry_digest
     # A new empty Docker client config does not read the publishing account's
     # stored credentials. Visibility is an explicit maintainer/package setting.
     with tempfile.TemporaryDirectory(prefix="ada-mcp-anonymous-") as empty_config:
-        anonymous = json.loads(
-            subprocess.check_output(
-                [
-                    "docker",
-                    "--config",
-                    empty_config,
-                    "manifest",
-                    "inspect",
-                    "--verbose",
-                    proposal["registry_reference"].split(":v", 1)[0] + "@" + registry_digest,
-                ],
-                text=True,
-            )
+        docker = ["docker", "--config", empty_config]
+        subprocess.run(
+            docker + ["image", "pull", "--platform", "linux/amd64", pinned],
+            check=True,
+            timeout=300,
         )
-        checked = anonymous.get("OCIManifest") or anonymous.get("SchemaV2Manifest")
-        if not checked or checked["config"]["digest"] != manifest["image_id"]:
-            raise ValueError("anonymous public manifest/config proof failed")
+        state = inspect_image(docker, dict(os.environ), pinned, identity_report, 60)
+        if state is None:
+            raise ValueError("anonymous pinned registry image is unavailable")
+        resolve_candidates(
+            docker, dict(os.environ), [state["Id"]], manifest["image_id"], identity_report, 300
+        )
     promoted = dict(manifest)
     promoted.update(
-        registry_digest=registry_digest, registry_public_access="anonymous manifest/config verified"
+        registry_digest=registry_digest,
+        registry_public_access="anonymous digest pull/config verified",
     )
     stage = Path(tempfile.mkdtemp(prefix="ada-mcp-promoted-", dir=release.parent))
     for name in manifest["artifacts_sha256"]:

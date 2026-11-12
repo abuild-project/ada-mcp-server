@@ -4,6 +4,7 @@ import ast
 import hashlib
 import io
 import json
+import re
 import tarfile
 
 import acquire
@@ -11,6 +12,7 @@ import artifacts
 import host_acceptance
 import promote
 import pytest
+from image_fixtures import classic_identity, metadata_archive
 from version import ROOT, project_version
 
 from ada_mcp import __version__
@@ -25,8 +27,9 @@ def test_one_project_version_reaches_mcp_and_python_metadata():
 
 def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     image = tmp_path / "image.tar.gz"
-    image.write_bytes(b"image fixture: serialization test only")
-    manifest = artifacts.package(ROOT, tmp_path, "a" * 40, "sha256:" + "b" * 64, image)
+    stream, config_id, target = metadata_archive(oci=True)
+    image.write_bytes(stream.getvalue())
+    manifest = artifacts.package(ROOT, tmp_path, "a" * 40, target, image)
     tools = tmp_path / manifest["tooling"]["filename"]
     data = tools.read_bytes()
     verified = acquire.verified_files(
@@ -35,7 +38,12 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     runtime = json.loads(verified["scripts/runtime-manifest.json"])
     assert runtime["project_version"] == project_version()
     assert runtime["source_sha"] == "a" * 40
-    assert runtime["image_id"] == "sha256:" + "b" * 64
+    assert runtime["image_id"] == config_id and config_id != target
+    assert runtime["image_identity"]["target"]["digest"] == target
+    assert verified["references/support.md"] == (ROOT / "doc/support.md").read_bytes()
+    assert "support.md" in verified["references/setup.md"].decode()
+    for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", verified["references/setup.md"].decode()):
+        assert "references/" + target in verified
     assert runtime["available_archive"]["sha256"] == hashlib.sha256(image.read_bytes()).hexdigest()
     assert len(runtime["server_tools"]) == 19
     plugin = tmp_path / manifest["plugin"]["filename"]
@@ -69,6 +77,7 @@ def test_release_plan_refuses_unapproved_source_and_tampering(tmp_path):
         "version": "0.2.0-rc.1",
         "source_sha": "a" * 40,
         "image_id": "sha256:" + "b" * 64,
+        "image_identity": classic_identity("sha256:" + "b" * 64),
         "platform": "linux/amd64",
         "artifacts_sha256": {archive.name: expected},
         "image_archive": record,

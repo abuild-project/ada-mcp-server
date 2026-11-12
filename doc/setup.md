@@ -42,7 +42,7 @@ python3 /absolute/runtime/scripts/ada_mcp_setup.py bootstrap \
   --image-cache /absolute/private-image-cache --output /absolute/new-setup-log
 ```
 
-The generated runtime manifest supplies the immutable image ID and the image
+The generated runtime manifest supplies the immutable config digest and the image
 archive's exact versioned URL, byte size and SHA256. The explicit cache path
 avoids global installation. A cached archive is accepted only if its hash and
 size match; downloads use HTTPS and refuse downgrade redirects and replacement.
@@ -52,13 +52,31 @@ then requires explicit source configuration.
 An explicit local `--archive FILE --archive-sha256 HASH` or full
 `--registry registry.example.org/team/ada-mcp@sha256:DIGEST` is also supported.
 The registry string is an example, not an existing service. Registry transport
-needs separate evidence; the manifest digest differs from the config image ID.
+needs separate evidence; a manifest/index digest differs from the config digest.
 Archive import checks SHA256 and actual single-image Docker-save metadata before
 load, including config-byte identity, Linux/AMD64 and layer references. The same
 file descriptor is used for hash/metadata/load. Limits are 10,000 members,
-1 MiB manifest and 4 MiB config; no files are extracted to the filesystem.
+1 MiB per manifest/index, 4 MiB total descriptor metadata, 64 metadata nodes,
+eight graph edges in depth and 4 MiB config; no files are extracted to the filesystem.
 A warm daemon cache is not proof that an unrelated archive contains the image.
 Layer-content hashes are left to Docker; this is not an independent layer audit.
+
+Config identity and the locally executable target are separate. A classic
+store can execute the config ID; an OCI store can expose a manifest or index
+ID instead. The version-2 host binding retains the canonical config lock and
+a bounded SHA256/size-verified descriptor proof for the selected local target.
+An optional OCI layout wrapper does not override the inspected native target:
+hybrid exports can keep a config execution ID and carry a supplementary OCI
+root, whose complete runtime graph is still validated. Config descriptor sizes
+must match the actual canonical config byte count, retained in the proof and
+bound to the trusted runtime metadata when a host binding is read.
+After load/pull, Bootstrap exports that local target as data and verifies its
+actual config and descriptor graph before running it. This additional check
+handles store conversions without assuming that a config ID is executable.
+Doctor, Query and generated native configuration use that same verified target.
+Unsupported/missing/ambiguous graphs fail; platform/labels alone are no substitute.
+Existing bindings are never migrated or overwritten. If a different store
+requires another target, choose a new explicit binding.
 
 Roots are physical absolute directories, mounted read-only at the same paths.
 Include dependency roots and parents for future worktrees. Additional roots
@@ -106,7 +124,8 @@ cleanup. Direct host Docker calls have `--command-timeout`; MCP requests and
 initialization use `--timeout`. Unknown inspect/timeout states fail and never
 authorize explicit removal. Doctor excludes Config.Env from inspect requests.
 Keep argv/protocol/stderr logs private; they contain caller paths and Docker's
-own diagnostics. The legacy Mac smoke retains full private inspect records.
+own diagnostics. Direct command timeouts retain available stdout/stderr before
+failure propagates. The legacy Mac smoke retains full private inspect records.
 
 ## Native clients and discovery
 
@@ -115,7 +134,8 @@ fragment. Review and merge it explicitly using the native client's supported
 configuration, then reconnect. Generation is not registration or lifecycle
 proof. The fragment exposes read tools; write rename/format/build are excluded.
 The command client allows rename only as explicit preview. Availability is not
-a support promise for every tool; see support.md.
+a support promise for every tool; see [support.md](support.md), included and
+hash-verified beside this setup guide in the standalone bundle.
 
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery

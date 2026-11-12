@@ -11,10 +11,9 @@ import shutil
 import stat
 import subprocess
 import sys
-import tarfile
 import tempfile
 import uuid
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any, BinaryIO
 
 JSON = dict[str, Any]
@@ -54,6 +53,9 @@ def verified_manifest() -> JSON:
             SHA256.fullmatch(digest) and sha256_file(SKILL_ROOT / path) == digest,
             "bundle helper checksum mismatch: " + name,
         )
+    from image_identity import validate_identity
+
+    validate_identity(manifest["image_identity"], manifest["image_id"])
     return manifest
 
 
@@ -108,13 +110,19 @@ def validate_binding(binding: JSON, manifest: JSON) -> JSON:
             "uid",
             "gid",
             "image_source",
+            "image_identity",
         },
         "invalid binding fields",
     )
-    require(binding["version"] == 1, "unsupported binding version")
+    require(binding["version"] == 2, "unsupported binding version")
     require(
         binding["image_id"] == manifest["image_id"],
         "image ID does not match this bundle runtime lock",
+    )
+    target_id(binding)
+    require(
+        binding["image_identity"]["config_size"] == manifest["image_identity"]["config_size"],
+        "config byte count does not match this bundle runtime lock",
     )
     require(isinstance(binding["roots"], list) and binding["roots"], "select at least one root")
     for root in binding["roots"]:
@@ -221,6 +229,21 @@ def command_run(
             "command failed (rc=" + str(result.returncode) + "): " + result.stderr.strip(),
         )
         return result
+    except subprocess.TimeoutExpired as error:
+
+        def decoded(value: str | bytes | None) -> str:
+            return (
+                value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
+            )
+
+        entry.update(
+            stdout=decoded(error.stdout),
+            stderr=decoded(error.stderr),
+            timed_out=True,
+            timeout_seconds=timeout,
+            error=type(error).__name__ + ": " + str(error),
+        )
+        raise
     except Exception as error:
         entry["error"] = type(error).__name__ + ": " + str(error)
         raise
@@ -314,125 +337,160 @@ def inspect_container(
 
 
 def validate_docker_archive(stream: BinaryIO, expected_image: str, evidence: JSON) -> None:
-    """Bind a single-image Docker-save archive to its actual config bytes."""
-    result: JSON = {"status": "failed", "expected_image_id": expected_image}
-    evidence["image_validation"] = result
+    """Validate canonical config and safe Classic/OCI metadata before any load."""
+    from image_identity import archive_identity
 
-    def member_name(name: str) -> str:
-        require(isinstance(name, str) and bool(name), "invalid Docker-save member name")
-        path = PurePosixPath(name)
-        require(
-            not path.is_absolute() and ".." not in path.parts and str(path) != ".",
-            "unsafe Docker-save member name: " + name,
-        )
-        return str(path)
+    archive_identity(stream, expected_config=expected_image, evidence=evidence)
 
-    stream.seek(0)
-    with tarfile.open(fileobj=stream, mode="r:*") as archive:
-        members = {}
-        for member_count, member in enumerate(archive, 1):
-            require(member_count <= 10000, "Docker-save archive has too many members")
-            if member.isdir() and member.name in [".", "./"]:
-                continue
-            name = member_name(member.name)
-            require(name not in members, "duplicate Docker-save archive member: " + name)
-            members[name] = member
 
-        def read_member(name: str, limit: int) -> bytes:
-            require(name in members, "Docker-save metadata is missing: " + name)
-            member = members[name]
-            require(
-                member.isfile() and 0 <= member.size <= limit,
-                "Docker-save metadata must be a bounded regular file: " + name,
+def target_id(binding: JSON) -> str:
+    """Resolve the verified host target without treating a config as executable."""
+    from image_identity import validate_identity
+
+    return validate_identity(binding["image_identity"], binding["image_id"])
+
+
+def inspect_image(
+    docker: list[str], environment: dict[str, str], reference: str, report: JSON, timeout: float
+) -> JSON | None:
+    """Inspect bounded selected fields; unknown daemon/identity state must fail."""
+    selected = (
+        '{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Architecture}},'
+        '"Labels":{{json .Config.Labels}}}'
+    )
+    argv = docker + ["image", "inspect", "--format", selected, reference]
+    entry: JSON = {
+        "argv": argv,
+        "rc": None,
+        "stdout": "",
+        "stderr": "",
+        "timeout_seconds": timeout,
+        "output_limit_bytes": 1024 * 1024,
+        "excluded_fields": ["Config.Env"],
+    }
+    report.setdefault("commands", []).append(entry)
+    failure = None
+    with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
+        try:
+            result = subprocess.run(
+                argv, env=environment, stdout=stdout, stderr=stderr, timeout=timeout
             )
-            payload = archive.extractfile(member)
-            assert payload is not None
-            with payload:
-                data = payload.read(limit + 1)
-            require(
-                len(data) == member.size and len(data) <= limit,
-                "Docker-save metadata size mismatch: " + name,
-            )
-            return data
+            entry["rc"] = result.returncode
+        except Exception as error:
+            failure = error
+            entry["error"] = type(error).__name__ + ": " + str(error)
+            entry["timed_out"] = isinstance(error, subprocess.TimeoutExpired)
+        for label, stream in [("stdout", stdout), ("stderr", stderr)]:
+            stream.seek(0)
+            data = stream.read(1024 * 1024 + 1)
+            entry[label] = data[: 1024 * 1024].decode("utf-8", errors="replace")
+            entry[label + "_truncated"] = len(data) > 1024 * 1024
+    if failure is not None:
+        raise failure
+    require(
+        not entry["stdout_truncated"] and not entry["stderr_truncated"],
+        "image inspect exceeds evidence limit",
+    )
+    if entry["rc"] == 0:
+        state: JSON = json.loads(entry["stdout"])
+        require(
+            isinstance(state, dict) and IMAGE_ID.fullmatch(state.get("Id", "")),
+            "invalid image inspect identity",
+        )
+        return state
+    missing = {
+        prefix + "No such image: " + reference
+        for prefix in ["", "Error: ", "Error response from daemon: "]
+    }
+    if (
+        entry["rc"] == 1
+        and entry["stdout"].strip() in ["", "[]"]
+        and entry["stderr"].strip() in missing
+    ):
+        return None
+    raise RuntimeError("image state is unknown; Docker inspect failed: " + entry["stderr"].strip())
 
-        manifest: list[JSON] = json.loads(read_member("manifest.json", 1024 * 1024))
-        require(isinstance(manifest, list), "Docker-save manifest must be an array")
-        result["manifest_image_count"] = len(manifest)
-        require(
-            len(manifest) == 1 and isinstance(manifest[0], dict),
-            "only single-image Docker-save archives are accepted",
-        )
-        config_name = member_name(manifest[0]["Config"])
-        config_bytes = read_member(config_name, 4 * 1024 * 1024)
-        actual_image = "sha256:" + hashlib.sha256(config_bytes).hexdigest()
-        result.update(config_member=config_name, actual_image_id=actual_image)
-        require(
-            actual_image == expected_image,
-            "Docker-save config image ID differs from the runtime lock; Docker load was not run",
-        )
-        config = json.loads(config_bytes)
-        require(isinstance(config, dict), "Docker-save config must be an object")
-        result["platform"] = str(config.get("os")) + "/" + str(config.get("architecture"))
-        labels = config.get("config", {}).get("Labels", {})
-        result["source_revision"] = labels.get("org.opencontainers.image.revision")
-        result["project_version"] = labels.get("org.opencontainers.image.version")
-        require(result["platform"] == "linux/amd64", "Docker-save config is not linux/amd64")
-        layers = manifest[0].get("Layers")
-        diff_ids = config.get("rootfs", {}).get("diff_ids")
-        require(
-            isinstance(layers, list)
-            and bool(layers)
-            and isinstance(diff_ids, list)
-            and len(layers) == len(diff_ids),
-            "Docker-save layer/config count mismatch",
-        )
-        assert isinstance(layers, list)
-        for layer in layers:
-            name = member_name(layer)
-            require(
-                name in members and members[name].isfile(),
-                "Docker-save layer is missing or is not a regular file: " + name,
+
+def exported_identity(
+    docker: list[str],
+    environment: dict[str, str],
+    target: str,
+    expected_config: str,
+    report: JSON,
+    timeout: float,
+) -> JSON:
+    """Bind an actual loaded target to the locked config without executing it."""
+    from image_identity import archive_identity
+
+    require(IMAGE_ID.fullmatch(target), "export requires an immutable Docker target")
+    argv = docker + ["image", "save", target]
+    entry: JSON = {"argv": argv, "rc": None, "stderr": "", "timeout_seconds": timeout}
+    report.setdefault("commands", []).append(entry)
+    with tempfile.TemporaryFile() as stream, tempfile.TemporaryFile() as errors:
+        try:
+            result = subprocess.run(
+                argv, env=environment, stdout=stream, stderr=errors, timeout=timeout
             )
-        result.update(status="passed", layer_count=len(layers), verified_before_load=True)
+            entry["rc"] = result.returncode
+        except Exception as error:
+            entry["error"] = type(error).__name__ + ": " + str(error)
+            entry["timed_out"] = isinstance(error, subprocess.TimeoutExpired)
+            raise
+        finally:
+            errors.seek(0)
+            entry["stderr"] = errors.read(1024 * 1024).decode("utf-8", errors="replace")
+            entry["export_bytes"] = stream.tell()
+        require(result.returncode == 0, "Docker target export failed")
+        evidence = report.setdefault("resolved_image", {})
+        return archive_identity(stream, expected_config, target, evidence)
 
 
 def image_present(binding: JSON, report: JSON, timeout: float) -> bool:
     """Distinguish an absent image from daemon or permission errors."""
     docker, environment = docker_binding(binding)
-    result = command_run(
-        docker
-        + [
-            "image",
-            "inspect",
-            "--format",
-            "{{.Id}} {{.Os}}/{{.Architecture}}",
-            binding["image_id"],
-        ],
-        environment,
-        report,
-        timeout,
-        check=False,
-    )
-    if result.returncode == 0:
+    target = target_id(binding)
+    state = inspect_image(docker, environment, target, report, timeout)
+    if state is not None:
         require(
-            result.stdout.strip() == binding["image_id"] + " linux/amd64",
+            state["Id"] == target and state["Os"] == "linux" and state["Architecture"] == "amd64",
             "image identity/platform mismatch; expected pinned linux/amd64 image",
         )
         return True
-    expected = {
-        prefix + "No such image: " + binding["image_id"]
-        for prefix in ["", "Error: ", "Error response from daemon: "]
-    }
-    if (
-        result.returncode == 1
-        and result.stdout.strip() in ["", "[]"]
-        and result.stderr.strip() in expected
-    ):
-        return False
-    raise RuntimeError("image state is unknown; Docker inspect failed: " + result.stderr.strip())
+    return False
 
 
-def provision_image(binding: JSON, report: JSON, timeout: float) -> None:
+def resolve_candidates(
+    docker: list[str],
+    environment: dict[str, str],
+    candidates: list[str],
+    expected_config: str,
+    report: JSON,
+    timeout: float,
+) -> JSON:
+    """Authenticate one locally executable target, including store conversions."""
+    for candidate in dict.fromkeys(candidates):
+        require(IMAGE_ID.fullmatch(candidate), "candidate target must be an immutable digest")
+        state = inspect_image(docker, environment, candidate, report, timeout)
+        if state is not None:
+            require(state["Id"] == candidate, "Docker target changed during resolution")
+            return exported_identity(
+                docker, environment, candidate, expected_config, report, timeout
+            )
+    raise RuntimeError("Docker load/pull did not expose an observable immutable target")
+
+
+def loaded_candidates(stdout: str, identity: JSON) -> list[str]:
+    """Use only immutable IDs from verified metadata or Docker's load receipt."""
+    return [
+        identity["target"]["digest"],
+        identity["image_id"],
+        *re.findall(r"^Loaded image ID: (sha256:[0-9a-f]{64})$", stdout, re.MULTILINE),
+    ]
+
+
+def provision_image(
+    binding: JSON, report: JSON, timeout: float, manifest: JSON | None = None
+) -> None:
     """Import only the selected verified archive or explicitly pinned registry image."""
     source = binding["image_source"]
     require(
@@ -467,8 +525,18 @@ def provision_image(binding: JSON, report: JSON, timeout: float) -> None:
                 "image archive SHA256 mismatch; Docker load was not run",
             )
             validate_docker_archive(stream, binding["image_id"], report["archive"])
+            if manifest is not None:
+                metadata = report["archive"]["image_validation"]
+                require(
+                    metadata["source_revision"] == manifest["source_sha"]
+                    and metadata["project_version"] == manifest["project_version"],
+                    "archive source/version differs from runtime lock; Docker load was not run",
+                )
             stream.seek(0)
-            command_run(docker + ["image", "load"], environment, report, timeout, stdin=stream)
+            loaded = command_run(
+                docker + ["image", "load"], environment, report, timeout, stdin=stream
+            )
+        candidates = loaded_candidates(loaded.stdout, binding["image_identity"])
     else:
         validate_registry(source["reference"])
         command_run(
@@ -477,22 +545,26 @@ def provision_image(binding: JSON, report: JSON, timeout: float) -> None:
             report,
             timeout,
         )
-        reference = command_run(
-            docker + ["image", "inspect", "--format", "{{.Id}}", source["reference"]],
-            environment,
-            report,
-            timeout,
-        )
+        state = inspect_image(docker, environment, source["reference"], report, timeout)
+        require(state is not None, "pulled registry digest is unavailable")
+        assert state is not None
+        candidates = [state["Id"]]
+    binding["image_identity"] = resolve_candidates(
+        docker, environment, candidates, binding["image_id"], report, timeout
+    )
+    if manifest is not None:
+        metadata = report["resolved_image"]["image_validation"]
         require(
-            reference.stdout.strip() == binding["image_id"],
-            "registry manifest resolves to a different config image ID",
+            metadata["source_revision"] == manifest["source_sha"]
+            and metadata["project_version"] == manifest["project_version"],
+            "loaded image source/version differs from runtime lock",
         )
     require(image_present(binding, report, timeout), "provisioning did not supply the pinned image")
 
 
 def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
     """Produce the unchanged launcher's exact argv without shell evaluation."""
-    arguments = [str(SCRIPT_ROOT / "ada-mcp-launch"), "--image", binding["image_id"]]
+    arguments = [str(SCRIPT_ROOT / "ada-mcp-launch"), "--image", target_id(binding)]
     for root in binding["roots"]:
         arguments.extend(["--root", root])
     for key in ["docker_host", "docker_context", "uid", "gid"]:
@@ -545,7 +617,7 @@ def doctor(
         info["tools"] = names
         state = inspect_container(docker, environment, name, observations, command_timeout)
         require(
-            state is not None and state["Image"] == binding["image_id"], "container image mismatch"
+            state is not None and state["Image"] == target_id(binding), "container image mismatch"
         )
         assert state is not None
         require(
@@ -622,7 +694,7 @@ def doctor(
                     info["cleanup"] = "unknown-no-removal"
                     errors.append("container state unknown; explicit cleanup refused")
                 elif (
-                    state["Image"] == binding["image_id"]
+                    state["Image"] == target_id(binding)
                     and state["Config"].get("Labels", {}).get("ada-mcp-generic") == "1"
                 ):
                     command_run(
@@ -704,8 +776,9 @@ def new_binding(options: argparse.Namespace, manifest: JSON) -> JSON:
         source = {"kind": "registry", "reference": options.registry}
     return validate_binding(
         {
-            "version": 1,
+            "version": 2,
             "image_id": options.image_id or manifest["image_id"],
+            "image_identity": manifest["image_identity"],
             "roots": [root.rstrip("/") or "/" for root in options.root],
             "docker_host": options.docker_host,
             "docker_context": options.docker_context,
@@ -846,10 +919,15 @@ def main() -> int:
                     binding = new_binding(options, manifest)
                 # An explicitly supplied source for a new binding exercises its
                 # real import/pull path even when the daemon already caches the ID.
+                original_target = target_id(binding)
                 if not exists and binding["image_source"] is not None:
-                    provision_image(binding, report, options.command_timeout)
+                    provision_image(binding, report, options.command_timeout, manifest)
                 elif not image_present(binding, report, options.command_timeout):
-                    provision_image(binding, report, options.command_timeout)
+                    provision_image(binding, report, options.command_timeout, manifest)
+                require(
+                    not exists or target_id(binding) == original_target,
+                    "restored store uses another target; choose a new explicit host binding",
+                )
                 doctor(binding, manifest, report, output, options.timeout, options.command_timeout)
                 if not exists:
                     write_new(path, json.dumps(binding, indent=2) + "\n")
@@ -864,6 +942,9 @@ def main() -> int:
                     require(
                         options.timeout > 0 and options.request,
                         "provide a positive timeout and tools/call/batch request",
+                    )
+                    require(
+                        image_present(binding, report, 60), "locked image is missing; run bootstrap"
                     )
                     arguments = [
                         sys.executable,
@@ -880,6 +961,9 @@ def main() -> int:
                 elif options.mode == "native-config":
                     from mcp_client import READ_TOOLS
 
+                    require(
+                        image_present(binding, report, 60), "locked image is missing; run bootstrap"
+                    )
                     target = absolute_path(options.output, "native configuration output")
                     content = (
                         "# Generated native-client fragment; merge explicitly.\n"
