@@ -6,8 +6,13 @@ connects Ada Language Server to the Model Context Protocol. It retains the
 selected personal fork's history, authorship and MIT notices, with its own
 maintenance, release and support decisions.
 
-Coordinated candidate **0.2.0-rc.1** (Python **0.2.0rc1**) is **in development**.
-No abuild-project release, GHCR image or PyPI package is publicly available yet.
+Coordinated version **0.2.0-rc.1** (Python **0.2.0rc1**) is a **pilot prerelease**,
+with the scope and limits in its [release notes](doc/releases/0.2.0-rc.1.md).
+The `main` branch contains development sources. Check
+[GitHub Releases](https://github.com/abuild-project/ada-mcp-server/releases)
+for actually published tags and their verified artifacts; source preparation
+and CI artifacts alone do not constitute a public release. GitHub Releases
+and GHCR are the distribution channels; PyPI publication is outside this scope.
 The imported source is `961f532bcc633189e8618852732be289752cbcd7`; its explicitly
 selected ancestor-GPR behavior is retained and tested again here.
 
@@ -55,6 +60,7 @@ another frontend's native registration.
 - [Agent/contributor rules](AGENTS.md)
 - [Licensing and immutable origins](doc/licensing.md)
 - [Prepared release promotion](doc/release.md)
+- [Public repository and release assessment](doc/assessments/public-release.md)
 - [Changelog](CHANGELOG.md) and [roadmap](ROADMAP.md)
 - [Change records](doc/change-records/README.md)
 - [Historical import records](doc/history/README.md)
