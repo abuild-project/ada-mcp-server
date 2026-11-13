@@ -12,6 +12,8 @@
   read-only, nonroot container with isolated imports and private evidence.
 - Verify acquired tooling and images against immutable hashes and bind release
   packaging to the exact source, Python distributions and image checked in CI.
+- Require MCP SDK `>=1.30.0,<2` and pin 1.30.0 in the container, excluding
+  the advisory-affected older SDK versions.
 
 This prerelease covers the documented Linux/AMD64 container workflow.
 Actual macOS, native Claude/OpenCode integration and fresh managed Cloud
