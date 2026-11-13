@@ -43,14 +43,14 @@ jobs:
             --output "$RUNNER_TEMP/host-evidence" --arca "$RUNNER_TEMP/arca" \
             --spawn "$RUNNER_TEMP/spawn" --anet "$RUNNER_TEMP/anet"
       - name: Upload exact tested release candidates without publishing
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: release-candidate
           path: ${{ runner.temp }}/release/
           retention-days: 14
       - name: Preserve check evidence including failures
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: validation-evidence
           path: |
