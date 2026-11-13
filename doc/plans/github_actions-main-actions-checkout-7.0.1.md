@@ -32,3 +32,19 @@ independent review, including inspection of those promotion call sites.
 Apply the existing bounded role workflow to the final immutable candidate.
 Local preparation grants no remote push, review request, merge or
 publication.
+
+## 2026-11-13: Integrate the accepted artifact workflow
+
+The maintainer selected the five accepted dependency updates for inclusion
+before the first pilot release. Integrate accepted main
+`bf9e664fdd9eff13409cd76613fc0eb3736e636e`, whose tree is the independently
+checked artifact-upload update, into this existing checkout topic with an
+ordinary merge. Retain both published parent histories and their authorship.
+
+Keep checkout pin `3d3c42e5aac5ba805825da76410c181273ba90b1` at all three
+sites and upload pin `cf430e030ddbb5b0abf93d22962f4752f3646cd9` at both
+upload steps. Preserve the sorted union of change records and the existing
+workflow inputs, token permissions and hash-locked Python dependencies.
+The new immutable merged revision requires complete Trixie CI and independent
+review before acceptance; earlier receipts remain evidence for their own
+source revisions.
