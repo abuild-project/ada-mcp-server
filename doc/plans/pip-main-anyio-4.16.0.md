@@ -48,3 +48,20 @@ EOF/container cleanup, plus independent review.
 Apply the existing bounded role workflow to the final immutable candidate.
 Local preparation grants no remote push, review request, merge or
 publication.
+
+## 2026-11-13: Integrate the accepted runtime and backend baseline
+
+The maintainer selected the accepted dependency updates for the first pilot
+release. Integrate accepted main
+`e1801057ba0a9ce06c9ddd6bc4d84fdbccff43bd` into this existing AnyIO topic
+with an ordinary merge, preserving both published parent histories. Retain
+AnyIO 4.16.0 alongside main's Pydantic 2.14.3, pydantic-core 2.50.4,
+Hatchling 1.33.0 and tomlkit 0.15.2. Preserve all other versions and hash sets.
+
+Keep the accepted Actions pins, sorted union of change records, canonical
+version and builtin Python-version provider. The MCP 1.28.1 pin, public
+dependency ranges, strict provenance receipt and documented support remain
+unchanged. Complete Trixie CI, generated-artifact semantic checks under both
+numeric identities, EOF/container cleanup and independent review must cover
+the new immutable combined revision before acceptance. Prior evidence remains
+bound to its original source revisions.
