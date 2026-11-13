@@ -5,10 +5,12 @@ Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,
 GPRbuild and the pinned Ada Language Server. macOS, native client registration
 and other client applications remain in development until their own tests pass.
 
-No public release artifacts exist yet. During development, use the artifacts
-generated from the checked source revision by scripts/artifacts.py. Future
-version-specific GitHub Releases/GHCR paths are prepared distribution targets,
-not claims that a release or anonymously pullable image is already available.
+Check the GitHub Releases index
+(<https://github.com/abuild-project/ada-mcp-server/releases>) for published
+versions and their artifact metadata. During development, use
+the artifacts generated from the checked source revision by scripts/artifacts.py.
+Version-specific GitHub Releases/GHCR paths in generated candidate metadata
+are distribution targets until publication and anonymous access are verified.
 
 ## Acquire the complete tooling
 

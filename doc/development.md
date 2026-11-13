@@ -3,9 +3,11 @@
 Read AGENTS.md and the active plan before editing. Use topic branches and the
 coordinator/developer/tester/independent-reviewer workflow described there.
 The developer makes modest targeted checks; the tester runs the complete chain
-from a fresh detached worktree of the immutable candidate. Review includes all
-changes since imported revision `961f532bcc633189e8618852732be289752cbcd7`,
-including the independent import README on main.
+from a fresh detached worktree of the immutable candidate. Review the complete
+topic against its accepted base, including any newly imported changes. The
+bootstrap acceptance covered all changes since imported revision
+`961f532bcc633189e8618852732be289752cbcd7`, including the independent import
+README on main; later release work uses that accepted bootstrap as its base.
 
 ## Reproducible check environment
 
@@ -132,6 +134,14 @@ Prepare coherent unpublished commits before the first submission. The change
 record supplies the final PR description. Hosted CI must test the same head;
 read all Copilot feedback and preserve the separate PR correction counter.
 Stop at the checked PR until merge/release permission is supplied.
+
+Every PR is merged with a merge commit, including release and dependency PRs.
+Squash and rebase merges are disabled by repository policy. Retain the tested
+topic commits and their authorship; combine unpublished corrections before
+first submission rather than rewriting published history. The merge commit
+uses the same Conventional Commit subject and prose rules as topic commits.
+Actual GitHub settings are verified separately in the
+[public repository assessment](assessments/public-release.md).
 
 Release promotion uses the already tested CI artifacts and source/image hashes;
 it must not rebuild an untested replacement. GitHub Releases/GHCR publication
