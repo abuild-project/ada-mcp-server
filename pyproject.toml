@@ -66,8 +66,9 @@ Issues = "https://github.com/abuild-project/ada-mcp-server/issues"
 Changelog = "https://github.com/abuild-project/ada-mcp-server/releases"
 
 [tool.hatch.version]
+source = "code"
 path = "src/ada_mcp/_version.py"
-pattern = 'VERSION = "(?P<version>[^\"]+)"'
+expression = 'VERSION.replace("-rc.", "rc")'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ada_mcp"]
