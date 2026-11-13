@@ -29,10 +29,8 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Compilers",
     "Topic :: Software Development :: Build Tools",
@@ -61,14 +59,15 @@ dev = [
 ada-mcp = "ada_mcp.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/ada-mcp/ada-mcp-server"
-Documentation = "https://github.com/ada-mcp/ada-mcp-server#readme"
-Repository = "https://github.com/ada-mcp/ada-mcp-server"
-Issues = "https://github.com/ada-mcp/ada-mcp-server/issues"
-Changelog = "https://github.com/ada-mcp/ada-mcp-server/releases"
+Homepage = "https://github.com/abuild-project/ada-mcp-server"
+Documentation = "https://github.com/abuild-project/ada-mcp-server#readme"
+Repository = "https://github.com/abuild-project/ada-mcp-server"
+Issues = "https://github.com/abuild-project/ada-mcp-server/issues"
+Changelog = "https://github.com/abuild-project/ada-mcp-server/releases"
 
 [tool.hatch.version]
-path = "src/ada_mcp/__init__.py"
+path = "src/ada_mcp/_version.py"
+pattern = 'VERSION = "(?P<version>[^\"]+)"'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ada_mcp"]
@@ -93,6 +92,7 @@ select = ["E", "F", "I", "N", "W", "UP"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 markers = [
     "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",

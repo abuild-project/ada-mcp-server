@@ -1,0 +1,90 @@
+name: Prepare or promote tested artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful trusted CI run containing tested release artifacts
+        required: true
+        type: string
+      source_sha:
+        description: Explicitly approved immutable source commit
+        required: true
+        type: string
+      execute_publication:
+        description: Publish after separate maintainer approval and matching tag/visibility setup
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Verify selected successful CI provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ inputs.source_sha }}
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh api "repos/$EXPECTED_REPOSITORY/actions/runs/$RUN_ID" > "$RUNNER_TEMP/run.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          run = json.loads((Path(os.environ['RUNNER_TEMP']) / 'run.json').read_text())
+          assert run['conclusion'] == 'success'
+          assert run['head_sha'] == os.environ['EXPECTED_SHA']
+          assert run['head_repository']['full_name'] == os.environ['EXPECTED_REPOSITORY']
+          assert run['path'] == '.github/workflows/ci.yml'
+          assert run['head_branch'] == 'main' and run['event'] == 'push'
+          PY
+      - name: Download the already tested artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$RUN_ID" --name release-candidate --dir "$RUNNER_TEMP/release"
+      - name: Validate promotion plan without publication
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: python3 scripts/promote.py --release "$RUNNER_TEMP/release" --source-sha "$SOURCE_SHA"
+
+  publish:
+    if: ${{ inputs.execute_publication }}
+    needs: plan
+    environment: release-promotion
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Download the same checked artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$RUN_ID" --name release-candidate --dir "$RUNNER_TEMP/release"
+      - name: Authenticate this ephemeral publishing job
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REGISTRY_USER: ${{ github.actor }}
+        run: printf '%s' "$GH_TOKEN" | docker login ghcr.io --username "$REGISTRY_USER" --password-stdin
+      - name: Promote without rebuild and require anonymous registry proof
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ADA_MCP_PUBLISH_APPROVED_SOURCE: ${{ inputs.source_sha }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: python3 scripts/promote.py --release "$RUNNER_TEMP/release" --source-sha "$SOURCE_SHA" --execute

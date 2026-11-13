@@ -1,0 +1,8 @@
+"""Import standalone host modules without invoking their command interfaces."""
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tooling"))
+sys.path.insert(0, str(ROOT / "scripts"))

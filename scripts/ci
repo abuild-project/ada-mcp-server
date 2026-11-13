@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+output="${1:?Usage: scripts/ci OUTPUT_DIRECTORY}"
+mkdir -p "$output"
+python -c 'import platform; assert platform.machine() == "x86_64"'
+python -c 'assert "VERSION_CODENAME=trixie" in open("/etc/os-release").read()'
+gnat --version > "$output/gnat-version.txt"
+gprbuild --version > "$output/gprbuild-version.txt"
+"$ALS_PATH" --version > "$output/als-version.txt"
+ruff check src tests tooling scripts
+ruff format --check src tests tooling scripts
+mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
+    scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py \
+    scripts/distribution_receipt.py
+python -m pytest tests -m 'not integration' -q --tb=short \
+    --cov=ada_mcp --cov=tooling --cov-report=term-missing \
+    --cov-report="xml:$output/coverage.xml" --cov-report="html:$output/htmlcov"
+python -m build --no-isolation --outdir "$output/python-dist"
+python -m twine check "$output"/python-dist/*
+python scripts/check_docs.py
+python scripts/test_integration.py > "$output/real-als-probe.log" 2>&1
+python scripts/real_parent_view.py > "$output/real-parent-view.log" 2>&1
+python scripts/real_diagnostics.py --output "$output/diagnostic-control" \
+    > "$output/real-diagnostic-control.log" 2>&1
+python -m pytest tests/test_e2e.py -q --tb=short > "$output/mcp-e2e.log" 2>&1
+python scripts/distribution_receipt.py --folder "$output/python-dist" \
+    --source-sha "${ADA_MCP_CHECK_SOURCE_SHA:?docker/check must supply the committed source SHA}" \
+    --image-target "${ADA_MCP_CHECK_IMAGE_TARGET:?docker/check must supply the checked native target}" \
+    --image-platform "${ADA_MCP_CHECK_IMAGE_PLATFORM:?docker/check must supply the checked platform}" \
+    --source-archive /ci-source.tar > "$output/python-distributions-provenance.log"

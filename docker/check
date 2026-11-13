@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+[[ $# -eq 1 || ( $# -eq 3 && "$2" == --output ) ]] || {
+    printf 'Usage: docker/check IMAGE [--output NEW_ABSOLUTE_DIRECTORY]\n' >&2; exit 2;
+}
+root="$(cd "$(dirname "$0")/.." && pwd -P)"
+output="${3:-$root/build/check}"
+[[ "$output" == /* && ! -e "$output" && ! -L "$output" ]] || {
+    printf 'Check output must be a new absolute directory; prior evidence is retained.\n' >&2
+    exit 2
+}
+runtime_uid="$(id -u)"
+runtime_gid="$(id -g)"
+[[ "$runtime_uid" -gt 0 && "$runtime_gid" -gt 0 ]] || exit 2
+if [[ -n "$(git -C "$root" status --porcelain --untracked-files=normal)" ]]; then
+    printf 'Check the immutable committed candidate, without source changes.\n' >&2
+    exit 2
+fi
+source_sha="$(git -C "$root" rev-parse HEAD)"
+image_info="$(docker image inspect --format '{{.Id}} {{.Os}}/{{.Architecture}} {{index .Config.Labels "org.opencontainers.image.revision"}}' "$1")"
+[[ "$image_info" == *" linux/amd64 $source_sha" ]] || {
+    printf 'Image platform/source does not match the candidate.\n' >&2
+    exit 2
+}
+resolved_image="${image_info%% *}"
+[[ "$resolved_image" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+    printf 'Docker did not return one immutable native image target.\n' >&2; exit 2;
+}
+context_archive="$(mktemp "${TMPDIR:-/tmp}/ada-mcp-check.XXXXXXXX")"
+trap 'rm -f "$context_archive"' EXIT
+trap 'exit 1' HUP INT TERM
+git -C "$root" archive --format=tar "$source_sha" > "$context_archive"
+mkdir -p "$(dirname "$output")"
+mkdir "$output"
+docker run --rm --platform linux/amd64 --network none --read-only \
+    --user "$runtime_uid:$runtime_gid" --cap-drop ALL --security-opt no-new-privileges \
+    --env "ADA_MCP_CHECK_SOURCE_SHA=$source_sha" \
+    --env "ADA_MCP_CHECK_IMAGE_TARGET=$resolved_image" \
+    --env ADA_MCP_CHECK_IMAGE_PLATFORM=linux/amd64 \
+    --tmpfs /tmp:rw,nosuid,nodev,noexec \
+    --tmpfs "/ci-work:rw,nosuid,nodev,exec,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
+    --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
+    --mount "type=bind,src=$context_archive,dst=/ci-source.tar,readonly" \
+    --mount "type=bind,src=$output,dst=/evidence" \
+    --workdir /ci-work --entrypoint /bin/bash "$resolved_image" -c \
+    'set -eu; mkdir -m 0700 /ci-work/tmp /ci-work/source; export TMPDIR=/ci-work/tmp; tar -xf /ci-source.tar -C /ci-work/source; cd /ci-work/source; export PYTHONPATH=/ci-work/source/src; scripts/ci /evidence'

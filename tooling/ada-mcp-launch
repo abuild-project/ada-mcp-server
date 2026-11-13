@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+
+# Start one existing Ada MCP image over STDIO with explicitly shared roots.
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: ada-mcp-launch --image IMAGE --root ABS_DIR [--root ABS_DIR ...]
+                      [--docker-host ENDPOINT | --docker-context NAME]
+                      [--uid UID --gid GID] [--name NAME] [--check]
+
+The image must already exist locally and target linux/amd64. Each selected
+directory is mounted read-only at the same absolute path. The caller's UID
+and GID are used unless explicitly overridden. No image is pulled or built.
+Docker's existing host/context configuration is retained unless one explicit
+endpoint/context override is provided. --check prints metadata without starting
+a server. In normal mode stdout contains only the MCP protocol.
+EOF
+}
+
+fail() {
+    printf 'ada-mcp-launch: %s\n' "$*" >&2
+    exit 2
+}
+
+require_value() {
+    if [[ $# -lt 2 || -z "$2" ]]; then
+        fail "$1 requires a nonempty value"
+    fi
+}
+
+image=''
+docker_host=''
+docker_context=''
+runtime_uid="$(id -u)"
+runtime_gid="$(id -g)"
+container_name=''
+check_only=false
+roots=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --image)
+            require_value "$@"
+            [[ -z "$image" ]] || fail '--image may be supplied only once'
+            image="$2"
+            shift 2
+            ;;
+        --root)
+            require_value "$@"
+            root="$2"
+            [[ "$root" == /* ]] || fail '--root must be an absolute directory'
+            case "$root" in
+                *','*|*'"'*|*$'\n'*|*$'\r'*)
+                    fail '--root cannot contain comma, double quote or newline'
+                    ;;
+            esac
+            case "$root/" in
+                */../*|*/./*) fail '--root cannot contain . or .. components' ;;
+            esac
+            while [[ "$root" != / && "$root" == */ ]]; do
+                root="${root%/}"
+            done
+            [[ "$root" != / ]] || fail 'sharing the entire filesystem is not supported'
+            # Component-wise overlap, not a blanket /opt or /usr exclusion.
+            for reserved in /opt/ada-mcp /bin /sbin /lib /lib64 /usr/bin /usr/sbin \
+                /usr/lib /usr/lib64 /usr/libexec /usr/local/bin /usr/local/sbin \
+                /usr/local/lib /usr/local/lib64 /usr/local/libexec /etc; do
+                if [[ "$root" == "$reserved" || "$root" == "$reserved/"* ||
+                    "$reserved" == "$root/"* ]]; then
+                    fail "root overlaps a reserved runtime path: $reserved"
+                fi
+            done
+            [[ -d "$root" ]] || fail "root is not an existing directory: $root"
+            physical="$(cd -P -- "$root" && pwd -P)" || fail 'cannot resolve physical root'
+            [[ "$physical" != / && "$physical" == "$root" ]] ||
+                fail '--root must be a physical absolute directory without symlink aliases'
+            duplicate=false
+            if [[ ${#roots[@]} -gt 0 ]]; then
+                for selected in "${roots[@]}"; do
+                    if [[ "$selected" == "$root" ]]; then duplicate=true; fi
+                done
+            fi
+            if [[ "$duplicate" == false ]]; then roots+=("$root"); fi
+            shift 2
+            ;;
+        --docker-host)
+            require_value "$@"
+            [[ -z "$docker_host" ]] || fail '--docker-host may be supplied only once'
+            docker_host="$2"
+            shift 2
+            ;;
+        --docker-context)
+            require_value "$@"
+            [[ -z "$docker_context" ]] || fail '--docker-context may be supplied only once'
+            docker_context="$2"
+            shift 2
+            ;;
+        --uid)
+            require_value "$@"
+            runtime_uid="$2"
+            shift 2
+            ;;
+        --gid)
+            require_value "$@"
+            runtime_gid="$2"
+            shift 2
+            ;;
+        --name)
+            require_value "$@"
+            [[ -z "$container_name" ]] || fail '--name may be supplied only once'
+            container_name="$2"
+            shift 2
+            ;;
+        --check)
+            check_only=true
+            shift
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *) fail "unknown argument: $1" ;;
+    esac
+done
+
+[[ -n "$image" ]] || fail '--image is required'
+[[ ${#roots[@]} -gt 0 ]] || fail 'at least one --root is required'
+[[ -z "$docker_host" || -z "$docker_context" ]] ||
+    fail '--docker-host and --docker-context are mutually exclusive'
+for identity in "$runtime_uid" "$runtime_gid"; do
+    [[ "$identity" =~ ^[1-9][0-9]*$ ]] || fail 'UID and GID must be nonzero decimal integers'
+    [[ ${#identity} -le 10 ]] || fail 'UID or GID is outside the supported numeric range'
+    [[ "$identity" -le 4294967294 ]] || fail 'UID or GID is outside the supported numeric range'
+done
+if [[ -n "$container_name" ]]; then
+    [[ "$container_name" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]*$ ]] ||
+        fail 'invalid container name'
+fi
+command -v docker >/dev/null 2>&1 || fail 'docker is not available on PATH'
+
+docker_command=(docker)
+if [[ -n "$docker_host" || -n "$docker_context" ]]; then
+    docker_command=(env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS
+        -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker)
+    if [[ -n "$docker_host" ]]; then
+        docker_command+=(--host "$docker_host")
+    else
+        docker_command+=(--context "$docker_context")
+    fi
+fi
+
+resolved_image="$("${docker_command[@]}" image inspect --format '{{.Id}}' -- "$image")" ||
+    fail 'the selected image is unavailable; no image was pulled'
+[[ "$resolved_image" =~ ^sha256:[0-9a-f]{64}$ ]] || fail 'Docker did not return one image ID'
+platform="$("${docker_command[@]}" image inspect --format '{{.Os}}/{{.Architecture}}' -- "$resolved_image")"
+[[ "$platform" == linux/amd64 ]] || fail "expected linux/amd64 image, found $platform"
+
+if [[ "$check_only" == true ]]; then
+    printf 'image=%s\nplatform=%s\nuid=%s\ngid=%s\nroots=%s\n' \
+        "$resolved_image" "$platform" "$runtime_uid" "$runtime_gid" "${#roots[@]}"
+    exit 0
+fi
+
+arguments=(run --platform linux/amd64 --pull never --rm -i
+    --label ada-mcp-generic=1 --user "$runtime_uid:$runtime_gid"
+    --network none --read-only --cap-drop ALL --security-opt no-new-privileges
+    --tmpfs /tmp:rw,nosuid,nodev,noexec
+    --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700"
+    --env ADA_PROJECT_ROOT= --env ADA_PROJECT_FILE=
+    --env 'ADA_PROJECT_SCENARIO_VARIABLES={}')
+if [[ -n "$container_name" ]]; then arguments+=(--name "$container_name"); fi
+for root in "${roots[@]}"; do
+    arguments+=(--mount "type=bind,src=$root,dst=$root,readonly")
+done
+arguments+=(--workdir "${roots[0]}" "$resolved_image")
+exec "${docker_command[@]}" "${arguments[@]}"
