@@ -1,71 +1,60 @@
 # Ada MCP Server
 
-The independent [abuild-project](https://github.com/abuild-project) continuation
-of [MDBrothers/ada-mcp-server](https://github.com/MDBrothers/ada-mcp-server)
-connects Ada Language Server to the Model Context Protocol. It retains the
-selected personal fork's history, authorship and MIT notices, with its own
-maintenance, release and support decisions.
+Ada MCP lets an MCP client inspect your Ada projects through Ada Language
+Server. Select your existing GPR project and use source-aware results to
+understand code without leaving your assistant workflow.
 
-Coordinated version **0.2.0-rc.1** (Python **0.2.0rc1**) is a **pilot prerelease**,
-with the scope and limits in its [release notes](doc/releases/0.2.0-rc.1.md).
-The `main` branch contains development sources. Check
-[GitHub Releases](https://github.com/abuild-project/ada-mcp-server/releases)
-for actually published tags and their verified artifacts; source preparation
-and CI artifacts alone do not constitute a public release. GitHub Releases
-and GHCR are the distribution channels; PyPI publication is outside this scope.
-The imported source is `961f532bcc633189e8618852732be289752cbcd7`; its explicitly
-selected ancestor-GPR behavior is retained and tested again here.
+You can:
 
-The candidate workflow selects actual GPR files, dependency paths and scenarios,
-then performs anchored project/symbol/navigation queries and synchronized file
-diagnostics in a pinned Linux/AMD64 Trixie container. Diagnostics are ALS file
-publications, not a replacement for compiler/test/coverage CI. The 19 advertised
-tools do not imply support for every tool; see the explicit
-[support and evidence matrix](doc/support.md).
+- Explore a project's structure and symbols in its selected GPR view.
+- Navigate to definitions and inspect hover information at real source locations.
+- Request diagnostics for specific Ada files.
 
-## Development setup
+File diagnostics complement your project's compiler and tests. See the
+[support matrix](doc/support.md) for the supported queries and current limits.
 
-From the checked source revision, with Docker already available:
+## Install, connect and use
 
-```sh
-docker/build --tag ada-mcp-server:candidate
-docker/check ada-mcp-server:candidate
-```
+You need Git, Python 3.11+, Bash 3.2+ and Docker able to run Linux/AMD64
+containers. Use a nonroot account with Docker access and readable project
+sources. You do not need to build Ada MCP or run this repository's CI.
 
-This standalone build uses an official immutable Trixie base, GNAT 14,
-GPRbuild, pinned ALS and hash-locked Python dependencies. It needs no private
-Abuild checkout or old pilot image. [Development instructions](doc/development.md)
-cover Cloud CA trust, the complete CI chain, artifact generation and the two
-numeric-identity host checks.
+1. [Acquire the published tooling](doc/first-install.md#acquire-the-tooling-for-direct-mcp-or-local-codex)
+   and [create a shared Docker binding](doc/first-install.md#shared-docker-binding-and-first-queries)
+   for your projects and dependencies. The guide uses the existing public RC1
+   release and verifies downloads before setup.
+2. [Use the bundled MCP query client](doc/first-install.md#shared-docker-binding-and-first-queries),
+   or [prepare your client's stdio connection](doc/first-install.md#connect-a-stdio-mcp-client).
+   Native client integration is experimental and needs checks in that client.
+3. Select your actual GPR file, dependency search paths and scenarios. Ask
+   questions such as “Which symbols does this file define?”, “Where is this
+   symbol defined?” or “What diagnostics were published for this file?”.
+   Compare returned locations and scope with your source.
 
-The generated distribution separates the complete, hash-verified tooling and
-image archives from a lightweight skill plugin. The skill carries an ordinary
-HTTPS acquisition path pinned to concrete artifact hashes; it does not require
-owner-only Plugin Creator access or unsupported remote script-resource reads.
-Those public URLs become usable only after an approved release actually exists.
-For current locally generated artifacts, use the [explicit host setup](doc/setup.md).
+This direct MCP workflow is independent of Plugin Creator and any private
+publisher account. Optional conveniences are
+[local Codex skill discovery](doc/first-install.md#optional-local-codex-skill-discovery)
+and [your own private Cloud skill-plugin copy](doc/first-install.md#managed-cloud-create-your-private-copy).
+The plugin supplies instructions; it does not register native MCP tools.
 
-Host configuration is shared across repositories while project views remain
-in their existing GPR files. The launcher preserves same-path read-only roots,
-nonroot identity, no runtime network, dropped capabilities and private HOME.
-It never silently overwrites existing bindings or global client/Docker config.
+The current release is the **0.2.0-rc.1 pilot prerelease** for the documented
+Linux/AMD64 Docker workflow. macOS, native Codex/Claude/OpenCode integration and
+importing the Cloud plugin into a separate account remain in development.
+Start with the [first-install guide](doc/first-install.md) for host-specific
+details and the [published release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
+for artifacts.
 
-Actual macOS, Claude/OpenCode/native-client behavior, registry/public access and
-fresh managed Cloud acquisition remain in development until directly verified.
-Generating a configuration or discovering a local skill is not a proof of
-another frontend's native registration.
+Read [release checks and approved updates](doc/updating.md) for fresh searches,
+the skill's ask-and-update workflow and rollback. Existing RC1 installations
+need an initial approved upgrade after a notifier-capable release is published.
 
-## Maintenance and provenance
+## Contributing
 
-- [Agent/contributor rules](AGENTS.md)
-- [Licensing and immutable origins](doc/licensing.md)
-- [Prepared release promotion](doc/release.md)
-- [Public repository and release assessment](doc/assessments/public-release.md)
-- [Changelog](CHANGELOG.md) and [roadmap](ROADMAP.md)
-- [Change records](doc/change-records/README.md)
-- [Historical import records](doc/history/README.md)
+To change, build, test or release Ada MCP itself, read the
+[contributor development guide](doc/development.md).
 
-Own code uses [MIT](LICENSE). Container components retain their own license
-terms, notices and source obligations. The source/version/component index is
-included in the image and generated artifacts. Publishing, merging or updating
-the existing account plugin requires a separate maintainer decision.
+This is the independently maintained
+[abuild-project](https://github.com/abuild-project) continuation of
+[MDBrothers/ada-mcp-server](https://github.com/MDBrothers/ada-mcp-server).
+Original history, authorship and MIT notices are preserved.
+See [LICENSE](LICENSE) and [component licensing](doc/licensing.md).

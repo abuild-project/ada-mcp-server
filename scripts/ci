@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
 set -euo pipefail
+export ADA_MCP_UPDATE_CHANNEL=off
 output="${1:?Usage: scripts/ci OUTPUT_DIRECTORY}"
 mkdir -p "$output"
 python -c 'import platform; assert platform.machine() == "x86_64"'

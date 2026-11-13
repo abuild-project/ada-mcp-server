@@ -593,7 +593,7 @@ def provision_image(
 
 
 def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
-    """Produce the unchanged launcher's exact argv without shell evaluation."""
+    """Produce the launcher's exact binding argv without shell evaluation."""
     arguments = [str(SCRIPT_ROOT / "ada-mcp-launch"), "--image", target_id(binding)]
     for root in binding["roots"]:
         arguments.extend(["--root", root])
@@ -602,6 +602,16 @@ def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
             arguments.extend(["--" + key.replace("_", "-"), str(binding[key])])
     if name is not None:
         arguments.extend(["--name", name])
+    return arguments
+
+
+def update_arguments(options: argparse.Namespace) -> list[str]:
+    """Keep notice settings explicit without changing the immutable binding schema."""
+    arguments = []
+    for attribute in ["update_channel", "update_cache"]:
+        value = getattr(options, attribute, None)
+        if value is not None:
+            arguments.extend(["--" + attribute.replace("_", "-"), str(value)])
     return arguments
 
 
@@ -634,7 +644,7 @@ def doctor(
     errors = []
     try:
         session = Session(
-            ["/bin/bash"] + launcher_arguments(binding, name),
+            ["/bin/bash"] + launcher_arguments(binding, name) + ["--update-channel", "off"],
             timeout,
             output / "mcp" if output is not None else None,
         )
@@ -900,6 +910,21 @@ def main() -> int:
     native = modes.add_parser("native-config", help="write a new native Desktop/CLI TOML fragment")
     native.add_argument("--binding")
     native.add_argument("--output", required=True)
+    for mode in [query, native]:
+        mode.add_argument("--update-channel", choices=["auto", "stable", "prerelease", "off"])
+        mode.add_argument("--update-cache")
+    updates = modes.add_parser("updates", help="show or check advisory release metadata")
+    updates.add_argument("action", choices=["status", "check"])
+    updates.add_argument(
+        "--channel",
+        choices=["auto", "stable", "prerelease", "off"],
+        default=None,
+    )
+    updates.add_argument(
+        "--cache",
+        type=Path,
+        default=os.environ.get("ADA_MCP_UPDATE_CACHE", str(Path.home() / ".cache/ada-mcp")),
+    )
     install = modes.add_parser(
         "install-skill", help="install the skill into an explicit new discovery directory"
     )
@@ -917,7 +942,23 @@ def main() -> int:
                 candidate = absolute_path(options.output, "evidence directory")
                 candidate.mkdir(parents=True, exist_ok=False)
                 output = candidate
-        if options.mode == "install-skill":
+        if options.mode == "updates":
+            checker = SCRIPT_ROOT / "release_updates.py"
+            namespace: JSON = {"__name__": "_ada_mcp_release_updates", "__file__": str(checker)}
+            exec(compile(checker.read_bytes(), str(checker), "exec"), namespace)
+            report = namespace["check_updates"](
+                manifest["project_version"],
+                options.channel
+                or (
+                    "auto"
+                    if options.action == "check"
+                    else os.environ.get("ADA_MCP_UPDATE_CHANNEL", "auto")
+                ),
+                options.cache,
+                refresh=options.action == "check",
+                manual=options.action == "check",
+            )
+        elif options.mode == "install-skill":
             install_skill(
                 absolute_path(options.destination, "install destination"), manifest, report
             )
@@ -982,6 +1023,7 @@ def main() -> int:
                         str(SCRIPT_ROOT / "mcp_client.py"),
                     ] + launcher_arguments(binding)[1:]
                     arguments.extend(["--timeout", str(options.timeout)])
+                    arguments.extend(update_arguments(options))
                     if options.log_dir:
                         arguments.extend(["--log-dir", options.log_dir])
                     arguments.extend(
@@ -999,7 +1041,7 @@ def main() -> int:
                     content = (
                         "# Generated native-client fragment; merge explicitly.\n"
                         '[mcp_servers.ada]\ncommand = "/bin/bash"\nargs = '
-                        + toml_string_array(launcher_arguments(binding))
+                        + toml_string_array(launcher_arguments(binding) + update_arguments(options))
                         + "\nstartup_timeout_sec = 60\n"
                         "tool_timeout_sec = 120\nenabled_tools = "
                         + toml_string_array(sorted(READ_TOOLS))
@@ -1008,14 +1050,18 @@ def main() -> int:
                     write_new(target, content)
                     report["native_config"] = str(target)
                     report["installed_in_native_client"] = False
-        report["status"] = "passed"
+        if options.mode != "updates":
+            report["status"] = "passed"
     except Exception as error:
-        report["error"] = type(error).__name__ + ": " + str(error)
+        if options.mode == "updates":
+            report = {"status": "unknown", "reason": "runtime_metadata_unavailable"}
+        else:
+            report["error"] = type(error).__name__ + ": " + str(error)
     finally:
         if output is not None:
             (output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
-    return 0 if report["status"] == "passed" else 1
+    return 0 if options.mode == "updates" or report["status"] == "passed" else 1
 
 
 if __name__ == "__main__":

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Check public release metadata from the host with a private daily cache,
+  bounded timeout and opt-out; expose available-version advisories through
+  MCP initialization/project results without moving installed pins.
+- Let explicit update checks search afresh without waiting for the daily cache,
+  while honoring provider retry deadlines across stable/prerelease channels.
+- Ask once before a skill executes a verified update, including new target
+  pins, matching runtime/skill/client activation and preserved rollback state.
+- Add public RC1 first-install guidance for reader-owned private Cloud skill
+  copies and local Codex/Docker setup, preserving native-client acceptance limits.
+
 ## 0.2.0-rc.1 — pilot prerelease
 
 - Provide an independent, coordinated server/container/tooling distribution
