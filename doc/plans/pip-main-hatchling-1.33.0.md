@@ -76,3 +76,20 @@ receipt helper. A private build-tool environment can inspect newly built
 metadata during development; that is not a substitute for the complete new
 exact-source AMD64 Trixie chain, successful receipt and generated-artifact
 host acceptance. Preserve the original failed evidence and published commits.
+
+## 2026-11-13: Integrate the accepted Pydantic baseline
+
+The maintainer selected the accepted dependency updates for the first pilot
+release. Integrate accepted main
+`80ab1285b4d8695567d00a05e120b76d66177e1a` into this existing Hatchling topic
+with an ordinary merge, preserving both published parent histories. Retain
+the accepted Actions pins, Pydantic 2.14.3 and pydantic-core 2.50.4 from main,
+alongside this topic's Hatchling 1.33.0 and tomlkit 0.15.2.
+
+Preserve all other package versions and hash sets, the sorted union of change
+records and the builtin Python-version provider. The canonical SemVer source,
+normalized Python metadata contract, MCP 1.28.1 pin and strict receipt checks
+remain unchanged. The combined source must receive its own complete Trixie
+CI, successful provenance receipt, generated-artifact host acceptance and
+independent review before acceptance. Earlier evidence remains tied to its
+original immutable source revision.
