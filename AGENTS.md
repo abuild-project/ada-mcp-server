@@ -57,6 +57,11 @@ work. This guide applies to every agent and contributor, regardless of vendor.
 - Before first submission, fold unpublished corrections into coherent commits.
   Preserve imported/published authorship and history. Rewriting shared history
   or force-pushing needs explicit permission.
+- Merge every pull request with a merge commit, preserving the reviewed
+  commits and authorship. Squash and rebase merges are not used. This also
+  applies to release and dependency updates. Use the commit subject/body
+  conventions above for the merge message; do not rewrite published topic
+  commits to obtain a single-commit PR.
 - Add doc/change-records/<topic>.md and its sorted index entry. Derive the topic
   from the branch by dropping the first prefix and replacing other slashes
   with hyphens. The record supplies the PR description and ends with the same

@@ -1,9 +1,17 @@
-# Prepared release promotion
+# Release procedure
 
-The current task stops at a fully checked PR. Do not merge, tag, publish a
-GitHub release, push a GHCR image or update the account plugin without later
-maintainer approval. Ordinary CI only builds/tests and uploads CI artifacts.
-The prepared promotion workflow is manually invoked after that decision.
+Use this procedure for a maintainer-authorized release. Prepare release changes
+in their own reviewed PR, then promote artifacts from the accepted `main`
+revision. Merge, tags, publication, repository settings and account-plugin
+updates need the maintainer's authorization; a reviewed PR alone is not that
+authorization. Ordinary CI only builds/tests and uploads CI artifacts.
+The promotion workflow is manually invoked for the approved release.
+
+The initial version `0.2.0-rc.1` is a pilot prerelease, not a stable support
+promise. Its [release notes](releases/0.2.0-rc.1.md) describe what it contains
+and which client/platform tests still follow. The
+[public repository assessment](assessments/public-release.md) distinguishes
+observed settings from policy and unavailable administrative evidence.
 
 ## Artifact trust and version
 
@@ -40,13 +48,23 @@ metadata and checksums record the digest and exact tested artifact hashes.
 
 ## Manual gates
 
-1. Select a successful CI run for the approved immutable source revision.
-   Verify its artifact hashes and source/image/version correspondence. Run the
-   promotion validator in plan mode; retain its full command and output.
-2. Approve merge/release separately, create the intended immutable tag at the
-   approved revision and configure repository/GitHub Actions permissions and
-   release protection. A declared environment name alone is not evidence of
-   a working approval rule; verify the actual settings/access.
+1. Merge the release PR with a merge commit and wait for the complete CI chain
+   on that exact resulting `main` revision. The promotion workflow requires a
+   successful `push` run on `main` from this repository's
+   `.github/workflows/ci.yml`, with the selected source SHA. A PR or topic-push
+   run does not meet this requirement, even if its tree is identical.
+   Download that run's `release-candidate` artifact, verify its hashes and
+   source/image/version correspondence, and run scripts/promote.py in plan
+   mode. Retain the source SHA, run ID, command and output.
+2. With merge/release authority supplied, create the intended immutable tag
+   `v0.2.0-rc.1` on that same approved revision and verify the tag target.
+   Verify repository/GitHub Actions permissions, release protection,
+   GHCR publication rights and the exact redistributed components' required
+   source delivery under [licensing](licensing.md). A declared environment name
+   alone is not evidence
+   of a working approval rule; verify the actual settings/access. The manual
+   workflow takes the verified `run_id` and `source_sha`; keep
+   `execute_publication` false for its plan-only invocation.
 3. Promote the selected tested artifacts to GitHub Releases/GHCR. Do not rebuild.
    Retain the actual pushed registry digest and compare the config image ID
    with the tested image ID. If administration is blocked, report the exact
@@ -66,6 +84,15 @@ metadata and checksums record the digest and exact tested artifact hashes.
 No PyPI publication, new account-plugin identity or public plugin-directory
 submission is part of this workflow. The repository remains an independent
 continuation, not an upstream mirror requiring automatic synchronization.
+
+The pilot acceptance after publication checks the actual versioned download
+URLs and pinned hashes, anonymous GHCR pull/config identity, the existing
+account plugin's published-artifact references, and ordinary acquisition in a
+fresh managed Cloud task. Keep source-bound semantic queries, explicit GPR
+views and EOF cleanup in that test. A second worktree or cleared local binding
+in the producer task is not a fresh Cloud environment. Actual macOS and native
+Claude/OpenCode acceptance remain separate subsequent topics; they do not
+block the agreed Cloud pilot prerelease.
 
 Registry behavior reference:
 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry

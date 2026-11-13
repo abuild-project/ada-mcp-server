@@ -1,17 +1,20 @@
 # Changelog
 
-## 0.2.0-rc.1 — in development
+## Unreleased
 
-- Prepare an independent, coordinated server/container/tooling distribution
-  under abuild-project with immutable version and artifact metadata.
-- Add standalone AMD64 Trixie setup, pinned image acquisition and explicit
-  host bindings for multiple Ada repositories.
-- Retain the selected ancestor-GPR behavior and original MIT history.
-- Bind Python artifacts to checked source bytes, reject symlinked sharing roots
-  and keep newly created query/Mac evidence directories private.
-- Isolate production Python imports and reject shared roots that overlap
-  reserved runtime installation, executable, library or startup paths.
-- Bind release packaging to the immutable image target actually checked,
-  rejecting another image even when source and version labels match.
+## 0.2.0-rc.1 — pilot prerelease
 
-No public release or published image is available yet.
+- Provide an independent, coordinated server/container/tooling distribution
+  under abuild-project, preserving the original MIT history and authorship.
+- Provide standalone AMD64 Trixie setup and explicit host bindings for multiple
+  Ada repositories, retaining the selected ancestor-GPR behavior.
+- Run supported project, symbol, navigation and file-diagnostic queries in a
+  read-only, nonroot container with isolated imports and private evidence.
+- Verify acquired tooling and images against immutable hashes and bind release
+  packaging to the exact source, Python distributions and image checked in CI.
+
+This prerelease covers the documented Linux/AMD64 container workflow.
+Actual macOS, native Claude/OpenCode integration and fresh managed Cloud
+acquisition require their own acceptance. See the [release notes](doc/releases/0.2.0-rc.1.md)
+for the pilot limits and [GitHub Releases](https://github.com/abuild-project/ada-mcp-server/releases)
+for published artifacts.
