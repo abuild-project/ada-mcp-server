@@ -49,3 +49,30 @@ independent review.
 Apply the existing bounded role workflow to the final immutable candidate.
 Local preparation grants no remote push, review request, merge or
 publication.
+
+## 2026-11-13: Canonical Python metadata with the newer backend
+
+The actual Hatchling 1.33.0 build used normalized Python distribution
+filenames but preserved the provider's raw SemVer spelling in wheel and
+sdist core metadata. The unchanged completed-check receipt rejected that
+metadata, as required by the existing Python-version contract. Passing
+unit tests and Twine alone do not establish receipt acceptance.
+
+Decision: use Hatchling's documented builtin code version source on the
+dependency-free src/ada_mcp/_version.py. Evaluate
+`VERSION.replace("-rc.", "rc")` before the backend preserves the supplied
+spelling. Retain the single canonical SemVer literal, existing Python/MCP
+version and strict package-name/version/provenance checks. Do not introduce
+another version constant, an external plugin or broader accepted metadata.
+
+The backend's [code version source](https://github.com/pypa/hatch/blob/hatchling-v1.33.0/docs/plugins/version-source/code.md)
+supports this path/expression configuration directly. Its
+[history](https://github.com/pypa/hatch/blob/hatchling-v1.33.0/docs/history/hatchling.md)
+records preservation of the original core-metadata version spelling starting
+with 1.32.3; normalized filenames alone therefore cannot prove the contract.
+
+The original actual wheel/sdist pair is a negative control for the unchanged
+receipt helper. A private build-tool environment can inspect newly built
+metadata during development; that is not a substitute for the complete new
+exact-source AMD64 Trixie chain, successful receipt and generated-artifact
+host acceptance. Preserve the original failed evidence and published commits.
