@@ -48,3 +48,18 @@ checks and independent review.
 Apply the existing bounded role workflow to the final immutable candidate.
 Local preparation grants no remote push, review request, merge or
 publication.
+
+## 2026-11-13: Integrate the accepted Actions baseline
+
+The maintainer selected the five accepted dependency updates for the first
+pilot release. Integrate accepted main
+`8d4e4e5ed88bf88bd55a0d9aa5d3096434b0d237`, containing the reviewed artifact
+upload and checkout updates, into this existing Pydantic topic with an
+ordinary merge. Preserve both published parent histories and authorship.
+
+Retain Pydantic 2.14.3 and pydantic-core 2.50.4 from this topic. Preserve
+every other package version and hash set, both accepted Actions pins and
+the sorted union of indexed change records. The Python dependency ranges,
+MCP 1.28.1 pin and documented support boundaries remain unchanged. Complete
+Trixie CI and independent review must cover the new immutable revision;
+earlier receipts identify only their original source revisions.
