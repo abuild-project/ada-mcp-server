@@ -1,8 +1,11 @@
 # Candidate support and evidence matrix
 
-Version: coordinated candidate `0.2.0-rc.1` (Python `0.2.0rc1`). There is no
-public release yet. The table defines the acceptance scope for this candidate;
-the exact immutable revision must pass the documented checks before approval.
+Version: pilot prerelease `0.2.0-rc.1` (Python `0.2.0rc1`). The table defines
+its acceptance scope; the exact immutable revision must pass the documented
+checks before approval. Check
+[GitHub Releases](https://github.com/abuild-project/ada-mcp-server/releases)
+for publication and artifact metadata. A version in source or CI does not
+establish public availability or acceptance of an untested client.
 It does not reuse the old pilot image as evidence for this server revision.
 Python 3.11 is the minimum syntax/runtime requirement, not a claim that every
 Python version/platform combination was accepted. The complete server chain
