@@ -1,5 +1,6 @@
 # Change records
 
+- [AnyIO hash lock update](pip-main-anyio-4.16.0.md)
 - [Bootstrap distribution](bootstrap-distribution.md)
 - [Checkout action update](github_actions-main-actions-checkout-7.0.1.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
