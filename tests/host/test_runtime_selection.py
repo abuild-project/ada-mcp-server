@@ -258,6 +258,47 @@ def test_show_respects_explicit_selection_over_environment_and_checks_bounds(tmp
     assert result.returncode == 1 and "size bound" in report["reason"]
 
 
+def test_fresh_process_needs_the_custom_locator_even_when_its_pair_persists(tmp_path):
+    """Model explicit next-process settings, without assuming provider persistence."""
+    script = entry(tmp_path)
+    before_entry = script.read_bytes()
+    pair = runtime_pair(tmp_path, "target")
+    state = tmp_path / "custom-private/selection.json"
+    result, activated = activate(script, state, pair)
+    assert result.returncode == 0
+    before_state = state.read_bytes()
+    private_home = tmp_path / "fresh-private-home"
+    private_home.mkdir(mode=0o700)
+    process_env = dict(os.environ, HOME=str(private_home))
+    process_env.pop("ADA_MCP_SELECTION", None)
+
+    def discover(env):
+        return json.loads(
+            subprocess.run(
+                [sys.executable, "-I", str(script), "selection", "show"],
+                env=env,
+                text=True,
+                capture_output=True,
+                check=True,
+                timeout=10,
+            ).stdout
+        )
+
+    default = discover(process_env)
+    assert default == {
+        "status": "absent",
+        "selection": str(private_home / ".config/ada-mcp/selection.json"),
+    }
+    assert list(private_home.iterdir()) == []
+    explicit, supplied = command(script, state, "show", env=process_env)
+    assert explicit.returncode == 0 and supplied == activated
+    retained_locator_env = dict(process_env, ADA_MCP_SELECTION=str(state))
+    assert discover(retained_locator_env) == activated
+    assert discover(process_env) == default  # no implicit persisted pointer/config write
+    assert list(private_home.iterdir()) == []
+    assert script.read_bytes() == before_entry and state.read_bytes() == before_state
+
+
 def test_archive_contract_check_refuses_legacy_or_mismatched_release_before_writes(tmp_path):
     pair = runtime_pair(tmp_path, "target", contract=None)
     files = {

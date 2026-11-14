@@ -44,3 +44,18 @@ Doctor/source queries in the existing two-identity artifact acceptance. Controll
 fixtures are not a published RC2-to-RC3 update; that remains a later consumer
 test after a justified separately reviewed release. Full exact-source AMD64
 Trixie CI and independent review remain acceptance requirements.
+
+
+## 2026-11-14: Locator persistence boundary
+
+Activation at a custom path stores only the pinned record at that path; it does
+not persist a pointer or environment choice. Later-session reuse requires the
+same runtime/binding/record files and a discoverable locator. The default works
+only on hosts that retain those files. Custom paths must be supplied again or
+explicitly retained through the host/provider's supported environment/discovery
+configuration; a transient process environment or chat is not evidence of it.
+Do not add a registry or automatic global configuration write. Report session-only
+activation and the one necessary locator/bootstrap user action when persistence
+is unavailable. An absent default does not establish that no custom installation
+exists. Fresh private-HOME subprocess controls distinguish default absence from
+explicit/environment locator recovery without claiming actual Cloud persistence.

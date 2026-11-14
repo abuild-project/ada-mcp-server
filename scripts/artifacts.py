@@ -170,8 +170,10 @@ PY
 Read the verified runtime's SKILL.md and references/setup.md. Bootstrap with
 explicit roots, binding and image-cache paths, then run Doctor and actual
 query batches. The full runtime manifest pins the image archive as well.
-Activate an explicit compatible selection as described below; later chats use
-that pinned runtime even when this entry's fallback version is older.
+Activate an explicit compatible selection as described below. Later chats can
+use that runtime only when its files and the same default/custom locator are
+available there; custom --file does not persist a pointer or environment.
+Otherwise report session-only use and the required path/bootstrap step.
 Native configuration and current managed Cloud tool registration are separate;
 actual Mac/other-client/registry/fresh-Cloud acceptance remains in development.
 Never replace the repository's compiler/coverage/test/documentation chain.

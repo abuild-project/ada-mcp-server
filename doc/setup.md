@@ -26,7 +26,9 @@ distribution targets until their publication and access are verified.
 This source prepares an unreleased selection-aware entry; the public RC1/RC2
 archives have no workflow contract or selection command. A compatible future
 entry first resolves its private pinned selection and uses that runtime/binding
-for setup, queries and update checks. Entry package version is not server version.
+for setup, queries and update checks. Later sessions need the same retained
+files and default/custom locator; a custom --file does not persist a pointer.
+Entry package version is not server version.
 See [entry/runtime selection](updating.md)
 for the exact compatibility check, trusted embedded-acquirer invocation, fresh
 Cloud bootstrap and guarded activation/rollback. Unknown contracts require an

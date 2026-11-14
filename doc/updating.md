@@ -37,14 +37,25 @@ For a lightweight entry, execute its embedded acquisition source through
 same source here-document, replacing the fallback acquisition arguments. This
 mode never downloads anything. Do not execute the fallback first. The explicit
 `--file` wins over `ADA_MCP_SELECTION`, then `~/.config/ada-mcp/selection.json`.
+Omitting `--file` on both activation and reads uses that default. It is
+rediscoverable only where the host actually retains the files. A custom
+`--file` does not save a pointer, write environment settings or teach future
+sessions its path. Supply that same path in each session, or explicitly retain
+`ADA_MCP_SELECTION`/the locator through the host/provider's supported environment
+or discovery configuration. A command-local environment or current chat text
+is not proof of future persistence. No host/provider setting is changed by the
+selection CLI; unavailable persistence means report session-only activation and
+one necessary user action, such as supplying the custom path next time.
 Reading an absent default writes nothing. The private record pins runtime and
 binding paths, manifest/binding hashes, actual version/source/image and contract;
 all declared sources are authenticated before captured helper execution. Selected
 helpers execute source bytes rather than unchecked sibling bytecode.
 
 `selected` supplies the actual runtime/binding for Doctor, queries and fresh
-update searches. A new chat resolves it again instead of reusing embedded old
-pins. `invalid`/`incompatible` is a stop condition, not permission to ignore the
+update searches. A new chat resolves it again only when the same files and
+default/custom locator are available there, instead of reusing embedded old
+pins. If the intended custom locator is unknown, request that path; an absent
+default does not prove there is no existing installation elsewhere. `invalid`/`incompatible` is a stop condition, not permission to ignore the
 record. `absent` in a fresh Cloud session means perform the verified published
 release bootstrap after necessary consent. Do not assume files persist from a
 previous Cloud task. Authenticate actual target metadata/pins before executing
@@ -252,7 +263,9 @@ before proceeding when the user has already approved the identified update.
 4. Verify entry compatibility and selected runtime pins, actual MCP
    server version against the new verified runtime metadata, selected binding
    and representative real queries **after** activation/reconnect. Verify that
-   later sessions select the new pair. Your Ada project's compiler/tests remain
+   later sessions can access both the new pair and its selection locator. If
+   only current-session access is established, report that limit and the path
+   the user must supply next time. Your Ada project's compiler/tests remain
    separate. Download, staging and fragment generation alone are not completion.
 
 If a provider update, persistent binding selection, tool or host reconnect is

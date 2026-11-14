@@ -4,6 +4,7 @@
 
 - Let compatible full/local and lightweight entries reuse an exact verified
   runtime/binding selection without a plugin upload or skill replacement.
+  Later sessions need retained files and the same default/custom locator.
 - Check an explicit workflow contract and pinned selection before use; provide
   consented no-clobber activation, expected-state backups and rollback.
 - Distinguish entry package version from active runtime version and fresh-session

@@ -55,18 +55,31 @@ with this entry, not an unverified target helper:
 - Discovery order is explicit `--file`, `ADA_MCP_SELECTION`, then the user's
   `~/.config/ada-mcp/selection.json`. Reads never create state. This path is
   local user state, not a guarantee that Cloud files persist between sessions.
+  Omitting `--file` on activation chooses that default; supplying a custom path
+  does not remember its locator or change the environment. For every later
+  session, supply the SAME custom `--file` or explicitly retain its locator in
+  the host/provider's supported environment/discovery configuration. A current
+  command's environment or chat text is not evidence of that persistence.
 
 On `selected`, use the returned exact runtime/binding and actual project version
 for Doctor, queries and updates. Verify the actual MCP initialization version;
-never infer it from the plugin package version. A later chat resolves selection
-again, so compatible updates do not require a new plugin upload or local skill
-replacement. On `invalid` or `incompatible`, stop and report the concrete reason;
+never infer it from the plugin package version. A later chat can resolve that
+pair only when its files AND locator are available there: the persisted default
+path, the supplied custom path or an explicitly retained supported host setting.
+Otherwise report session-only use and the one user step needed to supply the
+locator or bootstrap in that environment. Do not claim later-session discovery
+from activation alone. Compatible updates need no new plugin upload/local skill
+replacement when that pair is reachable. On `invalid` or `incompatible`, stop
+and report the concrete reason;
 never silently fall back to stale embedded pins or select an unchecked latest.
 Missing/unknown workflow contract requires a compatible entry update or an
 explicit independent legacy setup. Public RC1/RC2 do not advertise this contract;
 their immutable entries need one initial upgrade to gain selection support.
 
-On `absent` in a fresh environment, inspect the user's intended real published
+If the user intends to reuse an existing custom selection but its locator is
+unknown, request that path rather than treating an absent default as proof of
+no installation. On a genuinely fresh `absent` environment, inspect the user's
+intended real published
 release using the provenance procedure below, including compatibility, before
 asking/using existing setup consent. Require `tooling.workflow_contract == 1`
 in the authenticated release manifest AND the same integer in the authenticated
@@ -153,7 +166,8 @@ and references/updating.md; do not merely send a link and stop:
    rollback. Stop activation on any verification/query failure; keep the old pair.
 5. For a compatible runtime, keep this full/local or Cloud entry unchanged.
    Activate its verified new selection with expected-old hash and a new backup;
-   later chats resolve that choice rather than embedded old pins. Update the
+   later chats need the same files and default/custom locator to resolve it.
+   Update the
    entry only for its own instructions, permissions or compatibility changes,
    through the guarded local skill switch or intended private provider identity,
    preserving audience/private metadata. An incompatible target needs an explicit
@@ -162,7 +176,8 @@ and references/updating.md; do not merely send a link and stop:
    configuration and reconnect. Selection is not native registration.
 6. Verify entry compatibility and selected runtime pins, actual MCP server
    version and representative queries after activation/reconnect, including the
-   matching new binding selection for later sessions. If a tool, provider update,
+   matching new binding selection and its locator for later sessions. If a tool,
+   provider update,
    persistent selection or host reconnect is unavailable, report exactly what is
    staged versus activated and the one necessary user action. Never claim a
    completed update from download, staging or generated configuration alone.

@@ -21,17 +21,24 @@ Discovery checks explicit selection, environment, then user-local state without
 writing on reads. No automatic installer or global client configuration is added.
 
 Both entry forms share the same discovery, compatibility, bootstrap and approved
-update instructions. New sessions select the recorded runtime instead of stale
-embedded pins. Fresh Cloud sessions with absent state follow real verified
+update instructions. New sessions can select the recorded runtime only when
+its files and locator are available there. A custom path must be supplied again
+or explicitly retained through supported host/provider configuration; activation
+does not write that configuration or a persistent pointer. Otherwise report
+session-only use and the necessary locator/bootstrap action. Fresh Cloud
+sessions with absent state follow real verified
 release bootstrap without assuming persistence. Compatible runtime updates keep
 the entry unchanged; instruction/permission/compatibility changes use the guarded
 entry-update flow. Native clients still need their own explicit configuration,
 reconnect and actual version/query checks. Support scope is unchanged.
 
-Targeted development validation passed 108 cases covering unchanged-entry
-version switching and rollback,
-legacy/incompatible contracts, source/pin/binding corruption, ignored bytecode,
+Targeted development validation covers unchanged-entry version switching and
+rollback, legacy/incompatible contracts, source/pin/binding corruption, ignored bytecode,
 no-clobber/expected-state guards, write failures and generated entry invocation.
+Fresh-process controls show that a custom selection is absent from an unrelated
+private default HOME, while an explicitly supplied or next-process environment
+locator recovers the exact pair without changing the entry or default state.
+That process fixture does not claim provider or Cloud persistence.
 Ruff/format, strict Mypy, documentation/examples and whitespace checks passed.
 The generated-artifact acceptance now includes selection activation/readback
 after the existing real Doctor and source queries for both Linux identities.
