@@ -17,15 +17,19 @@ from typing import Any
 JSON = dict[str, Any]
 sys.dont_write_bytecode = True
 _setup_source = Path(__file__).resolve().with_name("ada_mcp_setup.py")
-_setup_bytes = _setup_source.read_bytes()
 _manifest = _setup_source.with_name("runtime-manifest.json")
-if _manifest.is_file():
+_installed_mode = _manifest.is_file() or not (
+    _setup_source.parent.name == "tooling"
+    and (_setup_source.parent.parent / "src/ada_mcp/update_notice.py").is_file()
+)
+_setup_bytes = _setup_source.read_bytes()
+if _installed_mode:
     _expected = json.loads(_manifest.read_text())["files_sha256"]["scripts/ada_mcp_setup.py"]
     if hashlib.sha256(_setup_bytes).hexdigest() != _expected:
         raise RuntimeError("bundle helper checksum mismatch: scripts/ada_mcp_setup.py")
 _setup: JSON = {"__name__": "_ada_mcp_setup", "__file__": str(_setup_source)}
 exec(compile(_setup_bytes, str(_setup_source), "exec"), _setup)
-if _manifest.is_file():
+if _installed_mode:
     _setup["verified_manifest"]()
 _client = _setup["load_helper"]("mcp_client")
 Session: Any = _client["Session"]

@@ -41,6 +41,13 @@ compiles the parent's captured bytes without reopening either helper path.
 Contributor trees without a generated manifest retain source support without
 being described as verified installations.
 
+Packaged smoke startup requires its manifest before executing setup, including
+help. Smoke bootstrap and the shared loader retain installed mode when metadata
+disappears, so omitted helpers cannot become unverified source fallback after
+successful verification. Declared retained sources remain usable. Raw helper
+fallback requires the contributor tooling/src layout, consistently with direct
+release checks.
+
 Full and generated lightweight skills share one consent workflow. They inspect
 the actual route, capabilities, target release compatibility and installation
 scope before asking once. A declined update leaves the old pair active; an
@@ -67,7 +74,7 @@ acceptance claim. Reviewed Cloud Arca evidence remains bounded to its concrete
 source requests/results without new process/cleanup certification.
 
 Development validation used Python 3.12 with the exact development lock,
-including MCP 1.30.0. The source/host checks passed 296 cases, covering fresh
+including MCP 1.30.0. The source/host checks passed 309 cases, covering fresh
 search/cache/provider rules, unchanged opt-out/install state, protocol,
 packaging, image/archive validation and source-only helper execution. Valid
 poisoned sibling-bytecode controls exercise real status, native, query, Doctor,
@@ -81,6 +88,12 @@ Trusted synthetic HTTP fixtures establish successful separate fetch children;
 failure/output-limit controls remain advisory and a stalled child is killed
 and reaped under its total deadline. The new controls reject the original
 disk-reopening implementation without changing runtime bytes or modes.
+Manifest-mode controls reject marked setup/client execution for missing
+metadata and metadata removed during bootstrap or after partial-map
+verification. Valid packaged/source help, retained declared sources and
+existing poisoned caches preserve their bytes and modes. The new controls
+reject the previous optional-manifest downgrade. Linux smoke-help checks do
+not establish actual Mac acceptance.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths

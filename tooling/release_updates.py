@@ -32,7 +32,11 @@ if _captured is not None:
     _checker_bytes, METADATA_SOURCE, _metadata_bytes = _captured
 else:
     _manifest = SCRIPT_ROOT / "runtime-manifest.json"
-    if _verified is None and _manifest.is_file():
+    _installed_mode = _manifest.is_file() or not (
+        SCRIPT_ROOT.name == "tooling"
+        and (SCRIPT_ROOT.parent / "src/ada_mcp/update_notice.py").is_file()
+    )
+    if _verified is None and _installed_mode:
         # Direct installed/launcher entry uses the same verifier as setup commands.
         _setup_source = SCRIPT_ROOT / "ada_mcp_setup.py"
         _setup_bytes = _setup_source.read_bytes()

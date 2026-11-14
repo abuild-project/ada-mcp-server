@@ -6,6 +6,8 @@
   explicit notice-cache paths before client configuration or query startup.
 - Retain verified checker/validator bytes through isolated release fetches and
   refuse undeclared installed sources before checking for updates.
+- Require a manifest for packaged smoke startup and retain installed mode if
+  metadata disappears; source fallback requires the contributor tooling/src layout.
 - Check public release metadata from the host with a private daily cache,
   bounded timeout and opt-out; expose available-version advisories through
   MCP initialization/project results without moving installed pins.

@@ -169,3 +169,18 @@ reopening either source path. Keep the two-second total fetch deadline,
 kill/reap behavior, output limits and advisory fail-open handling. Preserve
 endpoint, cache, fresh-search and shared provider-limit semantics; no new
 updater, dependency or runtime-network permission is needed.
+
+## 2026-11-14: Installed mode cannot become source fallback
+
+Decision: classify contributor fallback from the repository's tooling/src
+layout before executing sibling code. Packaged smoke startup requires its
+runtime manifest and authenticates setup before execution, including help.
+Retain the same installed-mode decision for the subsequent full verification;
+disappearing metadata cannot skip that step.
+
+Decision: latch installed mode in the shared loader at classification and
+manifest verification. An undeclared helper cannot become raw source if the
+manifest later disappears. Previously retained declared sources remain usable
+without rereading changed helpers. Apply the same contributor-layout boundary
+to direct release checks. These bootstrap/help controls establish no actual
+Mac or native-client acceptance and add no broader host-tamper protocol.

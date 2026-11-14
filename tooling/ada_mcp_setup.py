@@ -23,6 +23,9 @@ sys.dont_write_bytecode = True
 
 SCRIPT_ROOT = Path(__file__).resolve().parent
 SKILL_ROOT = SCRIPT_ROOT.parent
+_installed_mode = (SCRIPT_ROOT / "runtime-manifest.json").is_file() or not (
+    SCRIPT_ROOT.name == "tooling" and (SKILL_ROOT / "src/ada_mcp/update_notice.py").is_file()
+)
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IMAGE_ID = re.compile(r"^sha256:[0-9a-f]{64}$")
 _verified_sources: dict[Path, bytes] = {}
@@ -64,9 +67,11 @@ def sha256_file(path: Path | str) -> str:
 
 def load_helper(name: str) -> JSON:
     """Execute a sibling's retained source bytes, never its bytecode cache."""
+    global _installed_mode
     require(re.fullmatch(r"[a-z][a-z0-9_]*", name), "invalid helper name")
     path = SCRIPT_ROOT / (name + ".py")
-    if (SCRIPT_ROOT / "runtime-manifest.json").is_file():
+    _installed_mode = _installed_mode or (SCRIPT_ROOT / "runtime-manifest.json").is_file()
+    if _installed_mode:
         require(path in _verified_sources, "helper source has not been verified: " + name)
     if path not in _helper_namespaces:
         source = _verified_sources.get(path)
@@ -86,6 +91,8 @@ def load_helper(name: str) -> JSON:
 
 def verified_manifest() -> JSON:
     """Check every declared bundle helper before invoking it."""
+    global _installed_mode
+    _installed_mode = True
     manifest: JSON = json.loads((SCRIPT_ROOT / "runtime-manifest.json").read_text())
     require(IMAGE_ID.fullmatch(manifest["image_id"]), "bundle image ID is invalid")
     verified: dict[Path, bytes] = {}
