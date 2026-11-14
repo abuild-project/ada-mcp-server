@@ -23,6 +23,12 @@ become provider blocks. Explicit Retry-After instructions remain binding,
 including maintenance responses; applicable waits still apply across channels
 without turning the artificial daily cache cooldown into a manual-check delay.
 
+Applicable provider deadlines are captured after exact response-URL validation
+and before bounded body reads. Successful feeds retain usable versions and
+completeness while carrying their deadline. Invalid, oversized or unreadable
+feeds remain offline and retain any already-observed deadline. The existing
+cache shares those waits across channels; unexpected URLs cannot supply them.
+
 Notice validation recomputes freshness on each read. A previously fresh host
 snapshot becomes stale at one day and carries the stale warning in later MCP
 project results; an incoming stale flag stays stale. Future timestamps and
@@ -119,6 +125,13 @@ case-insensitive names, padded zero and invalid header values. They reject the
 previous informational-reset blocking while preserving exhausted-quota waits.
 The HTTP transport is controlled in-process; these fixtures are not evidence
 of live provider responses or a replacement for isolated-child controls.
+Successful-response controls cover zero, positive, missing and invalid remaining
+quota with valid, malformed, oversized and failing body reads. They preserve
+good feed data, block both channels before an actual deadline, allow fresh
+requests at it and reject the previous deadline loss. Captured-source child
+controls verify the actual returned retry_until, cache propagation and blocked
+follow-up without another child, including after sibling source replacement.
+The exact response-URL guard rejects deadline metadata before reading a body.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths

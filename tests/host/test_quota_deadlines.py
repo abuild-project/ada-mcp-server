@@ -42,7 +42,11 @@ CASES = [
 
 
 class Response:
-    headers = {}
+    def __init__(self, headers=None, body=None):
+        self.headers = headers if headers is not None else {}
+        self.body = (
+            b'[{"tag_name":"v0.2.0","draft":false,"prerelease":false}]' if body is None else body
+        )
 
     def __enter__(self):
         return self
@@ -55,7 +59,9 @@ class Response:
 
     def read(self, limit):
         assert limit == updates.MAX_FEED + 1
-        return b'[{"tag_name":"v0.2.0","draft":false,"prerelease":false}]'
+        if isinstance(self.body, Exception):
+            raise self.body
+        return self.body[:limit]
 
 
 @pytest.mark.parametrize("status,raw_headers,delay", CASES)
@@ -116,3 +122,84 @@ def test_http_deadlines_and_manual_retries_across_channels(
         assert retried["status"] == "up_to_date" and retried["check_performed"] is True
         assert len(requests) == 2 and fetched[-1]["status"] == "ok"
         assert os.environ["ADA_MCP_UPDATE_CHANNEL"] == "off"
+
+
+@pytest.mark.parametrize("remaining", ["0", "42", None, "invalid"])
+@pytest.mark.parametrize("body_kind", ["valid", "invalid-json", "oversized", "read-failure"])
+def test_received_quota_deadline_survives_body_validation_and_manual_retries(
+    tmp_path, monkeypatch, remaining, body_kind
+):
+    raw = f"X-RateLimit-Reset: {RESET}\r\n"
+    if remaining is not None:
+        raw += f"X-RateLimit-Remaining: {remaining}\r\n"
+    headers = parse_headers(io.BytesIO((raw + "\r\n").encode("ascii")))
+    body = None
+    if body_kind == "invalid-json":
+        body = b"not-json"
+    elif body_kind == "oversized":
+        body = b"x" * (updates.MAX_FEED + 1)
+    elif body_kind == "read-failure":
+        body = OSError("controlled response-read failure")
+    clock = SimpleNamespace(now=NOW)
+    monkeypatch.setattr(updates, "time", SimpleNamespace(time=lambda: clock.now))
+    for retry_channel in ["stable", "prerelease"]:
+        clock.now = NOW
+        requests, fetched = [], []
+
+        def open_request(request, timeout):
+            assert request.full_url == updates.API_URL and timeout == 1.5
+            requests.append(request)
+            return Response(headers, body) if len(requests) == 1 else Response()
+
+        monkeypatch.setattr(
+            updates.urllib.request,
+            "build_opener",
+            lambda *args: SimpleNamespace(open=open_request),
+        )
+
+        def fetch():
+            result = updates.fetch_feed()
+            fetched.append(result)
+            return result
+
+        monkeypatch.setattr(updates, "bounded_fetch", fetch)
+        cache = tmp_path / retry_channel / "private-cache"
+        initial = updates.check_updates("0.2.0", "stable", cache, manual=True)
+        assert initial["status"] == ("up_to_date" if body_kind == "valid" else "offline")
+        assert initial["check_performed"] is True and len(requests) == 1
+        state = json.loads((cache / "stable.json").read_text())
+        deadline = NOW + 3600 if remaining == "0" else None
+        assert fetched[0].get("retry_until") == state.get("provider_retry_until") == deadline
+        if body_kind == "valid":
+            assert fetched[0]["status"] == "ok"
+            assert fetched[0]["versions"] == ["0.2.0"] and fetched[0]["complete"] is True
+        else:
+            assert fetched[0]["status"] == "offline" and "versions" not in fetched[0]
+        if deadline is not None:
+            clock.now = deadline - 1
+            for channel in ["stable", "prerelease"]:
+                blocked = updates.check_updates("0.2.0", channel, cache, manual=True)
+                assert blocked["status"] == "blocked" and blocked["blocked_until"] == deadline
+                assert blocked["check_performed"] is False and len(requests) == 1
+            clock.now = deadline
+        else:
+            clock.now = NOW + 1
+        fresh = updates.check_updates("0.2.0", retry_channel, cache, manual=True)
+        assert fresh["status"] == "up_to_date" and fresh["check_performed"] is True
+        assert len(requests) == 2
+
+
+def test_unexpected_response_url_cannot_supply_a_provider_deadline(monkeypatch):
+    headers = parse_headers(
+        io.BytesIO(f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {RESET}\r\n\r\n".encode())
+    )
+    response = Response(headers)
+    monkeypatch.setattr(updates, "time", SimpleNamespace(time=lambda: NOW))
+    monkeypatch.setattr(response, "geturl", lambda: "https://example.invalid/releases")
+    monkeypatch.setattr(response, "read", lambda *args: pytest.fail("untrusted URL body read"))
+    monkeypatch.setattr(
+        updates.urllib.request,
+        "build_opener",
+        lambda *args: SimpleNamespace(open=lambda *args, **kwargs: response),
+    )
+    assert updates.fetch_feed() == {"status": "offline"}

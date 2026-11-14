@@ -17,6 +17,8 @@
   while honoring provider retry deadlines across stable/prerelease channels.
 - Apply quota-reset waits only when no quota remains; preserve explicit
   Retry-After waits, including maintenance responses.
+- Retain observed provider waits after successful responses and invalid,
+  oversized or unreadable release feeds without discarding valid feed data.
 - Ask once before a skill executes a verified update, including new target
   pins, matching runtime/skill/client activation and preserved rollback state.
 - Add public RC1 first-install guidance for reader-owned private Cloud skill

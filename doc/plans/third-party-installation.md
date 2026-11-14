@@ -211,3 +211,17 @@ manual checks bypass artificial daily/offline cooldowns. Preserve the fixed
 endpoint, bounded fetch, cache policy and installation pins. Check actual HTTP
 header parsing and cache behavior with controlled responses rather than live
 provider requests.
+
+## 2026-11-14: Provider waits survive feed validation
+
+Decision: share applicable-header deadline parsing between normal responses
+and HTTP errors. After verifying the exact response URL, capture the deadline
+before reading the bounded body. Preserve it on successful and offline results,
+including invalid JSON, oversized feeds and read failures. Successful versions
+and completeness remain usable; invalid feeds do not become successful results.
+
+Decision: use the existing retry_until field, cache and cross-channel guard
+without changing their schema, daily/manual policy or process deadline. Keep
+positive/missing/invalid remaining-quota headers informational, preserve real
+Retry-After instructions and exclude unexpected response URLs. Check the
+isolated child's returned deadline as well as controlled HTTP/cache outcomes.

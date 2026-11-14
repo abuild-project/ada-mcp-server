@@ -117,15 +117,26 @@ def retry_deadline(retry_after: str, rate_reset: str, now: int) -> int | None:
     return max(deadlines) if deadlines else None
 
 
+def header_deadline(headers: Any) -> int | None:
+    """Interpret applicable retry headers independently of status or feed validity."""
+    if headers is None:
+        return None
+    remaining = headers.get("X-RateLimit-Remaining", "").strip()
+    rate_reset = headers.get("X-RateLimit-Reset", "") if remaining == "0" else ""
+    return retry_deadline(headers.get("Retry-After", ""), rate_reset, int(time.time()))
+
+
 def fetch_feed() -> JSON:
     """Read one bounded anonymous GitHub page; discard all release prose/assets."""
     request = urllib.request.Request(
         API_URL, headers={"Accept": "application/vnd.github+json", "User-Agent": "ada-mcp-updates"}
     )
+    deadline = None
     try:
         with urllib.request.build_opener(NoRedirects()).open(request, timeout=1.5) as response:
             if response.geturl() != API_URL:
                 raise ValueError("unexpected metadata URL")
+            deadline = header_deadline(response.headers)
             data = response.read(MAX_FEED + 1)
             if len(data) > MAX_FEED:
                 raise ValueError("release feed exceeds limit")
@@ -155,25 +166,19 @@ def fetch_feed() -> JSON:
                     complete = False
                     continue
                 versions.append(tag[1:])
-            return {"status": "ok", "versions": versions, "complete": complete}
+            result: JSON = {"status": "ok", "versions": versions, "complete": complete}
     except urllib.error.HTTPError as error:
-        failure: JSON = {
+        result = {
             "status": "rate_limited" if error.code in {403, 429} else "offline",
         }
-        if error.headers is not None:
-            # A quota window reset is binding only when no quota remains.
-            remaining = error.headers.get("X-RateLimit-Remaining", "").strip()
-            rate_reset = error.headers.get("X-RateLimit-Reset", "") if remaining == "0" else ""
-            deadline = retry_deadline(
-                error.headers.get("Retry-After", ""),
-                rate_reset,
-                int(time.time()),
-            )
-            if deadline is not None:
-                failure["retry_until"] = deadline
-        return failure
+        error_deadline = header_deadline(error.headers)
+        if error_deadline is not None:
+            deadline = max(deadline or 0, error_deadline)
     except Exception:
-        return {"status": "offline"}
+        result = {"status": "offline"}
+    if deadline is not None:
+        result["retry_until"] = deadline
+    return result
 
 
 def bounded_fetch() -> JSON:

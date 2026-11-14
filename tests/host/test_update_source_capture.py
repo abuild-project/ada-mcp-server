@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 
 import pytest
 from test_update_bytecode import environment, prepare, snapshot
@@ -152,11 +153,12 @@ def test_real_fetch_child_uses_captured_sources_after_replacement(tmp_path, entr
     runtime, scripts, package = prepare(tmp_path, kind)
     checker, validator = scripts / "release_updates.py", package / "update_notice.py"
     worker_pid = tmp_path / "fetch-worker-pid"
+    deadline = int(time.time()) + 3600
     # This trusted synthetic source retains production fetch_feed parsing, URL,
     # size and completeness checks while substituting only its HTTP transport.
     transport = (
         "\nclass FixtureResponse:\n"
-        "    headers={}\n"
+        f"    headers={{'X-RateLimit-Remaining':'0','X-RateLimit-Reset':{str(deadline)!r}}}\n"
         "    def __enter__(self): return self\n"
         "    def __exit__(self,*args): pass\n"
         "    def geturl(self): return API_URL\n"
@@ -193,9 +195,15 @@ def test_real_fetch_child_uses_captured_sources_after_replacement(tmp_path, entr
             expected[relative][1],
         )
     program += (
+        "actual_fetch=checker['bounded_fetch']\nobserved=[]\n"
+        "def record_fetch():\n"
+        "    response=actual_fetch()\n    observed.append(response)\n    return response\n"
+        "checker['bounded_fetch']=record_fetch\n"
         f"cache=Path({str(tmp_path / 'private-cache')!r})\n"
         "result=checker['check_updates']('0.2.0-rc.1','auto',cache,manual=True)\n"
-        "print(json.dumps({'result':result,'parent_pid':__import__('os').getpid()}))\n"
+        "next_result=checker['check_updates']('0.2.0-rc.1','stable',cache,manual=True)\n"
+        "print(json.dumps({'result':result,'next':next_result,'fetch':observed,"
+        "'parent_pid':__import__('os').getpid()}))\n"
     )
     result = run(tmp_path, program)
     assert result.returncode == 0, result.stderr
@@ -203,6 +211,10 @@ def test_real_fetch_child_uses_captured_sources_after_replacement(tmp_path, entr
     assert output["result"]["status"] == "available"
     assert output["result"]["check_performed"] is True
     assert output["result"]["update_notice"]["available_version"] == "0.3.0"
+    assert output["result"]["blocked_until"] == deadline
+    assert len(output["fetch"]) == 1 and output["fetch"][0]["retry_until"] == deadline
+    assert output["fetch"][0]["status"] == "ok"
+    assert output["next"]["status"] == "blocked" and output["next"]["check_performed"] is False
     assert int(worker_pid.read_text()) not in {os.getpid(), output["parent_pid"]}
     assert not marker.exists() and snapshot(runtime) == expected
 
