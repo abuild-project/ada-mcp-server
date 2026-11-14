@@ -2,6 +2,7 @@
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -132,3 +133,54 @@ def test_binding_rejects_reserved_roots_before_filesystem_or_docker(tmp_path, ro
     manifest = {"image_id": candidate["image_id"], "image_identity": candidate["image_identity"]}
     with pytest.raises(RuntimeError, match="reserved runtime"):
         setup.validate_binding(candidate, manifest)
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_notice_is_data_only_and_checker_failure_does_not_stop_launch(
+    tmp_path, docker_stub, failure
+):
+    scripts = tmp_path / "runtime/scripts"
+    scripts.mkdir(parents=True)
+    launcher = scripts / "ada-mcp-launch"
+    shutil.copy2(ROOT / "tooling/ada-mcp-launch", launcher)
+    received = tmp_path / "checker-stdin"
+    helper = scripts / "release_updates.py"
+    helper.write_text(
+        "import json,sys\nfrom pathlib import Path\n"
+        f"Path({str(received)!r}).write_text(sys.stdin.read())\n"
+        + (
+            "raise SystemExit(42)\n"
+            if failure
+            else "print(json.dumps({'available_version':'0.3.0'}))\n"
+        )
+    )
+    root = tmp_path / "physical"
+    root.mkdir()
+    capture, environment = docker_stub
+    result = subprocess.run(
+        [
+            str(launcher),
+            "--image",
+            "fixture",
+            "--root",
+            str(root),
+            "--update-channel",
+            "stable",
+            "--update-cache",
+            str(tmp_path / "new-cache"),
+        ],
+        env=environment,
+        input="MCP input must remain for Docker",
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == 0 and result.stdout == ""
+    assert received.read_text() == ""
+    command = json.loads(capture.read_text().splitlines()[-1])
+    assert command[command.index("--network") + 1] == "none"
+    assert "--read-only" in command and "--cap-drop" in command
+    assert command.count("--mount") == 1
+    payload = next(
+        value.split("=", 1)[1] for value in command if value.startswith("ADA_MCP_UPDATE_NOTICE=")
+    )
+    assert payload == "" if failure else json.loads(payload) == {"available_version": "0.3.0"}

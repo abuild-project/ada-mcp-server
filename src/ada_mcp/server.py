@@ -14,6 +14,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from ada_mcp import __version__
+from ada_mcp._version import VERSION
 from ada_mcp.als.client import ALSClient
 from ada_mcp.als.process import (
     ALSHealthMonitor,
@@ -50,6 +51,7 @@ from ada_mcp.tools.refactoring import (
     handle_rename_symbol,
     handle_signature_help,
 )
+from ada_mcp.update_notice import environment_notice
 
 logger = logging.getLogger(__name__)
 
@@ -1108,6 +1110,9 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                 }
 
         if name == "ada_project_info":
+            notice = environment_notice(VERSION)
+            if notice is not None:
+                result["update_notice"] = notice
             if result.get("complete") is True:
                 # File-based tools do not carry a GPR parameter. Publish the
                 # selection only after ALS confirms that it loaded the exact
@@ -1137,10 +1142,20 @@ async def run_server() -> None:
 
     try:
         async with stdio_server() as (read_stream, write_stream):
+            options = server.create_initialization_options()
+            notice = environment_notice(VERSION)
+            if notice is not None:
+                advisory = notice["message"] + (
+                    " Tell the user once per chat that this update is available. "
+                    "Do not change installed versions without user approval."
+                )
+                options.instructions = (
+                    options.instructions + "\n\n" if options.instructions else ""
+                ) + advisory
             await server.run(
                 read_stream,
                 write_stream,
-                server.create_initialization_options(),
+                options,
             )
     finally:
         # Clean up ALS on shutdown

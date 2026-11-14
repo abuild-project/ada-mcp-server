@@ -63,6 +63,7 @@ def tooling_files(
         "SKILL.md": (root / "integrations/full-skill.md").read_bytes(),
         "references/setup.md": (root / "doc/setup.md").read_bytes(),
         "references/support.md": (root / "doc/support.md").read_bytes(),
+        "references/updating.md": (root / "doc/updating.md").read_bytes(),
     }
     for name in [
         "ada-mcp-launch",
@@ -71,8 +72,11 @@ def tooling_files(
         "mcp_client.py",
         "acquire.py",
         "image_identity.py",
+        "release_updates.py",
     ]:
         files["scripts/" + name] = (root / "tooling" / name).read_bytes()
+    for name in ["__init__.py", "_version.py", "update_notice.py"]:
+        files["scripts/ada_mcp/" + name] = (root / "src/ada_mcp" / name).read_bytes()
     cases = [
         {
             "gpr_file": "/absolute/project-one/project.gpr",
@@ -115,6 +119,8 @@ def tooling_files(
 
 def lightweight_plugin(root: Path, version: str, tooling: JSON) -> dict[str, bytes]:
     """Embed the trusted acquisition code in Markdown, avoiding remote script reads."""
+    full_skill = (root / "integrations/full-skill.md").read_text()
+    update_workflow = full_skill[full_skill.index("## Release checks and user-approved updates") :]
     instructions = f'''---
 name: ada-development
 description: >
@@ -134,6 +140,9 @@ download. Preserve the project's AGENTS/workflow/counters.
 Choose an explicit new private runtime path, then run this stdlib-only code.
 The archive and runtime manifest are pinned to the hashes generated with this
 skill. No downloaded helper runs before complete verification.
+These embedded pins are for this version's first installation. For an existing
+installation's checks or a newer target, follow the release-check workflow
+below; never reuse these embedded hashes as the target update's pins.
 
 ```sh
 python3 -I - --url "{tooling["download_url"]}" \\
@@ -150,6 +159,8 @@ query batches. The full runtime manifest pins the image archive as well.
 Native configuration and current managed Cloud tool registration are separate;
 actual Mac/other-client/registry/fresh-Cloud acceptance remains in development.
 Never replace the repository's compiler/coverage/test/documentation chain.
+
+{update_workflow}
 '''
     plugin = {
         "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",

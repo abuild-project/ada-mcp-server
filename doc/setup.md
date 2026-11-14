@@ -1,16 +1,25 @@
 # Host setup and project views
 
+For a published RC1 first installation, start with the maintained
+[first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
+It covers a reader-owned private Cloud skill-plugin copy and local Codex setup
+using the existing released helpers. This page supplies detailed host-binding
+rules and locally generated artifact setup. The RC1 archives retain their
+original documentation; the maintained guide does not replace release bytes.
+See [release checks, approved updates and rollback](updating.md) for the
+unreleased notifier and the initial approved upgrade needed by RC1 installations.
+
 The candidate requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
 Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,
 GPRbuild and the pinned Ada Language Server. macOS, native client registration
 and other client applications remain in development until their own tests pass.
 
-Check the GitHub Releases index
-(<https://github.com/abuild-project/ada-mcp-server/releases>) for published
-versions and their artifact metadata. During development, use
+The [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
+provides verified public assets and version-specific artifact metadata.
+During development, use
 the artifacts generated from the checked source revision by scripts/artifacts.py.
-Version-specific GitHub Releases/GHCR paths in generated candidate metadata
-are distribution targets until publication and anonymous access are verified.
+Future GitHub Releases/GHCR paths in generated candidate metadata remain
+distribution targets until their publication and access are verified.
 
 ## Acquire the complete tooling
 
@@ -172,5 +181,5 @@ and atomically publishes a no-replace symlink in a supported local discovery
 root. Storage stays outside that root to avoid duplicate discovery. Existing
 entries are preserved. This proves only the actually tested local scope.
 Installing a skill does not register native tools in the current managed Cloud
-catalog. A new managed Cloud runtime's public artifact acquisition remains an
-acceptance gate after a release is genuinely available.
+catalog. A reader's account/session still needs its own plugin-import,
+discovery, acquisition and runtime checks; public bytes alone do not prove them.

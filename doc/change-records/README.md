@@ -6,5 +6,6 @@
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)
 - [Pilot prerelease preparation](release-0-2-0-rc-1.md)
+- [Public installation and approved updates](third-party-installation.md)
 - [Pydantic hash lock update](pip-main-pydantic-2.14.3.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)

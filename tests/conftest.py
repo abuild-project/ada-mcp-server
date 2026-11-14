@@ -6,6 +6,13 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def disable_automatic_release_checks(monkeypatch):
+    """Keep unrelated tests offline and away from the caller's application cache."""
+    monkeypatch.setenv("ADA_MCP_UPDATE_CHANNEL", "off")
+    monkeypatch.delenv("ADA_MCP_UPDATE_NOTICE", raising=False)
+
+
 @pytest.fixture
 def fixtures_dir() -> Path:
     """Return the path to the test fixtures directory."""

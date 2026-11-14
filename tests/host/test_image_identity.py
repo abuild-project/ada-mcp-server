@@ -228,14 +228,16 @@ def test_native_and_query_use_host_target_with_canonical_config_lock(tmp_path, m
     assert args[args.index("--image") + 1] == target != config
     captured = []
 
-    class ExecutedError(Exception):
-        pass
-
-    def execv(executable, args):
+    def client_main(args):
         captured.extend(args)
-        raise ExecutedError()
+        return 1
 
-    monkeypatch.setattr(setup.os, "execv", execv)
+    original_helper = setup.load_helper
+    monkeypatch.setattr(
+        setup,
+        "load_helper",
+        lambda name: {"main": client_main} if name == "mcp_client" else original_helper(name),
+    )
     monkeypatch.setattr(sys, "argv", ["setup", "query", "tools"])
     assert setup.main() == 1
     assert captured[captured.index("--image") + 1] == target != config

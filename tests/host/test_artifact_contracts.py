@@ -5,6 +5,8 @@ import hashlib
 import io
 import json
 import re
+import subprocess
+import sys
 import tarfile
 
 import acquire
@@ -41,17 +43,47 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     assert runtime["image_id"] == config_id and config_id != target
     assert runtime["image_identity"]["target"]["digest"] == target
     assert verified["references/support.md"] == (ROOT / "doc/support.md").read_bytes()
+    assert verified["references/updating.md"] == (ROOT / "doc/updating.md").read_bytes()
+    assert (
+        verified["scripts/release_updates.py"] == (ROOT / "tooling/release_updates.py").read_bytes()
+    )
+    assert (
+        verified["scripts/ada_mcp/update_notice.py"]
+        == (ROOT / "src/ada_mcp/update_notice.py").read_bytes()
+    )
     assert "support.md" in verified["references/setup.md"].decode()
     for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", verified["references/setup.md"].decode()):
-        assert "references/" + target in verified
+        if not target.startswith("https://"):
+            assert "references/" + target in verified
     assert runtime["available_archive"]["sha256"] == hashlib.sha256(image.read_bytes()).hexdigest()
     assert len(runtime["server_tools"]) == 19
+    installed = tmp_path / "new-runtime"
+    acquire.materialize(verified, installed)
+    status = subprocess.run(
+        [
+            sys.executable,
+            str(installed / "scripts/ada_mcp_setup.py"),
+            "updates",
+            "status",
+            "--channel",
+            "off",
+            "--cache",
+            str(tmp_path / "unused-update-cache"),
+        ],
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert json.loads(status.stdout)["status"] == "disabled"
+    assert not (tmp_path / "unused-update-cache").exists()
     plugin = tmp_path / manifest["plugin"]["filename"]
     code = host_acceptance.plugin_acquirer(plugin)
     ast.parse(code)
     assert code.strip() == (ROOT / "tooling/acquire.py").read_bytes().strip()
     with tarfile.open(plugin) as archive:
         skill = archive.extractfile("skills/ada-development/SKILL.md").read().decode()
+        full = (ROOT / "integrations/full-skill.md").read_text()
+        assert full[full.index("## Release checks and user-approved updates") :] in skill
         assert manifest["tooling"]["sha256"] in skill
         assert manifest["tooling"]["runtime_manifest_sha256"] in skill
         assert f'--url "{manifest["tooling"]["download_url"]}"' in skill

@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- Execute installed helpers from their verified source bytes and reject relative
+  explicit notice-cache paths before client configuration or query startup.
+- Dispatch setup queries through the retained verified client, preserving the
+  query CLI and rejecting undeclared clients before startup.
+- Retain verified checker/validator bytes through isolated release fetches and
+  refuse undeclared installed sources before checking for updates.
+- Require a manifest for packaged smoke startup and retain installed mode if
+  metadata disappears; source fallback requires the contributor tooling/src layout.
+- Check public release metadata from the host with a private daily cache,
+  bounded timeout and opt-out; expose available-version advisories through
+  MCP initialization/project results without moving installed pins.
+- Recompute advisory freshness on each MCP read: snapshots at least one day
+  old carry the stale warning; notices older than seven days remain omitted.
+- Let explicit update checks search afresh without waiting for the daily cache,
+  while honoring provider retry deadlines across stable/prerelease channels.
+- Apply quota-reset waits only when no quota remains; preserve explicit
+  Retry-After waits, including maintenance responses.
+- Retain observed provider waits after successful responses and invalid,
+  oversized or unreadable release feeds without discarding valid feed data.
+- Honor surrounding HTTP space/tab padding on retry deadlines while retaining
+  raw header-length, syntax and expiry limits.
+- Ask once before a skill executes a verified update, including new target
+  pins, matching runtime/skill/client activation and preserved rollback state.
+- Add public RC1 first-install guidance for reader-owned private Cloud skill
+  copies and local Codex/Docker setup, preserving native-client acceptance limits.
+
 ## 0.2.0-rc.1 — pilot prerelease
 
 - Provide an independent, coordinated server/container/tooling distribution
