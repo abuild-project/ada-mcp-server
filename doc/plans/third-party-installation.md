@@ -240,3 +240,17 @@ needed. This closes the query exception among the bounded installed Python
 helper handoffs; trusted initial entries and Bash/external execution retain
 their existing boundaries. A malformed post-acquisition manifest is distinct
 from a fresh archive, whose declared member set is checked before extraction.
+
+## 2026-11-14: HTTP padding in retry deadlines
+
+Decision: after the existing raw-length rejection, remove only surrounding
+HTTP SP/HTAB from Retry-After and quota-reset values in the shared deadline
+parser. Preserve ASCII/numeric/date parsing, expiry and maximum bounds. Keep
+internal and non-HTTP whitespace unchanged, and retain the existing remaining
+quota classification and maximum of applicable waits.
+
+Decision: cover padded values through real HTTPMessage parsing, error/success
+and body-failure results, both channels and exact deadline expiry. Preserve the
+raw-length boundary and invalid-input controls, and verify padded reset metadata
+through the actual captured-source child. These are controlled compatibility
+checks, not a claim that the live provider emitted padded headers.

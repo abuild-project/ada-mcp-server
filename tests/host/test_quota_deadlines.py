@@ -4,6 +4,7 @@ import io
 import json
 import os
 import urllib.error
+from email.utils import formatdate
 from http.client import parse_headers
 from types import SimpleNamespace
 
@@ -12,6 +13,7 @@ import release_updates as updates
 
 NOW = 1700000000
 RESET = str(NOW + 3600)
+DATE = formatdate(NOW + 120, usegmt=True)
 CASES = [
     (500, f"X-RateLimit-Remaining: 42\r\nX-RateLimit-Reset: {RESET}\r\n", None),
     (429, f"X-RateLimit-Remaining: 42\r\nX-RateLimit-Reset: {RESET}\r\nRetry-After: 60\r\n", 60),
@@ -38,6 +40,38 @@ CASES = [
         f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {NOW - 1}\r\nRetry-After: invalid\r\n",
         None,
     ),
+    (503, "Retry-After: 60 \r\n", 60),
+    (503, "Retry-After: 60\t\r\n", 60),
+    (503, "Retry-After: \t 60 \t\r\n", 60),
+    (503, "Retry-After: \t 60\r\n", 60),
+    (503, f"Retry-After: {DATE}\r\n", 120),
+    (503, f"Retry-After: \t {DATE} \t\r\n", 120),
+    (403, f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {RESET} \t\r\n", 3600),
+    (200, f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {RESET} \t\r\n", 3600),
+    (
+        429,
+        f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {RESET} \t\r\nRetry-After: 60\r\n",
+        3600,
+    ),
+    (
+        429,
+        f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {NOW + 60}\r\nRetry-After: 120 \t\r\n",
+        120,
+    ),
+    (
+        429,
+        f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {NOW + 60} \t\r\nRetry-After: 120 \t\r\n",
+        120,
+    ),
+    (
+        503,
+        f"X-RateLimit-Remaining: 42\r\nX-RateLimit-Reset: {RESET} \t\r\nRetry-After: 120 \t\r\n",
+        120,
+    ),
+    (503, "Retry-After: invalid \t\r\n", None),
+    (403, f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {NOW - 1} \t\r\n", None),
+    (503, "Retry-After: 6 0 \t\r\n", None),
+    (403, f"X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: {NOW} 0 \t\r\n", None),
 ]
 
 
@@ -79,9 +113,9 @@ def test_http_deadlines_and_manual_retries_across_channels(
         def open_request(request, timeout):
             assert request.full_url == updates.API_URL and timeout == 1.5
             requests.append(request)
-            if len(requests) == 1:
+            if len(requests) == 1 and status >= 400:
                 raise urllib.error.HTTPError(updates.API_URL, status, "fixture", headers, None)
-            return Response()
+            return Response(headers) if len(requests) == 1 else Response()
 
         monkeypatch.setattr(
             updates.urllib.request,
@@ -99,7 +133,10 @@ def test_http_deadlines_and_manual_retries_across_channels(
         monkeypatch.setattr(updates, "bounded_fetch", fetch)
         cache = tmp_path / retry_channel / "private-cache"
         initial = updates.check_updates("0.2.0", "stable", cache, manual=True)
-        assert initial["status"] == ("rate_limited" if status in {403, 429} else "offline")
+        expected = (
+            "up_to_date" if status == 200 else "rate_limited" if status in {403, 429} else "offline"
+        )
+        assert initial["status"] == expected
         assert initial["check_performed"] is True and len(requests) == 1
         state = json.loads((cache / "stable.json").read_text())
         deadline = None if delay is None else NOW + delay
@@ -129,7 +166,7 @@ def test_http_deadlines_and_manual_retries_across_channels(
 def test_received_quota_deadline_survives_body_validation_and_manual_retries(
     tmp_path, monkeypatch, remaining, body_kind
 ):
-    raw = f"X-RateLimit-Reset: {RESET}\r\n"
+    raw = f"X-RateLimit-Reset: \t {RESET} \t\r\n"
     if remaining is not None:
         raw += f"X-RateLimit-Remaining: {remaining}\r\n"
     headers = parse_headers(io.BytesIO((raw + "\r\n").encode("ascii")))
@@ -203,3 +240,27 @@ def test_unexpected_response_url_cannot_supply_a_provider_deadline(monkeypatch):
         lambda *args: SimpleNamespace(open=lambda *args, **kwargs: response),
     )
     assert updates.fetch_feed() == {"status": "offline"}
+
+
+@pytest.mark.parametrize(
+    "field,value,expected",
+    [
+        ("retry", " \t60\t ", NOW + 60),
+        ("reset", f" \t{NOW + 60}\t ", NOW + 60),
+        ("retry", "60" + " " * 126, NOW + 60),
+        ("reset", str(NOW + 60) + " " * 118, NOW + 60),
+        ("retry", "60" + " " * 127, None),
+        ("reset", str(NOW + 60) + " " * 119, None),
+        ("retry", "0000000000060 \t", None),
+        ("reset", "000" + str(NOW + 60) + " \t", None),
+    ],
+)
+def test_ows_normalization_preserves_raw_length_and_numeric_bounds(field, value, expected):
+    retry, reset = (value, "") if field == "retry" else ("", value)
+    assert updates.retry_deadline(retry, reset, NOW) == expected
+
+
+@pytest.mark.parametrize("suffix", ["\n", "\r", "\v", "\f", "\u00a0"])
+def test_non_http_whitespace_is_not_stripped_from_numeric_deadlines(suffix):
+    assert updates.retry_deadline("60" + suffix, "", NOW) is None
+    assert updates.retry_deadline("", str(NOW + 60) + suffix, NOW) is None

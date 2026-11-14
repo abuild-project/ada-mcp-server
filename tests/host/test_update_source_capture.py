@@ -154,11 +154,12 @@ def test_real_fetch_child_uses_captured_sources_after_replacement(tmp_path, entr
     checker, validator = scripts / "release_updates.py", package / "update_notice.py"
     worker_pid = tmp_path / "fetch-worker-pid"
     deadline = int(time.time()) + 3600
+    padded_reset = f" \t{deadline} \t"
     # This trusted synthetic source retains production fetch_feed parsing, URL,
     # size and completeness checks while substituting only its HTTP transport.
     transport = (
         "\nclass FixtureResponse:\n"
-        f"    headers={{'X-RateLimit-Remaining':'0','X-RateLimit-Reset':{str(deadline)!r}}}\n"
+        f"    headers={{'X-RateLimit-Remaining':'0','X-RateLimit-Reset':{padded_reset!r}}}\n"
         "    def __enter__(self): return self\n"
         "    def __exit__(self,*args): pass\n"
         "    def geturl(self): return API_URL\n"

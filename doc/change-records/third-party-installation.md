@@ -28,6 +28,9 @@ and before bounded body reads. Successful feeds retain usable versions and
 completeness while carrying their deadline. Invalid, oversized or unreadable
 feeds remain offline and retain any already-observed deadline. The existing
 cache shares those waits across channels; unexpected URLs cannot supply them.
+The shared deadline parser accepts surrounding HTTP SP/HTAB after its existing
+raw-length check. Numeric/date syntax, expiry, maximum waits and remaining-quota
+classification are unchanged; internal and non-HTTP whitespace are not stripped.
 
 Notice validation recomputes freshness on each read. A previously fresh host
 snapshot becomes stale at one day and carries the stale warning in later MCP
@@ -150,6 +153,13 @@ PID, read-only rejection and EOF cleanup. The integrity controls reject the
 previous disk handoff, while the positive CLI cases also pass that baseline.
 Existing sibling-bytecode and actual SDK protocol controls remain separate;
 the private peer establishes no Docker, Ada or native-host acceptance.
+HTTP padding controls cover canonical, leading, trailing and mixed SP/HTAB on
+numeric/date/reset values, both applicable-wait orders, error/success/body-failure
+paths, zero/positive/missing/invalid quota, both channels and exact expiry. Raw
+128-character values retain their boundary, longer raw values stay rejected,
+and internal/non-HTTP whitespace controls preserve numeric rejection. The
+captured-source child carries the padded reset deadline into the existing cache.
+These controls reject the prior padding loss without live provider requests.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths

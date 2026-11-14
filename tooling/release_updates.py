@@ -100,6 +100,7 @@ def retry_deadline(retry_after: str, rate_reset: str, now: int) -> int | None:
     for value, relative in [(retry_after, True), (rate_reset, False)]:
         if len(value) > 128:
             continue
+        value = value.strip(" \t")
         try:
             if value.isascii() and value.isdigit() and len(value) <= 12:
                 deadline = int(value) + (now if relative else 0)
