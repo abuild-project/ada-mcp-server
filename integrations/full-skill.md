@@ -10,11 +10,13 @@ description: >
 # Ada development
 
 Read the repository's AGENTS.md and development guides before work. Preserve
-the active topic, role assignments and correction counters. Runtime helpers
-are in this installed skill's scripts directory. See references/setup.md for
-explicit host setup, artifact hashes and client limits.
+the active topic, role assignments and correction counters. First resolve the
+active runtime through the shared selection procedure below; helpers beside
+this entry are its fallback, not proof of the active server version. See
+references/setup.md for explicit host setup, hashes and client limits.
 
-Run scripts/ada_mcp_setup.py through Python: doctor first, bootstrap with the
+Run the SELECTED runtime's scripts/ada_mcp_setup.py through Python: doctor first,
+bootstrap with the
 existing binding if its pinned image is missing, or create a new explicit
 binding/approved roots and image cache. Binding reads use --binding, then
 ADA_MCP_BINDING, then the normal user configuration path. Never overwrite
@@ -37,6 +39,78 @@ Native Mac, Claude, OpenCode, registry transport and fresh managed Cloud
 deployment remain in development until directly tested. Native configuration
 generation or local skill discovery does not register tools in the running
 managed Cloud chat. Report missing resources/image access as concrete blockers.
+
+## Runtime selection and entry compatibility
+
+This entry understands exactly integer workflow contract **1**, independently
+of its own package version and the active MCP/server version. Read selection
+before acquisition or project queries. Use the trusted acquirer source supplied
+with this entry, not an unverified target helper:
+
+- Full/local entry: run `python3 -I /absolute/entry/scripts/acquire.py selection show`
+  with `--file /absolute/private/selection.json` when explicitly selected.
+- Lightweight entry: run its embedded acquirer as `python3 -I - selection show`
+  with that `--file` option and the SAME embedded source here-document. Replace
+  the fallback acquisition arguments; do not perform acquisition first.
+- Discovery order is explicit `--file`, `ADA_MCP_SELECTION`, then the user's
+  `~/.config/ada-mcp/selection.json`. Reads never create state. This path is
+  local user state, not a guarantee that Cloud files persist between sessions.
+  Omitting `--file` on activation chooses that default; supplying a custom path
+  does not remember its locator or change the environment. For every later
+  session, supply the SAME custom `--file` or explicitly retain its locator in
+  the host/provider's supported environment/discovery configuration. A current
+  command's environment or chat text is not evidence of that persistence.
+
+On `selected`, use the returned exact runtime/binding and actual project version
+for Doctor, queries and updates. Verify the actual MCP initialization version;
+never infer it from the plugin package version. A later chat can resolve that
+pair only when its files AND locator are available there: the persisted default
+path, the supplied custom path or an explicitly retained supported host setting.
+Otherwise report session-only use and the one user step needed to supply the
+locator or bootstrap in that environment. Do not claim later-session discovery
+from activation alone. Compatible updates need no new plugin upload/local skill
+replacement when that pair is reachable. On `invalid` or `incompatible`, stop
+and report the concrete reason;
+never silently fall back to stale embedded pins or select an unchecked latest.
+Missing/unknown workflow contract requires a compatible entry update or an
+explicit independent legacy setup. Public RC1/RC2 do not advertise this contract;
+their immutable entries need one initial upgrade to gain selection support.
+
+If the user intends to reuse an existing custom selection but its locator is
+unknown, request that path rather than treating an absent default as proof of
+no installation. On a genuinely fresh `absent` environment, inspect the user's
+intended real published
+release using the provenance procedure below, including compatibility, before
+asking/using existing setup consent. Require `tooling.workflow_contract == 1`
+in the authenticated release manifest AND the same integer in the authenticated
+runtime manifest. No available compatible publication means report the blocker;
+do not fabricate a future version or assume another session's files exist.
+Use this entry's exact embedded runtime pins only as an explicitly chosen,
+compatible fallback. Reuse its trusted acquisition code with NEW verified pins,
+create new runtime/image-cache/binding paths, Doctor and real project queries.
+
+After successful approved setup/update, use this entry's trusted acquirer:
+`selection activate --file ABS --runtime ABS --manifest-sha256 TRUSTED_HASH --binding ABS --workflow-contract 1`.
+The hash and contract come from the verified target release; no target helper
+executes before its source hashes and binding/image pins are checked. Initial
+activation refuses replacement. To replace selection, also supply
+`--expected-sha256 OLD_RECORD_HASH --backup NEW_ABSOLUTE_BACKUP`; obtain the old
+hash from `selection show`. An unexpected record, occupied backup or activation
+lock is a stop condition. Keep the old runtime/binding/image and backup record.
+Resolve again and verify active MCP version and representative queries after
+activation. Rollback validates the old pair and activates it with the current
+expected record hash and another new backup. No global client config changes.
+
+For full/local skills or reader-owned private Cloud plugins, update the entry
+itself only for changed instructions, permissions or workflow compatibility.
+For a compatible runtime update, keep the installed entry unchanged and switch
+only verified selection after consent. Native client config still needs its
+explicit supported switch/reconnect; changing skill selection alone does not
+retarget a running native client. If persistence, a provider or reconnect is
+unavailable, report session-only/staged versus activated state and the necessary
+user action. Preserve plugin identity/audience/private overlays whenever an
+entry update is actually needed; lower-version package reupload is not guaranteed
+rollback. No public or private plugin write is implicit in a runtime update.
 
 ## Release checks and user-approved updates
 
@@ -70,10 +144,11 @@ and references/updating.md; do not merely send a link and stop:
    `sha256:` digest before using its contents. Resolve the tag to its commit
    (including an annotated tag) and require equality with manifest source_sha.
    Cross-check manifest version, tooling filename/download_url/bytes/sha256/
-   runtime_manifest_sha256 and plugin/image records against the exact target
+   runtime_manifest_sha256, workflow_contract and plugin/image records against the exact target
    assets, canonical version-specific GitHub URLs and any API asset digests.
    Never reuse this skill's OLD embedded hashes for a new version or treat an
-   advisory as executable metadata. Missing/mismatched authoritative digests,
+   advisory as executable metadata. Require this entry's exact supported workflow
+   contract in both authenticated manifests. Missing/mismatched authoritative digests,
    tag/source, compatibility or assets are a blocker, not permission to guess.
 3. Ask once, "Update now?", after showing that concrete scope. A user who already
    explicitly requested this identified update has supplied consent; do not ask
@@ -89,19 +164,20 @@ and references/updating.md; do not merely send a link and stop:
    roots. Run Doctor and representative real GPR/scenario/source-bound queries.
    Preserve the old runtime, image, binding, skill target and client entry for
    rollback. Stop activation on any verification/query failure; keep the old pair.
-5. Activate only the approved route, including the installed skill itself so a
-   new chat gets NEW pins: stage/install the new local skill and use the guarded
-   no-clobber link switch; or update the intended private Cloud copy through
-   available Plugin Creator, preserving its identity, audience and private
-   metadata/overlays. Never raw-overwrite private metadata with the public tar.
-   Providers may reject lower package versions; an old archive is not guaranteed
-   package rollback. For native MCP, generate the fragment with the NEW runtime
-   and binding, back up the old entry, explicitly apply through the installed
-   client's supported configuration and reconnect. For CLI/skill use, switch
-   the explicit runtime/binding selection through the existing supported flow.
-6. Verify the active discovered skill/plugin version and pins, actual MCP server
+5. For a compatible runtime, keep this full/local or Cloud entry unchanged.
+   Activate its verified new selection with expected-old hash and a new backup;
+   later chats need the same files and default/custom locator to resolve it.
+   Update the
+   entry only for its own instructions, permissions or compatibility changes,
+   through the guarded local skill switch or intended private provider identity,
+   preserving audience/private metadata. An incompatible target needs an explicit
+   compatible entry update before runtime activation. For native MCP, generate
+   the NEW matching fragment, back up the old entry, apply only the approved
+   configuration and reconnect. Selection is not native registration.
+6. Verify entry compatibility and selected runtime pins, actual MCP server
    version and representative queries after activation/reconnect, including the
-   matching new binding selection for later sessions. If a tool, provider update,
+   matching new binding selection and its locator for later sessions. If a tool,
+   provider update,
    persistent selection or host reconnect is unavailable, report exactly what is
    staged versus activated and the one necessary user action. Never claim a
    completed update from download, staging or generated configuration alone.

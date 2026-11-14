@@ -25,6 +25,7 @@ from distribution_receipt import (
 from version import ROOT, project_version
 
 sys.path.insert(0, str(ROOT / "tooling"))
+from acquire import WORKFLOW_CONTRACT
 from ada_mcp_setup import inspect_image
 from image_identity import archive_identity
 
@@ -99,6 +100,7 @@ def tooling_files(
     version = project_version(root)
     manifest = {
         "version": 1,
+        "workflow_contract": WORKFLOW_CONTRACT,
         "project_version": version,
         "python_version": version.replace("-rc.", "rc"),
         "source_sha": source_sha,
@@ -120,7 +122,7 @@ def tooling_files(
 def lightweight_plugin(root: Path, version: str, tooling: JSON) -> dict[str, bytes]:
     """Embed the trusted acquisition code in Markdown, avoiding remote script reads."""
     full_skill = (root / "integrations/full-skill.md").read_text()
-    update_workflow = full_skill[full_skill.index("## Release checks and user-approved updates") :]
+    update_workflow = full_skill[full_skill.index("## Runtime selection and entry compatibility") :]
     instructions = f'''---
 name: ada-development
 description: >
@@ -138,7 +140,17 @@ reads through the skill provider. Public availability begins only after the
 versioned release exists. Never substitute a mutable latest image or unchecked
 download. Preserve the project's AGENTS/workflow/counters.
 
-Choose an explicit new private runtime path, then run this stdlib-only code.
+This entry's own package version is {version}; it is not the active MCP version.
+It understands workflow contract {WORKFLOW_CONTRACT}. Before acquisition, follow
+the shared runtime-selection procedure below. To inspect selection immediately,
+run the embedded source with this invocation INSTEAD of the fallback arguments:
+`python3 -I - selection show --file /absolute/private/selection.json`.
+Use the same here-document source, changing only its command-line arguments;
+this mode does not acquire anything. A valid selection takes precedence.
+Invalid/incompatible state is a stop condition, not permission to bootstrap.
+
+Only when selection is absent and setup is approved, choose an explicit new
+private runtime path and use the fallback acquisition arguments below.
 The archive and runtime manifest are pinned to the hashes generated with this
 skill. No downloaded helper runs before complete verification.
 These embedded pins are for this version's first installation. For an existing
@@ -147,6 +159,7 @@ below; never reuse these embedded hashes as the target update's pins.
 
 ```sh
 python3 -I - --url "{tooling["download_url"]}" \\
+  --workflow-contract {WORKFLOW_CONTRACT} \\
   --sha256 {tooling["sha256"]} \\
   --manifest-sha256 {tooling["runtime_manifest_sha256"]} \\
   --destination /absolute/new-ada-runtime <<'PY'
@@ -157,6 +170,10 @@ PY
 Read the verified runtime's SKILL.md and references/setup.md. Bootstrap with
 explicit roots, binding and image-cache paths, then run Doctor and actual
 query batches. The full runtime manifest pins the image archive as well.
+Activate an explicit compatible selection as described below. Later chats can
+use that runtime only when its files and the same default/custom locator are
+available there; custom --file does not persist a pointer or environment.
+Otherwise report session-only use and the required path/bootstrap step.
 Native configuration and current managed Cloud tool registration are separate;
 actual Mac/other-client/registry/fresh-Cloud acceptance remains in development.
 Never replace the repository's compiler/coverage/test/documentation chain.
@@ -200,6 +217,7 @@ def package(root: Path, output: Path, source_sha: str, image_id: str, archive: P
     tooling_path = output / f"ada-mcp-tooling-{version}.tar.gz"
     write_tar(tooling_path, files)
     tooling = {
+        "workflow_contract": WORKFLOW_CONTRACT,
         "filename": tooling_path.name,
         "sha256": sha256_file(tooling_path),
         "bytes": tooling_path.stat().st_size,

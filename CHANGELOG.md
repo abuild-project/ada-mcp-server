@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Validate selection inputs on the same non-symlink descriptor used to read
+  their bytes; reject malformed nested image metadata with structured errors
+  while preserving the active runtime selection.
+
+- Let compatible full/local and lightweight entries reuse an exact verified
+  runtime/binding selection without a plugin upload or skill replacement.
+  Later sessions need retained files and the same default/custom locator.
+- Check an explicit workflow contract and pinned selection before use; provide
+  consented no-clobber activation, expected-state backups and rollback.
+- Distinguish entry package version from active runtime version and fresh-session
+  bootstrap from persistent state; preserve the public RC1/RC2 legacy routes.
+
 ## 0.2.0-rc.2 — pilot prerelease
 
 - Provide RC2 first-install and initial-upgrade guidance using actual published

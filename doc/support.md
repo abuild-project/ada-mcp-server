@@ -52,6 +52,11 @@ no notifier and needs an initial approved upgrade to a published RC2 or later. T
 or give the server network access. Protocol delivery does not establish how an
 untested native frontend renders or relays a notice to its user.
 
+The unreleased selection-aware entry can reuse an authenticated compatible
+runtime without skill/plugin replacement. This workflow contract is separate
+from semantic support and requires future published metadata; RC1/RC2 manifests
+remain legacy. See [selection and activation](updating.md#keep-the-entry-and-runtime-independent).
+
 Actual macOS/Apple Bash/Docker Desktop/Colima, native Mac MCP registration,
 Claude, OpenCode and separate-account private plugin import remain in development
 until tested directly. Native Cloud registration and other accounts' runtime

@@ -309,6 +309,8 @@ def main() -> None:
             release["tooling"]["runtime_manifest_sha256"],
             "--destination",
             str(runtime),
+            "--workflow-contract",
+            str(release["tooling"]["workflow_contract"]),
         ],
         options.output,
         "acquire",
@@ -415,6 +417,42 @@ def main() -> None:
         )
         verify_results(payload, expected)
         removed(query_name, folder, options.docker_host)
+        selection = folder / "selection.json"
+        acquirer = str(runtime / "scripts/acquire.py")
+        activated = json.loads(
+            checked(
+                [
+                    sys.executable,
+                    "-I",
+                    acquirer,
+                    "selection",
+                    "activate",
+                    "--file",
+                    str(selection),
+                    "--runtime",
+                    str(runtime),
+                    "--manifest-sha256",
+                    release["tooling"]["runtime_manifest_sha256"],
+                    "--binding",
+                    str(binding),
+                    "--workflow-contract",
+                    str(release["tooling"]["workflow_contract"]),
+                ],
+                folder,
+                "selection-activate",
+            )
+        )
+        selected = json.loads(
+            checked(
+                [sys.executable, "-I", acquirer, "selection", "show", "--file", str(selection)],
+                folder,
+                "selection-show",
+            )
+        )
+        assert selected == activated and selected["status"] == "selected", selected
+        assert selected["project_version"] == release["version"]
+        assert selected["source_sha"] == release["source_sha"]
+        assert selected["binding"] == str(binding) and selected["runtime"] == str(runtime)
     for source, key in [(options.arca, "arca"), (options.spawn, "spawn"), (options.anet, "anet")]:
         if stat.S_IMODE(source.stat().st_mode) != original_modes[str(source)]:
             raise RuntimeError("original source root permissions changed")

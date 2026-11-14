@@ -48,6 +48,8 @@ RC2 adds [release checks and approved updates](doc/updating.md): search for a
 new release and let the skill verify and execute an update after your approval.
 Existing RC1 installations need an initial approved upgrade to a published
 RC2 or later; their immutable packages have no update-notice hook.
+Work on [reusing runtimes without replacing the skill/plugin](doc/updating.md#keep-the-entry-and-runtime-independent)
+is in development; published RC2 keeps its original installation workflow.
 
 ## Contributing
 
