@@ -7,16 +7,16 @@ updates need the maintainer's authorization; a reviewed PR alone is not that
 authorization. Ordinary CI only builds/tests and uploads CI artifacts.
 The promotion workflow is manually invoked for the approved release.
 
-The coordinated `0.2.0-rc.2` candidate remains a pilot prerelease, not a stable
-support promise. Its [release notes](releases/0.2.0-rc.2.md) describe the changes
-and client/platform limits. RC1 remains an immutable published fallback. The
+The coordinated `0.2.0-rc.3` candidate remains a pilot prerelease, not a stable
+support promise. Its [release notes](releases/0.2.0-rc.3.md) describe the changes
+and client/platform limits. RC1/RC2 remain immutable published fallbacks. The
 [public repository assessment](assessments/public-release.md) distinguishes
 observed settings from policy and unavailable administrative evidence.
 
 ## Artifact trust and version
 
 The canonical SemVer is read from src/ada_mcp/_version.py. Python converts
-`0.2.0-rc.2` to `0.2.0rc2`; package metadata and MCP initialization report that
+`0.2.0-rc.3` to `0.2.0rc3`; package metadata and MCP initialization report that
 project version, not the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
@@ -62,7 +62,7 @@ metadata and checksums record the digest and exact tested artifact hashes.
    notes hash, command and output. Publication passes those reviewed bytes via
    a temporary notes file outside the release assets; it adds no artifact.
 2. With merge/release authority supplied, create the intended immutable tag
-   `v0.2.0-rc.2` on that same approved revision and verify the tag target.
+   `v0.2.0-rc.3` on that same approved revision and verify the tag target.
    Verify repository/GitHub Actions permissions, release protection,
    GHCR publication rights and the exact redistributed components' required
    source delivery under [licensing](licensing.md). A declared environment name
@@ -101,3 +101,39 @@ block the agreed Cloud pilot prerelease.
 
 Registry behavior reference:
 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+
+## Public RC2 notification of RC3
+
+After RC3 is actually published and its public assets/anonymous registry identity
+are verified, dispatch the reviewed manual workflow with the exact approved
+RC3 tag/source commit. Replace the placeholder; neither source preparation nor
+a synthetic release fixture establishes this consumer acceptance:
+
+```sh
+gh workflow run public-notice-acceptance.yml --ref v0.2.0-rc.3 \
+  -f expected_source=APPROVED_RC3_MAIN_SOURCE_SHA
+```
+
+The contents-read-only job authenticates actual public RC2/RC3 GitHub asset
+digests, final manifests and tag/source correspondence. On an ephemeral hosted
+AMD64 Docker runner, it acquires immutable public RC2 tooling through the trusted
+legacy acquirer and pulls its public image by registry digest using a new empty
+Docker client configuration. It uses pinned public Arca source, real arca.gpr
+and ARCA_BUILD_MODE=validation for Bootstrap/Doctor/project queries.
+
+Required evidence is actual MCP server `0.2.0rc2`, RC3 notice in initialization
+instructions AND the complete selected project's update_notice, then a performed
+manual fresh check within the same daily cache. An off query must suppress the
+notice and create no update cache. Exact named-container EOF cleanup, raw
+protocol/JSON/argv/streams and small provider/cache evidence are retained even
+on failure. Image/runtime/source caches are excluded from the uploaded artifact.
+The new script is included in the ordinary strict type/unit/style checks; the
+manual public consumer run is not a replacement for full source CI.
+
+A timeout, provider deadline or feed propagation delay is a real failed/pending
+consumer result. There are no automatic retries or cache/header bypasses. Inspect
+the retained actual provider deadlines and wait before a later approved retry.
+Do not publish an acceptance claim from a mocked fixture or successful download.
+This exercises the public protocol/query-client route, without installing RC3,
+changing a private account plugin or proving fresh managed Cloud/native/Mac use.

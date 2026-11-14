@@ -23,9 +23,9 @@ distribution targets until their publication and access are verified.
 
 ## Select a compatible runtime
 
-This source prepares an unreleased selection-aware entry; the public RC1/RC2
-archives have no workflow contract or selection command. A compatible future
-entry first resolves its private pinned selection and uses that runtime/binding
+The RC3-or-later selection-aware entry requires an actually published release.
+Public RC1/RC2 archives have no workflow contract or selection command. A
+compatible entry first resolves its private pinned selection and uses that runtime/binding
 for setup, queries and update checks. Later sessions need the same retained
 files and default/custom locator; a custom --file does not persist a pointer.
 Entry package version is not server version.

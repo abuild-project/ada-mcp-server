@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-rc.3 — pilot prerelease
 
 - Validate selection inputs on the same non-symlink descriptor used to read
   their bytes; reject malformed nested image metadata with structured errors

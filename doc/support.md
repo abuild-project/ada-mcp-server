@@ -1,6 +1,6 @@
 # Candidate support and evidence matrix
 
-Version: pilot prerelease candidate `0.2.0-rc.2` (Python `0.2.0rc2`). The table defines
+Version: pilot prerelease candidate `0.2.0-rc.3` (Python `0.2.0rc3`). The table defines
 its acceptance scope; the exact immutable revision must pass the documented
 checks before approval. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
@@ -52,9 +52,9 @@ no notifier and needs an initial approved upgrade to a published RC2 or later. T
 or give the server network access. Protocol delivery does not establish how an
 untested native frontend renders or relays a notice to its user.
 
-The unreleased selection-aware entry can reuse an authenticated compatible
+The RC3-or-later selection-aware entry can reuse an authenticated compatible
 runtime without skill/plugin replacement. This workflow contract is separate
-from semantic support and requires future published metadata; RC1/RC2 manifests
+from semantic support and requires actual published metadata; RC1/RC2 manifests
 remain legacy. See [selection and activation](updating.md#keep-the-entry-and-runtime-independent).
 
 Actual macOS/Apple Bash/Docker Desktop/Colima, native Mac MCP registration,

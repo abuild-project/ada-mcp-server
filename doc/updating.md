@@ -4,13 +4,14 @@ This workflow requires **RC2 or later**. Confirm that the target is actually
 published in the [release index](https://github.com/abuild-project/ada-mcp-server/releases)
 before acquiring it. Published RC1 archives have no notice hook and remain
 unchanged. They need one initial user-approved upgrade, using the
-[RC2 installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc2).
+[RC2 installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc3).
 No future artifact hash or source commit is supplied in advance.
 
 ## Keep the entry and runtime independent
 
-The selection extension in this source is **unreleased**. Published RC1/RC2
-entries and runtime manifests do not implement it; keep those immutable bytes
+The selection extension requires **RC3 or later**, verified as actually
+published before acquisition. Published RC1/RC2 entries and runtime manifests
+do not implement it; keep those immutable bytes
 and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.2/doc/updating.md)
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
