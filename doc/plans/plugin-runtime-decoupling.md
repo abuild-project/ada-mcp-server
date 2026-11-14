@@ -59,3 +59,21 @@ activation and the one necessary locator/bootstrap user action when persistence
 is unavailable. An absent default does not establish that no custom installation
 exists. Fresh private-HOME subprocess controls distinguish default absence from
 explicit/environment locator recovery without claiming actual Cloud persistence.
+
+
+## 2026-11-14: Descriptor-bound input validation
+
+Validate bounded selection/runtime inputs through one read-only, non-following,
+nonblocking open. Check the opened descriptor's regular-file type, ownership,
+permissions and size before reading its bounded bytes, and close it on every
+path. A path metadata check followed by a separate open does not establish that
+the consumed record had those properties. Keep this boundary local; no parent
+registry or general same-owner tamper-resistance protocol is introduced.
+
+Malformed nested OCI binding metadata must return the selection CLI's structured
+invalid result and leave existing activation/backup state unchanged. Handle the
+validator's AttributeError at that CLI boundary without weakening image validation
+or rewriting the shared image API. Deterministic private record swaps and valid
+OCI proof fixtures with a malformed binding descriptor provide negative controls;
+foreign-owner stat controls need no privileged ownership changes. Preserve runtime
+bytes/modes, source-only helper loading and the existing rollback/consent gates.

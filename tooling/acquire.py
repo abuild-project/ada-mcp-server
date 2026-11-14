@@ -46,16 +46,20 @@ def private_path(value: str | Path) -> Path:
 
 def bounded_file(path: Path, limit: int, *, private: bool = False) -> bytes:
     """Read bounded regular files; selection records must belong only to this user."""
-    state = path.lstat()
-    require(stat.S_ISREG(state.st_mode), "expected a regular file: " + str(path))
-    if private:
-        require(
-            state.st_uid == os.getuid() and state.st_mode & 0o077 == 0,
-            "selection must be owned by the current user with private permissions",
-        )
-    require(state.st_size <= limit, "selection/runtime input exceeds its size bound")
-    with path.open("rb") as stream:
-        data = stream.read(limit + 1)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        state = os.fstat(descriptor)
+        require(stat.S_ISREG(state.st_mode), "expected a regular file: " + str(path))
+        if private:
+            require(
+                state.st_uid == os.getuid() and state.st_mode & 0o077 == 0,
+                "selection must be owned by the current user with private permissions",
+            )
+        require(state.st_size <= limit, "selection/runtime input exceeds its size bound")
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            data = stream.read(limit + 1)
+    finally:
+        os.close(descriptor)
     require(len(data) <= limit, "selection/runtime input exceeds its size bound")
     return data
 
@@ -282,7 +286,7 @@ def selection_main(arguments: list[str]) -> int:
             )
             activate_selection(path, record, options.expected_sha256, options.backup)
         result = selected_runtime(path)
-    except (ValueError, RuntimeError, OSError, KeyError, TypeError) as error:
+    except (ValueError, RuntimeError, OSError, KeyError, TypeError, AttributeError) as error:
         result = {
             "status": "incompatible" if isinstance(error, IncompatibleRuntimeError) else "invalid",
             "reason": str(error),

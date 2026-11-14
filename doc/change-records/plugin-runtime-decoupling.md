@@ -15,7 +15,12 @@ The feature and future compatible artifacts remain unreleased.
 The existing trusted acquirer gains read-only selection inspection and explicit
 activation, preserving its original acquisition interface. It checks private
 bounded records, manifest/source hashes and binding pins before source-only
-helper validation. Initial writes refuse replacement; switches require the
+helper validation. Bounded inputs use one non-following, nonblocking read-only
+descriptor; its type, owner, mode and size are checked before consuming bytes
+from that same descriptor. A record path swap cannot substitute unchecked pins.
+Malformed nested OCI binding metadata returns structured invalid JSON without
+changing the active pair or creating a backup. Initial writes refuse replacement;
+switches require the
 expected old record hash and a new backup, preserving operational rollback.
 Discovery checks explicit selection, environment, then user-local state without
 writing on reads. No automatic installer or global client configuration is added.
@@ -38,7 +43,14 @@ no-clobber/expected-state guards, write failures and generated entry invocation.
 Fresh-process controls show that a custom selection is absent from an unrelated
 private default HOME, while an explicitly supplied or next-process environment
 locator recovers the exact pair without changing the entry or default state.
-That process fixture does not claim provider or Cloud persistence.
+That process fixture does not claim provider or Cloud persistence. Deterministic
+record-swap controls reject symlink and permission-changing substitutions before
+helper execution, check descriptor ownership/size/type and closure without
+privileged chown, and retain bounded reads when file size changes. Actual CLI
+controls for malformed OCI descriptor platforms preserve old selection and
+return invalid JSON. The original entrypoint executes the harmless swapped-record
+helper and emits a traceback for that malformed binding; the corrected controls
+reject both behaviors.
 Ruff/format, strict Mypy, documentation/examples and whitespace checks passed.
 The generated-artifact acceptance now includes selection activation/readback
 after the existing real Doctor and source queries for both Linux identities.

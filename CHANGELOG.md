@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Validate selection inputs on the same non-symlink descriptor used to read
+  their bytes; reject malformed nested image metadata with structured errors
+  while preserving the active runtime selection.
+
 - Let compatible full/local and lightweight entries reuse an exact verified
   runtime/binding selection without a plugin upload or skill replacement.
   Later sessions need retained files and the same default/custom locator.
