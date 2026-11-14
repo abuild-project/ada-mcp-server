@@ -205,17 +205,32 @@ def test_rate_limit_response_is_backed_off(tmp_path, monkeypatch):
 
 def test_total_deadline_kills_and_reaps_stalled_fetch_process(tmp_path, monkeypatch):
     pid = tmp_path / "pid"
-    child = tmp_path / "stalled.py"
-    child.write_text(
+    stalled = (
         f"import os,time\nopen({str(pid)!r}, 'w').write(str(os.getpid()))\ntime.sleep(60)\n"
-    )
-    monkeypatch.setattr(updates, "__file__", str(child))
+    ).encode()
+    monkeypatch.setattr(updates, "_checker_bytes", stalled)
     monkeypatch.setattr(updates, "BUDGET", 0.5)
     start = time.monotonic()
     assert updates.bounded_fetch() == {"status": "offline"}
     assert time.monotonic() - start < 2
     with pytest.raises(ProcessLookupError):
         os.kill(int(pid.read_text()), 0)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "raise RuntimeError('controlled child failure')",
+        "print('unexpected stdout'); return {'status':'ok'}",
+        "return {'status':'offline','excess':'x'*20000}",
+        "return {'status':'unrecognized'}",
+    ],
+)
+def test_actual_child_failures_and_output_limits_remain_advisory(monkeypatch, body):
+    monkeypatch.setattr(
+        updates, "_checker_bytes", ("def fetch_feed():\n    " + body + "\n").encode()
+    )
+    assert updates.bounded_fetch() == {"status": "offline"}
 
 
 def notice():

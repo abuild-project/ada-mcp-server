@@ -3,7 +3,9 @@
 """Check bounded public release metadata without changing installed pins."""
 
 import argparse
+import base64
 import fcntl
+import hashlib
 import json
 import os
 import stat
@@ -19,19 +21,43 @@ from pathlib import Path
 from typing import Any
 
 sys.dont_write_bytecode = True
-SCRIPT_ROOT = Path(__file__).resolve().parent
+CHECKER_SOURCE = Path(__file__).resolve()
+SCRIPT_ROOT = CHECKER_SOURCE.parent
 # Execute the declared source itself: -B would still accept unchecked sibling pyc.
 METADATA_SOURCE = SCRIPT_ROOT / "ada_mcp/update_notice.py"
-if not METADATA_SOURCE.is_file():
-    METADATA_SOURCE = SCRIPT_ROOT.parent / "src/ada_mcp/update_notice.py"
+_captured: tuple[bytes, Path, bytes] | None = globals().get("__captured_sources__")
+_verified: dict[Path, bytes] | None = globals().get("__verified_sources__")
+if _captured is not None:
+    # The isolated child receives its parent's exact source snapshot over stdin.
+    _checker_bytes, METADATA_SOURCE, _metadata_bytes = _captured
+else:
+    _manifest = SCRIPT_ROOT / "runtime-manifest.json"
+    if _verified is None and _manifest.is_file():
+        # Direct installed/launcher entry uses the same verifier as setup commands.
+        _setup_source = SCRIPT_ROOT / "ada_mcp_setup.py"
+        _setup_bytes = _setup_source.read_bytes()
+        _expected = json.loads(_manifest.read_text())["files_sha256"]["scripts/ada_mcp_setup.py"]
+        if hashlib.sha256(_setup_bytes).hexdigest() != _expected:
+            raise RuntimeError("bundle helper checksum mismatch: scripts/ada_mcp_setup.py")
+        _setup: dict[str, Any] = {"__name__": "_ada_mcp_setup", "__file__": str(_setup_source)}
+        exec(compile(_setup_bytes, str(_setup_source), "exec"), _setup)
+        _setup["verified_manifest"]()
+        _verified = _setup["_verified_sources"]
+    if _verified is not None:
+        if CHECKER_SOURCE not in _verified or METADATA_SOURCE not in _verified:
+            raise RuntimeError("checker and validator source must both have been verified")
+        _checker_bytes = _verified[CHECKER_SOURCE]
+        _metadata_bytes = _verified[METADATA_SOURCE]
+    else:
+        # Only the repository's src layout is a contributor fallback. A packaged
+        # validator without its manifest must not become trusted source use.
+        METADATA_SOURCE = SCRIPT_ROOT.parent / "src/ada_mcp/update_notice.py"
+        _checker_bytes = CHECKER_SOURCE.read_bytes()
+        _metadata_bytes = METADATA_SOURCE.read_bytes()
 metadata: dict[str, Any] = {
     "__name__": "_ada_mcp_update_notice",
     "__file__": str(METADATA_SOURCE),
 }
-_verified: dict[Path, bytes] = globals().get("__verified_sources__", {})
-_metadata_bytes = _verified.get(METADATA_SOURCE)
-if _metadata_bytes is None:
-    _metadata_bytes = METADATA_SOURCE.read_bytes()
 exec(compile(_metadata_bytes, str(METADATA_SOURCE), "exec"), metadata)
 RELEASES: str = metadata["RELEASES"]
 newer: Callable[[str, str], bool] = metadata["newer"]
@@ -44,6 +70,17 @@ MAX_FEED = 1024 * 1024
 MAX_STATE = 16 * 1024
 BUDGET = 2.0
 MAX_RETRY_SECONDS = 10**12
+FETCH_BOOTSTRAP = """\
+import base64,json,sys
+from pathlib import Path
+sys.dont_write_bytecode = True
+checker_path,validator_path,checker,validator = json.load(sys.stdin)
+checker,validator = (base64.b64decode(value,validate=True) for value in (checker,validator))
+namespace = {'__name__':'_ada_mcp_updates_fetch','__file__':checker_path,
+             '__captured_sources__':(checker,Path(validator_path),validator)}
+exec(compile(checker,checker_path,'exec'),namespace)
+print(json.dumps(namespace['fetch_feed']()))
+"""
 
 
 class NoRedirects(urllib.request.HTTPRedirectHandler):
@@ -133,11 +170,19 @@ def fetch_feed() -> JSON:
 
 
 def bounded_fetch() -> JSON:
-    """Kill and reap the synchronous checker on a total DNS/connect/read deadline."""
+    """Run captured sources with a total deadline, killing and reaping on timeout."""
     try:
+        sources = json.dumps(
+            [
+                str(CHECKER_SOURCE),
+                str(METADATA_SOURCE),
+                base64.b64encode(_checker_bytes).decode("ascii"),
+                base64.b64encode(_metadata_bytes).decode("ascii"),
+            ]
+        ).encode("ascii")
         result = subprocess.run(
-            [sys.executable, "-I", str(Path(__file__).resolve()), "fetch"],
-            stdin=subprocess.DEVNULL,
+            [sys.executable, "-I", "-c", FETCH_BOOTSTRAP],
+            input=sources,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             timeout=BUDGET,

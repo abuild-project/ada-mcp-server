@@ -58,9 +58,6 @@ def prepare(tmp_path, kind):
             shutil.copy2(ROOT / "tooling" / name, scripts / name)
         for name in ["__init__.py", "_version.py", "update_notice.py"]:
             shutil.copy2(ROOT / "src/ada_mcp" / name, package / name)
-        (scripts / "runtime-manifest.json").write_text(
-            json.dumps({"project_version": "0.2.0-rc.1"})
-        )
     return runtime, scripts, package
 
 
@@ -116,6 +113,8 @@ def test_direct_status_fetch_child_and_launcher_are_source_only(tmp_path, kind, 
             poison(source, marker)
     expected = snapshot(runtime)
     env = environment(tmp_path)
+    manifest = tmp_path / "source-version.json"
+    manifest.write_text(json.dumps({"project_version": "0.2.0-rc.1"}))
     for channel in ["off", "auto"]:
         result = run(
             [
@@ -127,6 +126,8 @@ def test_direct_status_fetch_child_and_launcher_are_source_only(tmp_path, kind, 
                 channel,
                 "--cache",
                 str(tmp_path / "unused-status-cache"),
+                "--manifest",
+                str(scripts / "runtime-manifest.json" if kind == "bundle" else manifest),
             ],
             tmp_path,
             env,
@@ -196,12 +197,16 @@ def test_direct_status_fetch_child_and_launcher_are_source_only(tmp_path, kind, 
         env,
     )
     assert launched.stdout == ""
-    payload = next(
+    notices = [
         arg.split("=", 1)[1]
         for arg in json.loads(capture.read_text())
         if arg.startswith("ADA_MCP_UPDATE_NOTICE=")
-    )
-    assert json.loads(payload)["available_version"] == "0.3.0"
+    ]
+    if kind == "bundle":
+        assert len(notices) == 1 and json.loads(notices[0])["available_version"] == "0.3.0"
+    else:
+        # A contributor tree without installed version metadata still launches.
+        assert notices == [""]
     assert snapshot(runtime) == expected and not marker.exists()
     assert not (tmp_path / "unused-status-cache").exists()
 

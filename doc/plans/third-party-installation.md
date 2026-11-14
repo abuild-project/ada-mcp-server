@@ -154,3 +154,18 @@ Decision: reject an explicit relative update-cache path before generating a
 native fragment, launching a query or creating its evidence. Preserve absolute
 paths with spaces/Unicode, absent cache flags and no-replace writes. Implicit
 advisory-setting failures remain fail-open for MCP use.
+
+## 2026-11-14: Captured release sources across the child boundary
+
+Decision: a supplied retained-source context, including an empty map, must
+contain both checker and validator. Never reinterpret missing declarations as
+contributor source use. A direct packaged checker authenticates setup source
+before executing the existing manifest verifier. Contributor trees without a
+runtime manifest retain source-only support without a verification claim.
+
+Decision: transfer the parent's captured checker and validator bytes over the
+isolated fetch child's private stdin and compile that snapshot without
+reopening either source path. Keep the two-second total fetch deadline,
+kill/reap behavior, output limits and advisory fail-open handling. Preserve
+endpoint, cache, fresh-search and shared provider-limit semantics; no new
+updater, dependency or runtime-network permission is needed.

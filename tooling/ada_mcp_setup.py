@@ -76,8 +76,9 @@ def load_helper(name: str) -> JSON:
         namespace: JSON = {
             "__name__": "_ada_mcp_" + name,
             "__file__": str(path),
-            "__verified_sources__": dict(_verified_sources),
         }
+        if _verified_sources:
+            namespace["__verified_sources__"] = dict(_verified_sources)
         exec(compile(source, str(path), "exec"), namespace)
         _helper_namespaces[path] = namespace
     return _helper_namespaces[path]

@@ -33,6 +33,14 @@ cache paths fail before client fragment/log creation or query launch; valid
 absolute Unicode/space paths, no-replace writes and implicit advisory failures
 retain their existing behavior.
 
+Release checks require both checker and validator in the retained source
+context, including an explicitly empty context; undeclared installed helpers
+cannot fall back to disk. Direct packaged entry authenticates setup source
+before reusing its manifest verifier. The isolated fetch child receives and
+compiles the parent's captured bytes without reopening either helper path.
+Contributor trees without a generated manifest retain source support without
+being described as verified installations.
+
 Full and generated lightweight skills share one consent workflow. They inspect
 the actual route, capabilities, target release compatibility and installation
 scope before asking once. A declined update leaves the old pair active; an
@@ -59,7 +67,7 @@ acceptance claim. Reviewed Cloud Arca evidence remains bounded to its concrete
 source requests/results without new process/cleanup certification.
 
 Development validation used Python 3.12 with the exact development lock,
-including MCP 1.30.0. The source/host checks passed 268 cases, covering fresh
+including MCP 1.30.0. The source/host checks passed 296 cases, covering fresh
 search/cache/provider rules, unchanged opt-out/install state, protocol,
 packaging, image/archive validation and source-only helper execution. Valid
 poisoned sibling-bytecode controls exercise real status, native, query, Doctor,
@@ -67,6 +75,12 @@ acquisition, export and smoke-help entry paths without executing the cache or
 changing runtime bytes/modes. Explicit cache-path controls reject relative
 values before outputs/logs and preserve valid Unicode/space paths, no-replace
 writes and implicit advisory fail-open behavior.
+Captured-source controls reject missing declarations and explicitly empty
+retained contexts, and ignore checker/validator replacements after capture.
+Trusted synthetic HTTP fixtures establish successful separate fetch children;
+failure/output-limit controls remain advisory and a stalled child is killed
+and reaped under its total deadline. The new controls reject the original
+disk-reopening implementation without changing runtime bytes or modes.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths
