@@ -1,0 +1,45 @@
+name: Public RC2 to RC3 notification acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_source:
+        description: Approved published RC3 tag/source commit, exactly 40 hexadecimal digits
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  public-notice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the approved probe source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_source }}
+          persist-credentials: false
+      - name: Verify exact source and run only after RC3 publication
+        env:
+          EXPECTED_SOURCE: ${{ inputs.expected_source }}
+        run: |
+          python3 -I - <<'PY'
+          import os, re, subprocess
+          source = os.environ['EXPECTED_SOURCE']
+          assert re.fullmatch('[0-9a-f]{40}', source)
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == source
+          PY
+          python3 -I scripts/public_notice_acceptance.py \
+            --expected-source "$EXPECTED_SOURCE" \
+            --workspace "$RUNNER_TEMP/public-notice-work" \
+            --output "$RUNNER_TEMP/public-notice-evidence"
+      - name: Retain small public consumer evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: public-notice-evidence
+          path: ${{ runner.temp }}/public-notice-evidence/
+          if-no-files-found: warn
+          retention-days: 14

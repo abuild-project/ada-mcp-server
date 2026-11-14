@@ -19,7 +19,7 @@ You need Git, Python 3.11+, Bash 3.2+ and Docker able to run Linux/AMD64
 containers. Use a nonroot account with Docker access and readable project
 sources. You do not need to build Ada MCP or run this repository's CI.
 
-1. [Choose and acquire a published release](doc/first-install.md#install-or-upgrade-to-rc2)
+1. [Choose and acquire a published release](doc/first-install.md#install-or-upgrade-to-rc3)
    and [create a shared Docker binding](doc/first-install.md#shared-docker-binding-and-first-queries)
    for your projects and dependencies. The guide verifies published downloads
    before setup and retains a pinned RC1 fallback.
@@ -48,8 +48,9 @@ RC2 adds [release checks and approved updates](doc/updating.md): search for a
 new release and let the skill verify and execute an update after your approval.
 Existing RC1 installations need an initial approved upgrade to a published
 RC2 or later; their immutable packages have no update-notice hook.
-Work on [reusing runtimes without replacing the skill/plugin](doc/updating.md#keep-the-entry-and-runtime-independent)
-is in development; published RC2 keeps its original installation workflow.
+RC3 adds [runtime reuse without replacing the skill/plugin](doc/updating.md#keep-the-entry-and-runtime-independent).
+Use it only after publication; existing RC2 entries need one initial entry
+upgrade, and later sessions need the same retained files and selection path.
 
 ## Contributing
 

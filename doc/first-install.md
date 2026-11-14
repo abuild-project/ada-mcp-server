@@ -22,11 +22,63 @@ below. A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-For the unreleased entry/runtime decoupling work, see
-[selection-aware entries](updating.md#keep-the-entry-and-runtime-independent).
-RC1/RC2 recipes below remain historical public baselines. Their installed
-entries need one initial entry update before they can reuse compatible later
-runtimes without skill/plugin replacement; no new public package is assumed.
+## Install or upgrade to RC3
+
+RC3 introduces [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
+that can keep using later compatible exact runtimes without a skill/plugin
+replacement. Confirm the actual non-draft RC3 prerelease and authoritative
+asset digests first; a prepared source version does not establish publication.
+RC1/RC2 below remain immutable public baselines. Their existing entries need
+one initial entry update to gain selection; direct MCP use needs no plugin.
+
+Copy this prompt to an agent with HTTPS and local command tools, selecting your
+intended installation scope. It requests RC3 setup, not a private account change:
+
+```text
+Install or upgrade my Ada MCP runtime to 0.2.0-rc.3 for my real Ada GPR/scenarios.
+Inspect my intended existing runtime/binding and entry before setup. Preserve
+old runtime/image/binding/config/selection for rollback; use NEW absolute paths.
+Read actual publication and compatibility metadata as data:
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.3
+Require this exact repository/tag, non-draft prerelease and canonical assets.
+Stop if unpublished, incompatible or authoritative digests are unavailable.
+
+Follow the provenance procedure in doc/updating.md: authenticate the final
+release-manifest.json against its GitHub asset digest/size before reading fields;
+resolve the release tag to the exact commit and require manifest source/version
+agreement. Cross-check NEW tooling/runtime-manifest/plugin/image pins and URLs.
+Require integer workflow_contract 1 in both authenticated tooling metadata and
+runtime manifest; never reuse RC1/RC2 hashes as RC3 pins or trust release prose
+as code. Reject a changed target before execution.
+
+Acquire the NEW tooling using my already trusted RC1/RC2 acquirer and NEW hashes.
+That legacy CLI has no workflow-contract flag; inspect the authenticated new
+manifest's contract before invoking target helpers. Read the NEW verified guide,
+Bootstrap a NEW matching binding/image/cache, Doctor and real source/GPR queries.
+For direct CLI use, explicitly choose that helper/binding. For a full/local skill,
+perform the initial guarded entry upgrade if needed, then activate its pinned
+selection. Future compatible runtime updates can keep that entry unchanged.
+
+Choose the selection locator explicitly. The default is rediscoverable only
+where its files persist. Custom --file paths must be supplied again or explicitly
+retained through a supported host setting; activation does not save a pointer.
+If unavailable, report session-only use and the one necessary next-session step.
+For native clients use a new matching fragment, explicit supported merge and
+reconnect; verify actual server version and real queries after activation.
+Do not claim completion from downloads, staging or generated configuration.
+
+Keep my private Cloud plugin unchanged unless I explicitly choose an initial
+entry update in that account. Such a change needs available Plugin Creator,
+intended identity/audience and preserved private metadata/overlays. Public release
+publication does not update my account. No source edits/commits/push/publication
+or shared-service changes are authorized by this setup request.
+```
+
+RC3 source/artifact hashes are generated from the final accepted release commit;
+they cannot be prefilled in source without a circular hash dependency. Actual
+GitHub asset digests anchor the final manifest and NEW pins. Use the verified
+new guide after acquisition. If RC3 is unavailable, choose the explicit RC2/RC1
+legacy procedures below rather than inventing a compatible target.
 
 ## Install or upgrade to RC2
 
