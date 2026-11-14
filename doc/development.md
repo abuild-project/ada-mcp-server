@@ -52,6 +52,16 @@ identities fail, and process start ticks guard against PID reuse.
 An always-empty diagnostic corruption fails its negative control. Host
 compilers and mocked ALS tests are not integration evidence.
 
+The required reading probe uses a fresh owned Ada/GPR fixture for exact
+definition, implementation and object-type targets, document hierarchy,
+workspace matches and reference sets with and without declarations. An
+unrelated object shares the queried name. A comment supplies a no-target
+case, and an object rename must replace warm results in the same observed
+MCP/ALS processes. Ada/GPR hashes surround each read-only call. The probe
+retains raw protocol, results, both source states and failure summaries;
+EOF cleanup must remove the observed ALS birth. Mocked oracle guards reject
+empty, wrong, duplicated and stale payloads but do not establish live proof.
+
 For fast development only, a local venv may run a targeted check:
 
 ```sh
