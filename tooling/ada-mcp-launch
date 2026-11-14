@@ -9,6 +9,8 @@ usage() {
 Usage: ada-mcp-launch --image IMAGE --root ABS_DIR [--root ABS_DIR ...]
                       [--docker-host ENDPOINT | --docker-context NAME]
                       [--uid UID --gid GID] [--name NAME] [--check]
+                      [--update-channel auto|stable|prerelease|off]
+                      [--update-cache ABS_DIR]
 
 The image must already exist locally and target linux/amd64. Each selected
 directory is mounted read-only at the same absolute path. The caller's UID
@@ -37,6 +39,8 @@ runtime_uid="$(id -u)"
 runtime_gid="$(id -g)"
 container_name=''
 check_only=false
+update_channel="${ADA_MCP_UPDATE_CHANNEL:-auto}"
+update_cache="${ADA_MCP_UPDATE_CACHE:-}"
 roots=()
 
 while [[ $# -gt 0 ]]; do
@@ -117,6 +121,17 @@ while [[ $# -gt 0 ]]; do
             check_only=true
             shift
             ;;
+        --update-channel)
+            require_value "$@"
+            update_channel="$2"
+            shift 2
+            ;;
+        --update-cache)
+            require_value "$@"
+            [[ "$2" == /* ]] || fail '--update-cache must be absolute'
+            update_cache="$2"
+            shift 2
+            ;;
         --help|-h)
             usage
             exit 0
@@ -163,12 +178,29 @@ if [[ "$check_only" == true ]]; then
     exit 0
 fi
 
+notice=''
+# An advisory must never stop the server or write prose to protocol stdout.
+case "$update_channel" in
+    auto|stable|prerelease)
+        script_root="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)" || script_root=''
+        if [[ -n "$script_root" ]] && command -v python3 >/dev/null 2>&1; then
+            update_command=(python3 -I "$script_root/release_updates.py" snapshot
+                --channel "$update_channel")
+            if [[ -n "$update_cache" ]]; then update_command+=(--cache "$update_cache"); fi
+            notice="$("${update_command[@]}" </dev/null 2>/dev/null)" || notice=''
+            if [[ ${#notice} -gt 2048 ]]; then notice=''; fi
+        fi
+        ;;
+    *) notice='' ;;
+esac
+
 arguments=(run --platform linux/amd64 --pull never --rm -i
     --label ada-mcp-generic=1 --user "$runtime_uid:$runtime_gid"
     --network none --read-only --cap-drop ALL --security-opt no-new-privileges
     --tmpfs /tmp:rw,nosuid,nodev,noexec
     --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700"
     --env ADA_PROJECT_ROOT= --env ADA_PROJECT_FILE=
+    --env "ADA_MCP_UPDATE_NOTICE=$notice"
     --env 'ADA_PROJECT_SCENARIO_VARIABLES={}')
 if [[ -n "$container_name" ]]; then arguments+=(--name "$container_name"); fi
 for root in "${roots[@]}"; do

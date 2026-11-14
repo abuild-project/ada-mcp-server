@@ -2,10 +2,12 @@
 
 Version: pilot prerelease `0.2.0-rc.1` (Python `0.2.0rc1`). The table defines
 its acceptance scope; the exact immutable revision must pass the documented
-checks before approval. Check
-[GitHub Releases](https://github.com/abuild-project/ada-mcp-server/releases)
-for publication and artifact metadata. A version in source or CI does not
-establish public availability or acceptance of an untested client.
+checks before approval. The
+[published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
+has verified public asset downloads and hashes; see the maintained
+[first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
+A version in source or CI alone does not establish public availability or
+acceptance of an untested client.
 It does not reuse the old pilot image as evidence for this server revision.
 Python 3.11 is the minimum syntax/runtime requirement, not a claim that every
 Python version/platform combination was accepted. The complete server chain
@@ -21,7 +23,7 @@ uses the container's Python 3.13; host setup records its actual Python version.
 | Immutable acquisition, archive/image identity and host provisioning | tests/host plus generated-artifact host acceptance | Warm cache identified; registry transport independently gated |
 | Numeric users 1000:1000 and 501:20, readonly isolated runtime | host acceptance with fresh readable source copies | Linux identity evidence does not prove Mac sharing/emulation |
 | EOF/exit/container removal | exact-name inspect receipts in host acceptance | Unknown state fails; no broad cleanup |
-| Versioned package/skill/image correspondence | scripts/artifacts.py and metadata/version tests | Publication and public acquisition are later gates |
+| Versioned package/skill/image correspondence | scripts/artifacts.py and metadata/version tests; published RC1 public asset/hash verification | Later releases need their own publication and consumer checks |
 
 The server advertises 19 tools. The read-only client policy permits 16 tools
 and explicit rename preview, but the catalog alone does not prove correctness
@@ -32,9 +34,30 @@ rename, formatting, build and Alire integration are not supported by this
 read-only distribution workflow. They are never described as safe substitutes
 for review or compiler CI.
 
+A supplied managed Cloud batch of 15 concrete requests and results was
+independently checked against Arca source commit
+`20564468d00024e6f949e92c1da79850abf59086`. The selected GPR/scenario,
+symbol/navigation coordinates and both reference sets agreed with that source;
+four explicit file-diagnostic replies reported `complete=true`, `scope=file`
+and no diagnostics. This is bounded evidence for that reported skill/query-client
+workflow, not independent ALS replay or compiler success. The execution text
+is a summary; full raw process, protocol, Bootstrap, Doctor and command logs
+were not supplied. It adds no new process/isolation/cleanup certification to
+the separately retained published CI/runtime evidence and does not expand
+tool-wide support from individual results.
+
+The unreleased host update checker supplies advisory initialization/project
+metadata and a [user-approved update/rollback path](updating.md). Published RC1 has
+no notifier and needs an initial approved upgrade after a notifier-capable
+release exists. The notice mechanism does not move pins, download executables
+or give the server network access. Protocol delivery does not establish how an
+untested native frontend renders or relays a notice to its user.
+
 Actual macOS/Apple Bash/Docker Desktop/Colima, native Mac MCP registration,
-Claude, OpenCode, a fresh managed Cloud task using public release artifacts,
-registry pulling and anonymous public GHCR access remain in development until
-tested directly. Local CLI discovery or a temporary app-server proves neither
-the current Cloud catalog nor another client's behavior. Configuration examples
-prepare those tests rather than promising compatibility.
+Claude, OpenCode and separate-account private plugin import remain in development
+until tested directly. Native Cloud registration and other accounts' runtime
+behavior require their own evidence beyond the reported workflow and public
+artifact-byte access. Registry image execution likewise needs its own evidence.
+Local CLI discovery or a temporary app-server proves neither the current Cloud
+catalog nor another client's behavior. Configuration examples prepare those
+tests rather than promising compatibility.

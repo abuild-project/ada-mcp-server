@@ -278,6 +278,8 @@ def add_launch_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--name")
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--log-dir")
+    parser.add_argument("--update-channel", choices=["auto", "stable", "prerelease", "off"])
+    parser.add_argument("--update-cache")
 
 
 def launcher_command(options: argparse.Namespace) -> list[str]:
@@ -285,9 +287,19 @@ def launcher_command(options: argparse.Namespace) -> list[str]:
     command = [str(Path(options.launcher).resolve()), "--image", options.image]
     for root in options.root:
         command.extend(["--root", root])
-    for attribute in ["docker_host", "docker_context", "uid", "gid", "name"]:
+    for attribute in [
+        "docker_host",
+        "docker_context",
+        "uid",
+        "gid",
+        "name",
+        "update_channel",
+        "update_cache",
+    ]:
         value = getattr(options, attribute, None)
         if value is not None:
+            if attribute == "update_cache" and not Path(value).is_absolute():
+                raise ValueError("update cache directory must be absolute")
             command.extend(["--" + attribute.replace("_", "-"), str(value)])
     return command
 
