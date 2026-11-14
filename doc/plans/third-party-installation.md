@@ -138,3 +138,19 @@ works while automatic opt-out stays unchanged. Honor actual upstream numeric or
 date Retry-After/rate-reset deadlines across both channel caches for the fixed
 endpoint; separate them from artificial daily cooldowns. Lock contention and
 provider blocks cannot be reported as a newly fetched up-to-date result.
+
+## 2026-11-14: Verified sibling execution and explicit cache paths
+
+Decision: retain the exact declared Python helper bytes during manifest
+verification and execute installed siblings through one source-only namespace
+loader. Use it consistently for image identity/archive operations, acquisition,
+client policy/Doctor sessions and update checks. Exclude unchecked sibling
+bytecode on every such path, including the packaged smoke helper, without
+deleting caches or changing runtime files. Raw contributor source use remains
+distinct from a manifest-verified installation, and smoke helper checks do not
+establish actual Mac acceptance.
+
+Decision: reject an explicit relative update-cache path before generating a
+native fragment, launching a query or creating its evidence. Preserve absolute
+paths with spaces/Unicode, absent cache flags and no-replace writes. Implicit
+advisory-setting failures remain fail-open for MCP use.

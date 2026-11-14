@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Execute installed helpers from their verified source bytes and reject relative
+  explicit notice-cache paths before client configuration or query startup.
 - Check public release metadata from the host with a private daily cache,
   bounded timeout and opt-out; expose available-version advisories through
   MCP initialization/project results without moving installed pins.

@@ -25,6 +25,14 @@ Doctor and CI disable checks. Host entry points execute declared shared
 source directly and exclude unverified sibling bytecode without changing the
 verified runtime.
 
+Manifest checks retain the exact declared helper bytes for a shared source-only
+loader across image validation/archive import, acquisition, client policy and
+Doctor sessions, update checks and packaged smoke startup. An unchecked sibling
+bytecode cache cannot replace those verified sources. Explicit relative notice
+cache paths fail before client fragment/log creation or query launch; valid
+absolute Unicode/space paths, no-replace writes and implicit advisory failures
+retain their existing behavior.
+
 Full and generated lightweight skills share one consent workflow. They inspect
 the actual route, capabilities, target release compatibility and installation
 scope before asking once. A declined update leaves the old pair active; an
@@ -51,14 +59,23 @@ acceptance claim. Reviewed Cloud Arca evidence remains bounded to its concrete
 source requests/results without new process/cleanup certification.
 
 Development validation used Python 3.12 with the exact development lock,
-including MCP 1.30.0. The 141 targeted tests passed, covering immediate fresh
-results without advancing the clock, retained automatic cache behavior,
-offline retry, cross-channel numeric/date provider deadlines, lock contention,
-unchanged opt-out/install state, protocol, packaging and bytecode controls.
+including MCP 1.30.0. The source/host checks passed 268 cases, covering fresh
+search/cache/provider rules, unchanged opt-out/install state, protocol,
+packaging, image/archive validation and source-only helper execution. Valid
+poisoned sibling-bytecode controls exercise real status, native, query, Doctor,
+acquisition, export and smoke-help entry paths without executing the cache or
+changing runtime bytes/modes. Explicit cache-path controls reject relative
+values before outputs/logs and preserve valid Unicode/space paths, no-replace
+writes and implicit advisory fail-open behavior.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths
 were explicit workspace/tmp paths and unrelated checks opted out.
+
+The additional isolated installed-server import control requires an installed
+candidate; the dependency-only host interpreter does not supply that boundary.
+That unchanged control belongs to the documented container chain, which
+installs the candidate before testing it.
 
 Packaging checks confirm that full and generated skills share the same consent
 workflow. They do not establish real provider updates, conversational execution

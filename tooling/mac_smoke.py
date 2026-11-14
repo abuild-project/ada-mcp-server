@@ -3,17 +3,35 @@
 """Run an actual macOS smoke test of the shared launcher and MCP server."""
 
 import argparse
+import hashlib
 import json
 import os
 import platform
 import subprocess
+import sys
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from mcp_client import Session, add_launch_arguments, create_private_directory, launcher_command
-
 JSON = dict[str, Any]
+sys.dont_write_bytecode = True
+_setup_source = Path(__file__).resolve().with_name("ada_mcp_setup.py")
+_setup_bytes = _setup_source.read_bytes()
+_manifest = _setup_source.with_name("runtime-manifest.json")
+if _manifest.is_file():
+    _expected = json.loads(_manifest.read_text())["files_sha256"]["scripts/ada_mcp_setup.py"]
+    if hashlib.sha256(_setup_bytes).hexdigest() != _expected:
+        raise RuntimeError("bundle helper checksum mismatch: scripts/ada_mcp_setup.py")
+_setup: JSON = {"__name__": "_ada_mcp_setup", "__file__": str(_setup_source)}
+exec(compile(_setup_bytes, str(_setup_source), "exec"), _setup)
+if _manifest.is_file():
+    _setup["verified_manifest"]()
+_client = _setup["load_helper"]("mcp_client")
+Session: Any = _client["Session"]
+add_launch_arguments: Callable[[argparse.ArgumentParser], None] = _client["add_launch_arguments"]
+create_private_directory: Callable[[Path], None] = _client["create_private_directory"]
+launcher_command: Callable[[argparse.Namespace], list[str]] = _client["launcher_command"]
 
 
 def require(condition: object, message: str) -> None:
@@ -184,11 +202,12 @@ def main() -> int:
     docker, environment = docker_binding(options)
     image_id = None
     try:
+        # Validate launcher arguments before reading cases or creating evidence.
+        command = ["/bin/bash"] + launcher_command(options)
         cases = read_cases(options.cases)
         create_private_directory(output)
         owns_output = True
         # Exercise Apple's system Bash explicitly, even if Homebrew Bash is on PATH.
-        command = ["/bin/bash"] + launcher_command(options)
         check = run(command + ["--check"])
         (output / "launcher-check.txt").write_text(check.stdout)
         image_id = dict(line.split("=", 1) for line in check.stdout.splitlines())["image"]

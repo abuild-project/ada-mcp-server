@@ -28,7 +28,11 @@ metadata: dict[str, Any] = {
     "__name__": "_ada_mcp_update_notice",
     "__file__": str(METADATA_SOURCE),
 }
-exec(compile(METADATA_SOURCE.read_bytes(), str(METADATA_SOURCE), "exec"), metadata)
+_verified: dict[Path, bytes] = globals().get("__verified_sources__", {})
+_metadata_bytes = _verified.get(METADATA_SOURCE)
+if _metadata_bytes is None:
+    _metadata_bytes = METADATA_SOURCE.read_bytes()
+exec(compile(_metadata_bytes, str(METADATA_SOURCE), "exec"), metadata)
 RELEASES: str = metadata["RELEASES"]
 newer: Callable[[str, str], bool] = metadata["newer"]
 parse_version: Callable[[object], tuple[object, tuple[str, ...] | None]] = metadata["parse_version"]

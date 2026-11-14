@@ -298,6 +298,8 @@ def launcher_command(options: argparse.Namespace) -> list[str]:
     ]:
         value = getattr(options, attribute, None)
         if value is not None:
+            if attribute == "update_cache" and not Path(value).is_absolute():
+                raise ValueError("update cache directory must be absolute")
             command.extend(["--" + attribute.replace("_", "-"), str(value)])
     return command
 

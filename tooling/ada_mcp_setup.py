@@ -25,6 +25,8 @@ SCRIPT_ROOT = Path(__file__).resolve().parent
 SKILL_ROOT = SCRIPT_ROOT.parent
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IMAGE_ID = re.compile(r"^sha256:[0-9a-f]{64}$")
+_verified_sources: dict[Path, bytes] = {}
+_helper_namespaces: dict[Path, JSON] = {}
 RESERVED_RUNTIME_PATHS = (
     "/opt/ada-mcp",
     "/bin",
@@ -60,20 +62,54 @@ def sha256_file(path: Path | str) -> str:
     return digest.hexdigest()
 
 
+def load_helper(name: str) -> JSON:
+    """Execute a sibling's retained source bytes, never its bytecode cache."""
+    require(re.fullmatch(r"[a-z][a-z0-9_]*", name), "invalid helper name")
+    path = SCRIPT_ROOT / (name + ".py")
+    if (SCRIPT_ROOT / "runtime-manifest.json").is_file():
+        require(path in _verified_sources, "helper source has not been verified: " + name)
+    if path not in _helper_namespaces:
+        source = _verified_sources.get(path)
+        if source is None:
+            # Contributor/source use has no generated runtime manifest.
+            source = path.read_bytes()
+        namespace: JSON = {
+            "__name__": "_ada_mcp_" + name,
+            "__file__": str(path),
+            "__verified_sources__": dict(_verified_sources),
+        }
+        exec(compile(source, str(path), "exec"), namespace)
+        _helper_namespaces[path] = namespace
+    return _helper_namespaces[path]
+
+
 def verified_manifest() -> JSON:
     """Check every declared bundle helper before invoking it."""
     manifest: JSON = json.loads((SCRIPT_ROOT / "runtime-manifest.json").read_text())
     require(IMAGE_ID.fullmatch(manifest["image_id"]), "bundle image ID is invalid")
+    verified: dict[Path, bytes] = {}
     for name, digest in manifest["files_sha256"].items():
         path = Path(name)
         require(not path.is_absolute() and ".." not in path.parts, "invalid bundle manifest path")
+        target = SKILL_ROOT / path
+        source = target.read_bytes() if target.suffix == ".py" else None
         require(
-            SHA256.fullmatch(digest) and sha256_file(SKILL_ROOT / path) == digest,
+            SHA256.fullmatch(digest)
+            and (hashlib.sha256(source).hexdigest() if source is not None else sha256_file(target))
+            == digest,
             "bundle helper checksum mismatch: " + name,
         )
-    from image_identity import validate_identity
-
-    validate_identity(manifest["image_identity"], manifest["image_id"])
+        if source is not None:
+            verified[target] = source
+    for path in list(_verified_sources):
+        if path.is_relative_to(SKILL_ROOT):
+            _verified_sources.pop(path)
+    _verified_sources.update(verified)
+    for path in verified:
+        _helper_namespaces.pop(path, None)
+    load_helper("image_identity")["validate_identity"](
+        manifest["image_identity"], manifest["image_id"]
+    )
     return manifest
 
 
@@ -368,16 +404,17 @@ def inspect_container(
 
 def validate_docker_archive(stream: BinaryIO, expected_image: str, evidence: JSON) -> None:
     """Validate canonical config and safe Classic/OCI metadata before any load."""
-    from image_identity import archive_identity
-
-    archive_identity(stream, expected_config=expected_image, evidence=evidence)
+    load_helper("image_identity")["archive_identity"](
+        stream, expected_config=expected_image, evidence=evidence
+    )
 
 
 def target_id(binding: JSON) -> str:
     """Resolve the verified host target without treating a config as executable."""
-    from image_identity import validate_identity
-
-    return validate_identity(binding["image_identity"], binding["image_id"])
+    target: str = load_helper("image_identity")["validate_identity"](
+        binding["image_identity"], binding["image_id"]
+    )
+    return target
 
 
 def inspect_image(
@@ -450,8 +487,6 @@ def exported_identity(
     timeout: float,
 ) -> JSON:
     """Bind an actual loaded target to the locked config without executing it."""
-    from image_identity import archive_identity
-
     require(IMAGE_ID.fullmatch(target), "export requires an immutable Docker target")
     argv = docker + ["image", "save", target]
     entry: JSON = {"argv": argv, "rc": None, "stderr": "", "timeout_seconds": timeout}
@@ -472,7 +507,10 @@ def exported_identity(
             entry["export_bytes"] = stream.tell()
         require(result.returncode == 0, "Docker target export failed")
         evidence = report.setdefault("resolved_image", {})
-        return archive_identity(stream, expected_config, target, evidence)
+        identity: JSON = load_helper("image_identity")["archive_identity"](
+            stream, expected_config, target, evidence
+        )
+        return identity
 
 
 def image_present(binding: JSON, report: JSON, timeout: float) -> bool:
@@ -530,9 +568,7 @@ def provision_image(
     docker, environment = docker_binding(binding)
     if source["kind"] in ["archive", "download"]:
         if source["kind"] == "download":
-            from acquire import download_file
-
-            report["download"] = download_file(
+            report["download"] = load_helper("acquire")["download_file"](
                 source["url"], Path(source["path"]), source["sha256"], source["bytes"]
             )
         path = Path(source["path"])
@@ -611,6 +647,8 @@ def update_arguments(options: argparse.Namespace) -> list[str]:
     for attribute in ["update_channel", "update_cache"]:
         value = getattr(options, attribute, None)
         if value is not None:
+            if attribute == "update_cache":
+                value = absolute_path(value, "update cache directory")
             arguments.extend(["--" + attribute.replace("_", "-"), str(value)])
     return arguments
 
@@ -624,8 +662,8 @@ def doctor(
     command_timeout: float,
 ) -> None:
     """Check the real pinned container and STDIO catalog, not project semantics."""
-    # The entry point has verified these helper bytes before importing them.
-    from mcp_client import Session
+    # The entry point has retained these helper bytes after verification.
+    session_type = load_helper("mcp_client")["Session"]
 
     require(
         image_present(binding, report, command_timeout),
@@ -643,7 +681,7 @@ def doctor(
     session = None
     errors = []
     try:
-        session = Session(
+        session = session_type(
             ["/bin/bash"] + launcher_arguments(binding, name) + ["--update-channel", "off"],
             timeout,
             output / "mcp" if output is not None else None,
@@ -933,6 +971,9 @@ def main() -> int:
     report: JSON = {"status": "failed", "operation": options.mode}
     output = None
     try:
+        notice_arguments = (
+            update_arguments(options) if options.mode in {"query", "native-config"} else []
+        )
         manifest = verified_manifest()
         if options.mode in ["bootstrap", "doctor"]:
             require(
@@ -943,10 +984,7 @@ def main() -> int:
                 candidate.mkdir(parents=True, exist_ok=False)
                 output = candidate
         if options.mode == "updates":
-            checker = SCRIPT_ROOT / "release_updates.py"
-            namespace: JSON = {"__name__": "_ada_mcp_release_updates", "__file__": str(checker)}
-            exec(compile(checker.read_bytes(), str(checker), "exec"), namespace)
-            report = namespace["check_updates"](
+            report = load_helper("release_updates")["check_updates"](
                 manifest["project_version"],
                 options.channel
                 or (
@@ -1023,7 +1061,7 @@ def main() -> int:
                         str(SCRIPT_ROOT / "mcp_client.py"),
                     ] + launcher_arguments(binding)[1:]
                     arguments.extend(["--timeout", str(options.timeout)])
-                    arguments.extend(update_arguments(options))
+                    arguments.extend(notice_arguments)
                     if options.log_dir:
                         arguments.extend(["--log-dir", options.log_dir])
                     arguments.extend(
@@ -1032,7 +1070,7 @@ def main() -> int:
                     arguments.extend(options.request)
                     os.execv(sys.executable, arguments)
                 elif options.mode == "native-config":
-                    from mcp_client import READ_TOOLS
+                    read_tools = load_helper("mcp_client")["READ_TOOLS"]
 
                     require(
                         image_present(binding, report, 60), "locked image is missing; run bootstrap"
@@ -1041,10 +1079,10 @@ def main() -> int:
                     content = (
                         "# Generated native-client fragment; merge explicitly.\n"
                         '[mcp_servers.ada]\ncommand = "/bin/bash"\nargs = '
-                        + toml_string_array(launcher_arguments(binding) + update_arguments(options))
+                        + toml_string_array(launcher_arguments(binding) + notice_arguments)
                         + "\nstartup_timeout_sec = 60\n"
                         "tool_timeout_sec = 120\nenabled_tools = "
-                        + toml_string_array(sorted(READ_TOOLS))
+                        + toml_string_array(sorted(read_tools))
                         + "\n"
                     )
                     write_new(target, content)
