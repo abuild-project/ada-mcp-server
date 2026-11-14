@@ -184,3 +184,16 @@ manifest later disappears. Previously retained declared sources remain usable
 without rereading changed helpers. Apply the same contributor-layout boundary
 to direct release checks. These bootstrap/help controls establish no actual
 Mac or native-client acceptance and add no broader host-tamper protocol.
+
+## 2026-11-14: Freshness when a notice is read
+
+Decision: evaluate notice age at each validation using one clock sample.
+An otherwise fresh host snapshot becomes stale at one day and receives the
+same stale warning as an already-stale snapshot. Never promote incoming stale
+metadata to fresh. Preserve rejection of future timestamps and notices older
+than seven days, including the existing inclusive seven-day boundary.
+
+Decision: later project results reflect the age of the unchanged environment
+snapshot without fetching metadata, reconnecting or changing pins. Initialization
+instructions remain the historical initialization response. Check the boundaries
+with a controlled private clock and mocked Ada semantics rather than real waits.

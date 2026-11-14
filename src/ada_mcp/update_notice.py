@@ -64,6 +64,7 @@ def validate_notice(raw: str, installed: str) -> dict[str, Any] | None:
             "release_url",
         }:
             return None
+        now = time.time()
         if (
             type(notice["schema"]) is not int
             or notice["schema"] != 1
@@ -71,7 +72,7 @@ def validate_notice(raw: str, installed: str) -> dict[str, Any] | None:
             or notice["channel"] not in {"stable", "prerelease"}
             or notice["freshness"] not in {"fresh", "stale"}
             or type(notice["checked_at"]) is not int
-            or not 0 <= time.time() - notice["checked_at"] <= 7 * 86400
+            or not 0 <= now - notice["checked_at"] <= 7 * 86400
         ):
             return None
         candidate = notice["available_version"]
@@ -83,6 +84,8 @@ def validate_notice(raw: str, installed: str) -> dict[str, Any] | None:
             or notice["release_url"] != RELEASES + candidate
         ):
             return None
+        if now - notice["checked_at"] >= 86400:
+            notice["freshness"] = "stale"
         return {
             **notice,
             "message": (

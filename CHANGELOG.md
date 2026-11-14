@@ -11,6 +11,8 @@
 - Check public release metadata from the host with a private daily cache,
   bounded timeout and opt-out; expose available-version advisories through
   MCP initialization/project results without moving installed pins.
+- Recompute advisory freshness on each MCP read: snapshots at least one day
+  old carry the stale warning; notices older than seven days remain omitted.
 - Let explicit update checks search afresh without waiting for the daily cache,
   while honoring provider retry deadlines across stable/prerelease channels.
 - Ask once before a skill executes a verified update, including new target

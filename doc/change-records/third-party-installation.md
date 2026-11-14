@@ -17,6 +17,13 @@ apply across both channels; contention and provider blocks never claim that a
 fresh current result was fetched. Bounded/invalid feeds, offline/cache failures
 and rate limits remain distinct from being current.
 
+Notice validation recomputes freshness on each read. A previously fresh host
+snapshot becomes stale at one day and carries the stale warning in later MCP
+project results; an incoming stale flag stays stale. Future timestamps and
+notices older than seven days remain rejected. This uses the existing snapshot
+without additional checks, cache work or pin changes. Initialization text is
+the historical response from initialization.
+
 The checker does not install anything or move pins. The child is killed and
 reaped at its deadline. Validated advisory metadata reaches initialization
 instructions and project_info without changing protocol stdout or container
@@ -74,7 +81,7 @@ acceptance claim. Reviewed Cloud Arca evidence remains bounded to its concrete
 source requests/results without new process/cleanup certification.
 
 Development validation used Python 3.12 with the exact development lock,
-including MCP 1.30.0. The source/host checks passed 309 cases, covering fresh
+including MCP 1.30.0. Earlier source/host checks passed 309 cases, covering fresh
 search/cache/provider rules, unchanged opt-out/install state, protocol,
 packaging, image/archive validation and source-only helper execution. Valid
 poisoned sibling-bytecode controls exercise real status, native, query, Doctor,
@@ -94,6 +101,12 @@ verification. Valid packaged/source help, retained declared sources and
 existing poisoned caches preserve their bytes and modes. The new controls
 reject the previous optional-manifest downgrade. Linux smoke-help checks do
 not establish actual Mac acceptance.
+Freshness boundary controls pass for just below, exactly and just above one
+day, inclusive seven days, expiry, future timestamps and incoming stale flags.
+They read the same unchanged environment snapshot through validation and later
+project-handler calls using a private clock and mocked Ada semantics. These
+controls reject the previous expired-but-fresh behavior. Related release-check,
+SDK stdio, project-handler and generated-package regressions also passed.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths
