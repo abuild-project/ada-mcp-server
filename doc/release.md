@@ -7,16 +7,16 @@ updates need the maintainer's authorization; a reviewed PR alone is not that
 authorization. Ordinary CI only builds/tests and uploads CI artifacts.
 The promotion workflow is manually invoked for the approved release.
 
-The initial version `0.2.0-rc.1` is a pilot prerelease, not a stable support
-promise. Its [release notes](releases/0.2.0-rc.1.md) describe what it contains
-and which client/platform tests still follow. The
+The coordinated `0.2.0-rc.2` candidate remains a pilot prerelease, not a stable
+support promise. Its [release notes](releases/0.2.0-rc.2.md) describe the changes
+and client/platform limits. RC1 remains an immutable published fallback. The
 [public repository assessment](assessments/public-release.md) distinguishes
 observed settings from policy and unavailable administrative evidence.
 
 ## Artifact trust and version
 
 The canonical SemVer is read from src/ada_mcp/_version.py. Python converts
-`0.2.0-rc.1` to `0.2.0rc1`; package metadata and MCP initialization report that
+`0.2.0-rc.2` to `0.2.0rc2`; package metadata and MCP initialization report that
 project version, not the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
@@ -55,9 +55,14 @@ metadata and checksums record the digest and exact tested artifact hashes.
    run does not meet this requirement, even if its tree is identical.
    Download that run's `release-candidate` artifact, verify its hashes and
    source/image/version correspondence, and run scripts/promote.py in plan
-   mode. Retain the source SHA, run ID, command and output.
+   mode. The plan and execution both require bounded UTF-8 notes from
+   `doc/releases/<version>.md` in that approved Git commit, with its exact version
+   heading and a nonempty body. Missing/malformed notes stop before publication;
+   uncommitted worktree notes cannot replace them. Retain the source SHA, run ID,
+   notes hash, command and output. Publication passes those reviewed bytes via
+   a temporary notes file outside the release assets; it adds no artifact.
 2. With merge/release authority supplied, create the intended immutable tag
-   `v0.2.0-rc.1` on that same approved revision and verify the tag target.
+   `v0.2.0-rc.2` on that same approved revision and verify the tag target.
    Verify repository/GitHub Actions permissions, release protection,
    GHCR publication rights and the exact redistributed components' required
    source delivery under [licensing](licensing.md). A declared environment name
@@ -74,7 +79,7 @@ metadata and checksums record the digest and exact tested artifact hashes.
    digest-pinned pull with a new empty client config and verify its actual
    target-to-config relationship. An authenticated pull is not public-access
    evidence. The prepared code requires this check before creating a release;
-   actual registry transport and publication are still unvalidated.
+   a previous release does not prove access for the selected new version.
 5. Check that the actual public versioned file URLs return the pinned bytes.
    Only then claim public availability, update the existing account plugin
    with separate authorization and test a fresh managed Cloud task using

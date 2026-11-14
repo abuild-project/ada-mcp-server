@@ -1,11 +1,11 @@
 # Release checks, approved updates and rollback
 
-The notice feature described here is **unreleased**. Published RC1 archives
-do not contain it and are not changed by this work. Existing RC1 installations
-need one initial user-approved upgrade after a tested release containing the feature
-is actually published. Until then, consult the
-[release index](https://github.com/abuild-project/ada-mcp-server/releases).
-No future release version, URL or trusted hash is supplied in advance.
+This workflow requires **RC2 or later**. Confirm that the target is actually
+published in the [release index](https://github.com/abuild-project/ada-mcp-server/releases)
+before acquiring it. Published RC1 archives have no notice hook and remain
+unchanged. They need one initial user-approved upgrade, using the
+[RC2 installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc2).
+No future artifact hash or source commit is supplied in advance.
 
 ## What the notice does
 
@@ -20,7 +20,10 @@ commands and download assets are ignored. This is an availability advisory,
 not a new source of trusted executable hashes.
 
 Cold or expired cache checks can add up to a two-second fetch delay. The child
-is killed and reaped at its deadline. Cache/network failures leave MCP usable.
+is killed and reaped at its deadline. Only metadata returned by a completed
+worker is accepted. A timeout reports an offline/unknown check; recovery of
+partial worker output or newly observed headers is not guaranteed. Previously
+persisted active provider deadlines still apply. Cache/network failures leave MCP usable.
 The private application cache defaults to `~/.cache/ada-mcp` (directory 0700,
 files 0600), with a nonblocking endpoint lock for concurrent sessions. Automatic
 checks cache successes and failures for a day. An explicit fresh check bypasses

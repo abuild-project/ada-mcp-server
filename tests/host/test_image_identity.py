@@ -15,7 +15,7 @@ import image_identity
 import pytest
 from image_fixtures import classic_identity, corrupt_config_size, digest, metadata_archive
 from test_setup_boundaries import binding
-from version import ROOT
+from version import ROOT, project_version
 
 
 @pytest.mark.parametrize("kind", ["legacy", "oci", "hybrid"])
@@ -150,7 +150,7 @@ else: raise SystemExit('unexpected fake Docker command')
         }
     report = {}
     setup.provision_image(
-        candidate, report, 10, {"source_sha": "a" * 40, "project_version": "0.2.0-rc.1"}
+        candidate, report, 10, {"source_sha": "a" * 40, "project_version": project_version()}
     )
     assert candidate["image_id"] == config
     assert setup.target_id(candidate) == target

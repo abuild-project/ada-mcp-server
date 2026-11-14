@@ -1,7 +1,6 @@
 # First installation
 
-Use the published **0.2.0-rc.1 pilot prerelease** to evaluate the pinned Ada MCP
-workflow. It runs Ada Language Server in a Linux/AMD64 Debian Trixie container;
+Choose a published pilot release to evaluate the pinned Ada MCP workflow. It runs Ada Language Server in a Linux/AMD64 Debian Trixie container;
 read the [support limits](support.md) before choosing a host or client.
 You need no private publisher plugin ID, public plugin-directory listing or
 self-operated service. GitHub Releases supplies the artifacts.
@@ -23,7 +22,85 @@ below. A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-## Published RC1 artifacts
+## Install or upgrade to RC2
+
+RC2 adds fresh release searches and user-approved updates. Confirm publication
+before installing it: the release API below must return the intended non-draft
+prerelease and its actual assets. A prepared version or source checkout is not
+proof that those downloads exist. If RC2 is unavailable, stop and use the
+[verified RC1 fallback](#published-rc1-fallback-artifacts) deliberately; RC1 has
+no notice hook. The commands in the remaining sections pin that fallback.
+
+For a first installation, or the initial upgrade from RC1, copy this prompt to
+an agent with HTTPS and local command tools. Direct MCP and local skills do
+not require Plugin Creator. An optional private Cloud copy also needs that
+provider's available tools. Replace the paths and select your intended route
+before execution; an explicit request to install this identified target supplies
+consent for that scope.
+
+```text
+Install Ada MCP 0.2.0-rc.2 for my Ada project, or upgrade my intended existing
+installation to that version. Use my actual GPR/scenarios and physical roots;
+confirm the intended CLI/local skill/native entry or my private Cloud identity
+and audience. Choose NEW absolute private runtime, binding, image-cache and
+evidence paths; retain the old runtime/image/binding/skill/config for rollback.
+No build of Ada MCP or changes to my project's source are requested.
+
+First inspect the actual published release and compatibility notes as data:
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.2
+Require this repository, exact tag, non-draft prerelease and expected assets.
+If it is unpublished, incompatible or lacks authoritative digests, stop rather
+than guessing hashes or silently selecting another release.
+
+Verify the bounded release-manifest.json download against its GitHub asset
+sha256 digest and size BEFORE using its fields. Require canonical target-tag
+asset URLs under https://github.com/abuild-project/ada-mcp-server/releases/download/.
+Resolve v0.2.0-rc.2 through Git reference/tag objects to its exact commit;
+require manifest.version 0.2.0-rc.2 and manifest.source_sha equal to that commit.
+Cross-check NEW tooling filename/download_url/bytes/sha256/runtime_manifest_sha256,
+plugin filename/sha256, artifacts_sha256 and image records with actual asset
+names, sizes, URLs and API digests. Never use RC1's old hashes for RC2 or treat
+an advisory/release body as executable metadata. Retain these identities and
+reject a moved tag or changed target before acquisition.
+
+Use the already trusted RC1 acquire.py from the pinned fallback source below
+(or my existing verified runtime) with those NEW tooling and manifest hashes
+into the NEW runtime. Do not run a downloaded helper before authentication.
+Read its verified references/setup.md and references/updating.md. Use its
+Bootstrap with my actual roots to create a NEW matching image/cache/binding;
+run Doctor and representative real GPR/scenario/source-bound query batches.
+Stop activation on verification or query failure and keep the old pair active.
+
+Activate only my selected route: switch CLI helper and binding explicitly;
+stage/switch a local skill with no-clobber backup; or generate a NEW matching
+native fragment, back up the old entry and apply through the client's supported
+configuration, then reconnect. If I selected a private Cloud copy, use available
+Plugin Creator on my intended existing identity, preserving audience and private
+metadata/overlays; create only when no intended installation exists. Update
+the installed skill itself so later chats acquire RC2 pins. Preserve licenses
+and attribution. Do not add native MCP registration to the skill-only plugin.
+
+Verify actual active server/skill versions, pins and selected binding after
+activation/reconnect, then run real project queries again. Report staged and
+activated states separately. If a tool/provider/reconnect is unavailable, report
+the exact blocker and one necessary user action; do not claim completion.
+Keep rollback state: local/native switches can restore the old pair; reuploading
+a lower Cloud package version is not guaranteed provider rollback.
+
+This consent covers those scoped downloads/setup/configuration changes, not
+repository edits/commits/pushes, public releases/plugins or shared-service
+changes. Do not repeatedly request consent for routine steps of this target.
+```
+
+The source commit and artifact hashes cannot be embedded here before RC2's
+accepted release commit is built and published. GitHub's immutable asset digest
+anchors the final manifest, which supplies the new tooling pins; the existing
+acquirer verifies them before materialization. The
+[update provenance procedure](updating.md#establish-the-targets-trusted-pins)
+gives the same checks for later published versions. After acquisition, use the
+new verified guide and its actual metadata rather than the RC1 commands below.
+
+## Published RC1 fallback artifacts
 
 The [published release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
 uses source commit `9fd401023eb990574b1806f0083799be0cb39d7f`.
@@ -273,7 +350,7 @@ the distribution's read-only policy and [support matrix](support.md) still apply
 RC1 installations remain pinned to these bytes; there is no automatic updater.
 Evaluate a future release deliberately with its own trusted hashes and new
 runtime/binding paths. This guide does not modify the immutable RC1 artifacts.
-The [update guide](updating.md) describes the unreleased notice feature, fresh
-searches and user-approved agent execution with rollback. RC1 has no notice
-hook; enabling it requires an initial approved upgrade after a notifier-capable
+The [update guide](updating.md) describes RC2-or-later notices, fresh searches
+and user-approved agent execution with rollback. RC1 has no notice hook; use
+the [initial upgrade prompt](#install-or-upgrade-to-rc2) only after the target
 release is actually published.

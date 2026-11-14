@@ -1,6 +1,6 @@
 # Candidate support and evidence matrix
 
-Version: pilot prerelease `0.2.0-rc.1` (Python `0.2.0rc1`). The table defines
+Version: pilot prerelease candidate `0.2.0-rc.2` (Python `0.2.0rc2`). The table defines
 its acceptance scope; the exact immutable revision must pass the documented
 checks before approval. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
@@ -46,10 +46,9 @@ were not supplied. It adds no new process/isolation/cleanup certification to
 the separately retained published CI/runtime evidence and does not expand
 tool-wide support from individual results.
 
-The unreleased host update checker supplies advisory initialization/project
+The RC2-or-later host update checker supplies advisory initialization/project
 metadata and a [user-approved update/rollback path](updating.md). Published RC1 has
-no notifier and needs an initial approved upgrade after a notifier-capable
-release exists. The notice mechanism does not move pins, download executables
+no notifier and needs an initial approved upgrade to a published RC2 or later. The notice mechanism does not move pins, download executables
 or give the server network access. Protocol delivery does not establish how an
 untested native frontend renders or relays a notice to its user.
 

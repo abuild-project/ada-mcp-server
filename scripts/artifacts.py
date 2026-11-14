@@ -124,8 +124,9 @@ def lightweight_plugin(root: Path, version: str, tooling: JSON) -> dict[str, byt
     instructions = f'''---
 name: ada-development
 description: >
-  Use for Ada/GPR development and pinned shared Ada MCP setup across repositories.
-  Acquire the versioned archive, read project rules and select real GPR views.
+  Use for Ada/GPR development, pinned shared Ada MCP setup, fresh release checks
+  and user-approved upgrades across repositories. Acquire the versioned archive,
+  read project rules and select real GPR views.
   Compiler CI remains separate.
 ---
 
