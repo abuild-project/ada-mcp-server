@@ -161,9 +161,12 @@ def fetch_feed() -> JSON:
             "status": "rate_limited" if error.code in {403, 429} else "offline",
         }
         if error.headers is not None:
+            # A quota window reset is binding only when no quota remains.
+            remaining = error.headers.get("X-RateLimit-Remaining", "").strip()
+            rate_reset = error.headers.get("X-RateLimit-Reset", "") if remaining == "0" else ""
             deadline = retry_deadline(
                 error.headers.get("Retry-After", ""),
-                error.headers.get("X-RateLimit-Reset", ""),
+                rate_reset,
                 int(time.time()),
             )
             if deadline is not None:

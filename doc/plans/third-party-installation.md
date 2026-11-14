@@ -197,3 +197,17 @@ Decision: later project results reflect the age of the unchanged environment
 snapshot without fetching metadata, reconnecting or changing pins. Initialization
 instructions remain the historical initialization response. Check the boundaries
 with a controlled private clock and mocked Ada semantics rather than real waits.
+
+## 2026-11-14: Retry instructions and informational quota headers
+
+Decision: a quota-window reset is a binding retry deadline only when the
+response reports zero remaining quota. An informational reset with positive,
+missing or invalid remaining quota must not block a fresh manual check.
+Preserve explicit Retry-After instructions independently, including maintenance
+responses, and combine only applicable deadlines using the existing parser.
+
+Decision: retain real provider waits across stable/prerelease channels while
+manual checks bypass artificial daily/offline cooldowns. Preserve the fixed
+endpoint, bounded fetch, cache policy and installation pins. Check actual HTTP
+header parsing and cache behavior with controlled responses rather than live
+provider requests.

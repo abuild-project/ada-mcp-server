@@ -15,6 +15,8 @@
   old carry the stale warning; notices older than seven days remain omitted.
 - Let explicit update checks search afresh without waiting for the daily cache,
   while honoring provider retry deadlines across stable/prerelease channels.
+- Apply quota-reset waits only when no quota remains; preserve explicit
+  Retry-After waits, including maintenance responses.
 - Ask once before a skill executes a verified update, including new target
   pins, matching runtime/skill/client activation and preserved rollback state.
 - Add public RC1 first-install guidance for reader-owned private Cloud skill

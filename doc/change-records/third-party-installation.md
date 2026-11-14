@@ -17,6 +17,12 @@ apply across both channels; contention and provider blocks never claim that a
 fresh current result was fetched. Bounded/invalid feeds, offline/cache failures
 and rate limits remain distinct from being current.
 
+Quota-reset waits apply only when the response reports zero remaining quota.
+Informational resets with positive, missing or invalid remaining quota do not
+become provider blocks. Explicit Retry-After instructions remain binding,
+including maintenance responses; applicable waits still apply across channels
+without turning the artificial daily cache cooldown into a manual-check delay.
+
 Notice validation recomputes freshness on each read. A previously fresh host
 snapshot becomes stale at one day and carries the stale warning in later MCP
 project results; an incoming stale flag stays stale. Future timestamps and
@@ -107,6 +113,12 @@ They read the same unchanged environment snapshot through validation and later
 project-handler calls using a private clock and mocked Ada semantics. These
 controls reject the previous expired-but-fresh behavior. Related release-check,
 SDK stdio, project-handler and generated-package regressions also passed.
+Thirteen HTTP/cache controls pass with real HTTPMessage parsing, independent
+same/other-channel retries, actual shared waits, maintenance Retry-After,
+case-insensitive names, padded zero and invalid header values. They reject the
+previous informational-reset blocking while preserving exhausted-quota waits.
+The HTTP transport is controlled in-process; these fixtures are not evidence
+of live provider responses or a replacement for isolated-child controls.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths
