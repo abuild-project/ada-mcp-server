@@ -46,3 +46,22 @@ Decision: continue this topic on `codex/reading-regression-baseline`, with its
 canonical change record at `doc/change-records/reading-regression-baseline.md`.
 Preserve the earlier published topic branch and commits. Branch continuity
 does not reset workflow counters, which remain outside tracked source.
+
+## 2026-11-14: Changed semantic targets in the warm session
+
+Decision: replace the rename-only mutation with a complete owned source
+state outside the GPR's explicit Source_Dirs until copied into Main. Move
+the object declaration from 3:4 to 5:4, change its record type from Counter
+at reading.ads 2:9 to Alternate_Counter at 6:9, and replace the single use
+at 6:40 with uses at 9:7 and 9:22. Reference counts including/excluding the
+declaration must change from 2/1 to 3/2. Keep the original procedure's exact
+specification, implementation and workspace targets unchanged.
+
+Decision: keep both complete source states and their explicit expected
+metadata in evidence, including hashes for the committed state template.
+Require exact changed document and hover positions, definition, type target
+and reference sets in the same observed process births. Replay old locations
+with previews regenerated from the current source, including a still-valid
+old Counter declaration and incorrect reference sets at the correct new
+count. These mocked controls must reject stale locations independently of
+stale preview text; the final source still needs real pinned-ALS acceptance.

@@ -10,6 +10,7 @@ import json
 import shutil
 import sys
 import time
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -23,6 +24,27 @@ JSON = dict[str, Any]
 Location = tuple[str, int, int]
 Symbol = tuple[str, str, str, int, int]
 FIXTURE = Path(__file__).resolve().parent.parent / "tests/fixtures/reading_project"
+
+
+@dataclass(frozen=True)
+class ReadingState:
+    """Exact source locations and type expected for one owned fixture state."""
+
+    template: str
+    object_name: str
+    type_name: str
+    declaration_line: int
+    step_line: int
+    references: tuple[tuple[int, int], ...]
+    type_line: int
+    comment_line: int
+
+
+INITIAL_STATE = ReadingState("src/main.adb", "Item", "Counter", 3, 4, ((6, 40),), 2, 10)
+CHANGED_STATE = ReadingState(
+    "states/main-after.adb", "Other", "Alternate_Counter", 5, 7, ((9, 7), (9, 22)), 6, 13
+)
+STATES = (INITIAL_STATE, CHANGED_STATE)
 
 
 def source_hashes(root: Path) -> dict[str, str]:
@@ -86,7 +108,7 @@ def require_workspace(result: JSON, expected: set[Symbol]) -> None:
         raise AssertionError(f"expected workspace set {expected!r}, received {result!r}")
 
 
-def require_document(result: JSON, object_name: str) -> None:
+def require_document(result: JSON, state: ReadingState) -> None:
     """Require the exact Main/child hierarchy, kinds and selection coordinates."""
     if result.get("error") or result.get("complete", True) is not True:
         raise AssertionError("document symbols must not be an error or incomplete result")
@@ -111,22 +133,22 @@ def require_document(result: JSON, object_name: str) -> None:
     visit([item for item in items if item.get("name") != "With clauses"])
     expected = {
         (("Main",), "function", 2, 11),
-        (("Main", object_name), "variable", 3, 4),
-        (("Main", "Step"), "function", 4, 14),
+        (("Main", state.object_name), "variable", state.declaration_line, 4),
+        (("Main", "Step"), "function", state.step_line, 14),
     }
     if set(actual) != expected or len(actual) != len(expected):
         raise AssertionError(f"expected document hierarchy {expected!r}, received {actual!r}")
 
 
-def require_hover(result: JSON, object_name: str, source: Path) -> None:
+def require_hover(result: JSON, state: ReadingState, source: Path) -> None:
     """Require the exact fixture declaration and source position emitted by ALS."""
     contents = result.get("contents")
     if result.get("found") is not True or not isinstance(contents, str) or result.get("error"):
         raise AssertionError("hover must contain a positive declaration")
-    declaration = f"{object_name} : Reading.Counter := (Value => 0);"
-    if source.read_text().splitlines()[2] != "   " + declaration:
-        raise AssertionError("the fixture must contain the expected object declaration at 3:4")
-    expected = f"{declaration}\nat {source.name} (3:4)"
+    declaration = f"{state.object_name} : Reading.{state.type_name} := (Value => 0);"
+    if source.read_text().splitlines()[state.declaration_line - 1] != "   " + declaration:
+        raise AssertionError("the fixture must contain the expected object declaration")
+    expected = f"{declaration}\nat {source.name} ({state.declaration_line}:4)"
     if contents != expected:
         raise AssertionError("hover must match the queried object declaration and source position")
 
@@ -255,35 +277,55 @@ def run_control(output: Path) -> JSON:
             ("Reading_Probe_Increment", "function", str(spec), 5, 14),
             ("Reading_Probe_Increment", "function", str(body), 2, 14),
         }
-        for number, name in enumerate(("Item", "Other")):
+        for number, state in enumerate(STATES):
             if number:
-                main.write_text(main.read_text().replace("Item", "Other"))
+                main.write_bytes((root / state.template).read_bytes())
             (output / f"main-state-{number}.adb").write_bytes(main.read_bytes())
-            require_document(call("ada_document_symbols", {"file": str(main)}), name)
+            state_record: JSON = {
+                "object": state.object_name,
+                "expected": asdict(state),
+                "source_sha256": source_hashes(root),
+            }
+            report["states"].append(state_record)
+            require_document(call("ada_document_symbols", {"file": str(main)}), state)
+            query_line, query_column = state.references[0]
             require_location(
-                call("ada_goto_definition", {"file": str(main), "line": 6, "column": 40}),
-                (str(main), 3, 4),
-                name,
+                call(
+                    "ada_goto_definition",
+                    {"file": str(main), "line": query_line, "column": query_column},
+                ),
+                (str(main), state.declaration_line, 4),
+                state.object_name,
             )
             require_location(
-                call("ada_type_definition", {"file": str(main), "line": 6, "column": 40}),
-                (str(spec), 2, 9),
-                "Counter",
+                call(
+                    "ada_type_definition",
+                    {"file": str(main), "line": query_line, "column": query_column},
+                ),
+                (str(spec), state.type_line, 9),
+                state.type_name,
             )
             require_hover(
-                call("ada_hover", {"file": str(main), "line": 6, "column": 40}), name, main
+                call("ada_hover", {"file": str(main), "line": query_line, "column": query_column}),
+                state,
+                main,
             )
             for include in (True, False):
-                expected = {(str(main), 6, 40)}
+                expected = {(str(main), line, column) for line, column in state.references}
                 if include:
-                    expected.add((str(main), 3, 4))
+                    expected.add((str(main), state.declaration_line, 4))
                 require_references(
                     call(
                         "ada_find_references",
-                        {"file": str(main), "line": 3, "column": 4, "include_declaration": include},
+                        {
+                            "file": str(main),
+                            "line": state.declaration_line,
+                            "column": 4,
+                            "include_declaration": include,
+                        },
                     ),
                     expected,
-                    name,
+                    state.object_name,
                 )
             for query, expected_matches in (
                 ("Reading_Probe_Increment", expected_symbols),
@@ -305,16 +347,16 @@ def run_control(output: Path) -> JSON:
             if identity is not None and observed != identity:
                 raise AssertionError("MCP/ALS identities changed after source mutation")
             identity = observed
-            report["states"].append(
-                {"object": name, "source_sha256": source_hashes(root), "process": observed}
-            )
+            state_record["process"] = observed
         for tool in (
             "ada_goto_definition",
             "ada_implementation",
             "ada_type_definition",
             "ada_hover",
         ):
-            require_absent(call(tool, {"file": str(main), "line": 10, "column": 7}))
+            require_absent(
+                call(tool, {"file": str(main), "line": CHANGED_STATE.comment_line, "column": 7})
+            )
         report["final_process"] = process_state(session, output / "mcp/server-stderr.log")
         if report["final_process"] != identity:
             raise AssertionError("MCP/ALS identities changed during no-target queries")

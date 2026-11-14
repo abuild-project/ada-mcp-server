@@ -32,6 +32,7 @@ def location(source, line, column):
         ("reading.ads", 5, 14, "Reading_Probe_Increment"),
         ("reading.adb", 2, 14, "Reading_Probe_Increment"),
         ("reading.ads", 2, 9, "Counter"),
+        ("reading.ads", 6, 9, "Alternate_Counter"),
         ("main.adb", 3, 4, "Item"),
         ("main.adb", 6, 40, "Item"),
         ("main.adb", 6, 15, "Reading_Probe_Increment"),
@@ -71,7 +72,7 @@ def test_reference_oracle_checks_declaration_flag_duplicates_and_unrelated_name(
         reading.require_references(result, {(str(main), 6, 40)}, "Item")
 
 
-def document(object_name="Item"):
+def document(state=reading.INITIAL_STATE):
     return {
         "symbols": [
             {
@@ -80,8 +81,13 @@ def document(object_name="Item"):
                 "line": 2,
                 "column": 11,
                 "children": [
-                    {"name": object_name, "kind": "variable", "line": 3, "column": 4},
-                    {"name": "Step", "kind": "function", "line": 4, "column": 14},
+                    {
+                        "name": state.object_name,
+                        "kind": "variable",
+                        "line": state.declaration_line,
+                        "column": 4,
+                    },
+                    {"name": "Step", "kind": "function", "line": state.step_line, "column": 14},
                 ],
             },
             {"name": "With clauses", "kind": "namespace"},
@@ -92,7 +98,7 @@ def document(object_name="Item"):
 @pytest.mark.parametrize("corruption", ["empty", "kind", "position", "hierarchy", "duplicate"])
 def test_document_oracle_rejects_wrong_structure(corruption):
     result = document()
-    reading.require_document(result, "Item")
+    reading.require_document(result, reading.INITIAL_STATE)
     wrong = copy.deepcopy(result)
     if corruption == "empty":
         wrong["symbols"] = []
@@ -105,48 +111,54 @@ def test_document_oracle_rejects_wrong_structure(corruption):
     else:
         wrong["symbols"].append(copy.deepcopy(wrong["symbols"][0]))
     with pytest.raises(AssertionError, match="document hierarchy|namespace envelope"):
-        reading.require_document(wrong, "Item")
+        reading.require_document(wrong, reading.INITIAL_STATE)
 
 
-def test_mutated_source_rejects_old_document_hover_and_reference_payloads(fixture):
+def test_mutated_source_rejects_old_document_and_hover_payloads(fixture):
     main = fixture / "src/main.adb"
-    old = {"references": [location(main, 6, 40)], "count": 1}
-    main.write_text(main.read_text().replace("Item", "Other"))
-    reading.require_document(document("Other"), "Other")
+    state = reading.CHANGED_STATE
+    main.write_bytes((fixture / state.template).read_bytes())
+    reading.require_document(document(state), state)
     reading.require_hover(
         {
             "found": True,
-            "contents": "Other : Reading.Counter := (Value => 0);\nat main.adb (3:4)",
+            "contents": "Other : Reading.Alternate_Counter := (Value => 0);\nat main.adb (5:4)",
         },
-        "Other",
+        state,
         main,
     )
     with pytest.raises(AssertionError, match="document hierarchy"):
-        reading.require_document(document(), "Other")
+        reading.require_document(document(), state)
+    stale_positions = document(state)
+    stale_positions["symbols"][0]["children"][0]["line"] = 3
+    stale_positions["symbols"][0]["children"][1]["line"] = 4
+    with pytest.raises(AssertionError, match="document hierarchy"):
+        reading.require_document(stale_positions, state)
     with pytest.raises(AssertionError, match="queried object"):
         reading.require_hover(
             {
                 "found": True,
                 "contents": "Item : Reading.Counter := (Value => 0);\nat main.adb (3:4)",
             },
-            "Other",
+            state,
             main,
         )
-    with pytest.raises(AssertionError, match="preview"):
-        reading.require_references(old, {(str(main), 6, 40)}, "Other")
 
 
-@pytest.mark.parametrize("name", ["Item", "Other"])
-def test_hover_oracle_accepts_exact_pinned_als_source_payload(fixture, name):
-    """Replay the two captured presentation shapes as mocked guard evidence."""
+@pytest.mark.parametrize("state", reading.STATES)
+def test_hover_oracle_accepts_exact_source_payload(fixture, state):
+    """Check the expected presentation as a mocked guard, without live ALS."""
     main = fixture / "src/main.adb"
-    main.write_text(main.read_text().replace("Item", name))
+    main.write_bytes((fixture / state.template).read_bytes())
     reading.require_hover(
         {
             "found": True,
-            "contents": f"{name} : Reading.Counter := (Value => 0);\nat main.adb (3:4)",
+            "contents": (
+                f"{state.object_name} : Reading.{state.type_name} := (Value => 0);\n"
+                f"at main.adb ({state.declaration_line}:4)"
+            ),
         },
-        name,
+        state,
         main,
     )
 
@@ -176,7 +188,7 @@ def test_hover_oracle_accepts_exact_pinned_als_source_payload(fixture, name):
 def test_hover_oracle_rejects_wrong_tokens_declaration_or_source_position(fixture, contents):
     with pytest.raises(AssertionError, match="queried object declaration and source position"):
         reading.require_hover(
-            {"found": True, "contents": contents}, "Item", fixture / "src/main.adb"
+            {"found": True, "contents": contents}, reading.INITIAL_STATE, fixture / "src/main.adb"
         )
 
 
@@ -189,9 +201,64 @@ def test_hover_oracle_rejects_payload_unbound_from_fixture_source(fixture):
                 "found": True,
                 "contents": "Item : Reading.Counter := (Value => 0);\nat main.adb (3:4)",
             },
-            "Item",
+            reading.INITIAL_STATE,
             main,
         )
+
+
+def test_mutation_rejects_old_definition_and_type_with_current_disk_previews(fixture):
+    """Fresh previews cannot make an old cached navigation target acceptable."""
+    main, spec = fixture / "src/main.adb", fixture / "src/reading.ads"
+    state = reading.CHANGED_STATE
+    main.write_bytes((fixture / state.template).read_bytes())
+    stale_definition = location(main, 3, 4)
+    stale_type = location(spec, 2, 9)
+    assert stale_definition["preview"] == main.read_text().splitlines()[2]
+    assert stale_type["preview"] == spec.read_text().splitlines()[1]
+    # Counter remains a valid type declaration: only the exact new target
+    # distinguishes a stale type result from the expected Alternate_Counter.
+    reading.require_location(stale_type, (str(spec), 2, 9), "Counter")
+    with pytest.raises(AssertionError, match="expected location"):
+        reading.require_location(stale_definition, (str(main), 5, 4), "Other")
+    with pytest.raises(AssertionError, match="expected location"):
+        reading.require_location(stale_type, (str(spec), 6, 9), "Alternate_Counter")
+    reading.require_location(location(main, 5, 4), (str(main), 5, 4), "Other")
+    reading.require_location(location(spec, 6, 9), (str(spec), 6, 9), "Alternate_Counter")
+
+
+@pytest.mark.parametrize("include_declaration", [True, False])
+def test_mutation_rejects_old_reference_coordinates_with_current_disk_previews(
+    fixture, include_declaration
+):
+    """Reject both an old set/count and stale coordinates at the correct new count."""
+    main = fixture / "src/main.adb"
+    main.write_bytes((fixture / reading.CHANGED_STATE.template).read_bytes())
+    new_positions = {(9, 7), (9, 22)}
+    old_positions = {(6, 40)}
+    if include_declaration:
+        new_positions.add((5, 4))
+        old_positions.add((3, 4))
+    expected = {(str(main), line, column) for line, column in new_positions}
+    reading.require_references(
+        {
+            "references": [location(main, *position) for position in new_positions],
+            "count": len(expected),
+        },
+        expected,
+        "Other",
+    )
+    # Preserve the expected new count but replace one valid new use with the
+    # old use. Every preview is regenerated from the current mutated source.
+    wrong_same_count = new_positions - {(9, 7)} | {(6, 40)}
+    for stale_positions in (old_positions, wrong_same_count):
+        items = [location(main, *position) for position in stale_positions]
+        assert all(
+            item["preview"] == main.read_text().splitlines()[item["line"] - 1] for item in items
+        )
+        with pytest.raises(AssertionError, match="reference set"):
+            reading.require_references(
+                {"references": items, "count": len(items)}, expected, "Other"
+            )
 
 
 def test_workspace_oracle_rejects_wrong_set_and_incomplete_index(fixture):
@@ -230,10 +297,11 @@ def test_negative_target_does_not_accept_found_or_error():
 
 def test_hashes_capture_only_source_changes(fixture):
     before = reading.source_hashes(fixture)
+    assert "states/main-after.adb" in before
     (fixture / "generated.log").write_text("ALS log")
     assert reading.source_hashes(fixture) == before
     main = fixture / "src/main.adb"
-    main.write_text(main.read_text().replace("Item", "Other"))
+    main.write_bytes((fixture / reading.CHANGED_STATE.template).read_bytes())
     after = reading.source_hashes(fixture)
     assert {name for name in before if before[name] != after[name]} == {"src/main.adb"}
 

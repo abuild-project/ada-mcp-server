@@ -56,11 +56,15 @@ The required reading probe uses a fresh owned Ada/GPR fixture for exact
 definition, implementation and object-type targets, document hierarchy,
 workspace matches and reference sets with and without declarations. An
 unrelated object shares the queried name. A comment supplies a no-target
-case, and an object rename must replace warm results in the same observed
-MCP/ALS processes. Ada/GPR hashes surround each read-only call. The probe
+case, and an owned source mutation moves the declaration, changes its type
+target and replaces one reference with two in the same observed MCP/ALS
+processes. Exact post-mutation locations, reference counts/sets and hover
+declarations must replace the warm results. Ada/GPR hashes, including both
+committed source states, surround each read-only call. The probe
 retains raw protocol, results, both source states and failure summaries;
 EOF cleanup must remove the observed ALS birth. Mocked oracle guards reject
-empty, wrong, duplicated and stale payloads but do not establish live proof.
+empty, wrong, duplicated and stale payloads, including old locations paired
+with fresh disk previews, but do not establish live proof.
 
 For fast development only, a local venv may run a targeted check:
 
