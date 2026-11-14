@@ -22,6 +22,12 @@ below. A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
+For the unreleased entry/runtime decoupling work, see
+[selection-aware entries](updating.md#keep-the-entry-and-runtime-independent).
+RC1/RC2 recipes below remain historical public baselines. Their installed
+entries need one initial entry update before they can reuse compatible later
+runtimes without skill/plugin replacement; no new public package is assumed.
+
 ## Install or upgrade to RC2
 
 RC2 adds fresh release searches and user-approved updates. Confirm publication

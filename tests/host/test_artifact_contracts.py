@@ -40,6 +40,7 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     )
     runtime = json.loads(verified["scripts/runtime-manifest.json"])
     assert runtime["project_version"] == project_version()
+    assert runtime["workflow_contract"] == manifest["tooling"]["workflow_contract"] == 1
     assert runtime["source_sha"] == "a" * 40
     assert runtime["image_id"] == config_id and config_id != target
     assert runtime["image_identity"]["target"]["digest"] == target
@@ -84,10 +85,27 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     with tarfile.open(plugin) as archive:
         skill = archive.extractfile("skills/ada-development/SKILL.md").read().decode()
         full = (ROOT / "integrations/full-skill.md").read_text()
-        assert full[full.index("## Release checks and user-approved updates") :] in skill
+        assert full[full.index("## Runtime selection and entry compatibility") :] in skill
         assert manifest["tooling"]["sha256"] in skill
         assert manifest["tooling"]["runtime_manifest_sha256"] in skill
         assert f'--url "{manifest["tooling"]["download_url"]}"' in skill
+        absent = subprocess.run(
+            [
+                sys.executable,
+                "-I",
+                "-",
+                "selection",
+                "show",
+                "--file",
+                str(tmp_path / "absent-private-selection.json"),
+            ],
+            input=code.decode(),
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        assert json.loads(absent.stdout)["status"] == "absent"
+        assert not (tmp_path / "absent-private-selection.json").exists()
         assert "/releases/latest/" not in manifest["tooling"]["download_url"]
         assert not any(member.name.endswith("mcp.json") for member in archive)
 

@@ -7,6 +7,78 @@ unchanged. They need one initial user-approved upgrade, using the
 [RC2 installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc2).
 No future artifact hash or source commit is supplied in advance.
 
+## Keep the entry and runtime independent
+
+The selection extension in this source is **unreleased**. Published RC1/RC2
+entries and runtime manifests do not implement it; keep those immutable bytes
+and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.2/doc/updating.md)
+as the legacy route. One initial entry update is necessary to gain selection.
+A prepared candidate with an unchanged version label is not a new public release.
+
+A compatible entry can then keep its own instructions/package version while
+using another exact verified runtime. Its supported workflow contract is integer
+`1`, separate from SemVer and MCP server version. Require that exact value in
+both the authenticated target release's `tooling.workflow_contract` and the
+runtime manifest's `workflow_contract`. Missing, boolean or unknown values stop
+before activation with a compatible-entry update requirement; never guess a
+version range or silently use latest. This contract covers acquisition, binding-v2,
+setup/query/update interfaces and selection; it expands no semantic tool support.
+
+Read selection before acquiring or running a runtime. The trusted full entry's
+acquirer provides this read-only command:
+
+```sh
+python3 -I /absolute/entry/scripts/acquire.py selection show \
+  --file /absolute/private/selection.json
+```
+
+For a lightweight entry, execute its embedded acquisition source through
+`python3 -I - selection show --file /absolute/private/selection.json` with the
+same source here-document, replacing the fallback acquisition arguments. This
+mode never downloads anything. Do not execute the fallback first. The explicit
+`--file` wins over `ADA_MCP_SELECTION`, then `~/.config/ada-mcp/selection.json`.
+Reading an absent default writes nothing. The private record pins runtime and
+binding paths, manifest/binding hashes, actual version/source/image and contract;
+all declared sources are authenticated before captured helper execution. Selected
+helpers execute source bytes rather than unchecked sibling bytecode.
+
+`selected` supplies the actual runtime/binding for Doctor, queries and fresh
+update searches. A new chat resolves it again instead of reusing embedded old
+pins. `invalid`/`incompatible` is a stop condition, not permission to ignore the
+record. `absent` in a fresh Cloud session means perform the verified published
+release bootstrap after necessary consent. Do not assume files persist from a
+previous Cloud task. Authenticate actual target metadata/pins before executing
+helpers, use the trusted acquirer with `--workflow-contract 1`, and test new
+runtime/image/cache/binding paths through Doctor and real GPR/source queries.
+No published compatible target means report the blocker, not invent one.
+
+After those checks and user approval, activate the pair explicitly:
+
+```sh
+python3 -I /absolute/entry/scripts/acquire.py selection activate \
+  --file /absolute/private/selection.json --runtime /absolute/new-runtime \
+  --manifest-sha256 TRUSTED_NEW_MANIFEST_SHA256 --binding /absolute/new-binding.json \
+  --workflow-contract 1
+```
+
+Use the hash/contract from the verified target release. The first write refuses
+an existing record. Replacement also requires `--expected-sha256` from the
+current `selection show` and a **new** absolute `--backup` path. This preserves
+the old record before an atomic record switch. Unexpected state, occupied backup
+or adjacent `.lock` means stop; never delete a lock automatically. Existing
+runtime, binding, image and cache are retained. A failed replacement leaves the
+old selection active; a backup may remain for inspection. Rollback validates
+the old pair and activates it using the current expected record hash plus
+another new backup. Confirm selected version and real queries after each switch.
+
+For compatible runtime releases, keep the full/local skill and private Cloud
+plugin unchanged. Update the entry only when its own instructions, permissions
+or compatibility need to change, preserving its identity/audience and private
+overlays. Selection does not change a running native client's config; explicit
+supported merge/reconnect and real verification still apply. If state cannot
+persist or reconnect/provider capability is unavailable, report session-only,
+staged and activated results accurately with the necessary user action.
+
 ## What the notice does
 
 A notifier-capable host launcher checks public GitHub release metadata at
@@ -146,7 +218,8 @@ before proceeding when the user has already approved the identified update.
    `target_commitish` label alone does not establish this correspondence.
 3. Take NEW values from that verified manifest: `tooling.filename`,
    `tooling.download_url`, `tooling.bytes`, `tooling.sha256` and
-   `tooling.runtime_manifest_sha256`; also `plugin.filename`/`plugin.sha256`,
+   `tooling.runtime_manifest_sha256` and, for selection-aware entries,
+   `tooling.workflow_contract`; also `plugin.filename`/`plugin.sha256`,
    `artifacts_sha256` and the image records. Cross-check the exact asset names,
    sizes, canonical `github.com/abuild-project/ada-mcp-server/releases/download/`
    target-tag URLs and all available API asset digests. The notice and the
@@ -170,11 +243,13 @@ before proceeding when the user has already approved the identified update.
    Compare results and cleanup before switching. On a failure, keep the old pair
    active and report the staged files and concrete blocker.
 3. Activate the route actually approved, using the guarded local/native/Cloud
-   steps below. Update the **installed skill itself**, including a reader-owned
-   Cloud copy when applicable, so a new chat acquires the NEW pinned tooling.
+   steps below. A selection-aware compatible entry stays installed unchanged;
+   activate its NEW pinned runtime/binding selection. Only changed entry
+   instructions, permissions or compatibility require updating the skill/plugin.
+   Legacy RC2 entries retain their version-pinned skill replacement procedure.
    Switch the explicit runtime/binding selection through the host's supported
    flow; do not overwrite the old immutable binding or unrelated client entries.
-4. Verify the discovered skill/plugin version and embedded pins, actual MCP
+4. Verify entry compatibility and selected runtime pins, actual MCP
    server version against the new verified runtime metadata, selected binding
    and representative real queries **after** activation/reconnect. Verify that
    later sessions select the new pair. Your Ada project's compiler/tests remain
@@ -194,6 +269,9 @@ Keep both images available; restoring a missing old image uses its recorded
 immutable source. Do not delete old caches/images during the trial.
 
 ## Switch a local skill without losing its old target
+
+Use this only for a needed entry update or the legacy version-pinned route.
+A compatible selection-aware runtime update keeps the discovered skill intact.
 
 Stop sessions using the affected discovery entry and avoid concurrent changes.
 The installer deliberately refuses replacement. First use the **new verified
@@ -256,8 +334,8 @@ rollback restores it explicitly and reconnects to its old runtime/binding.
 Do not treat the generated Codex-style TOML as Claude/OpenCode configuration.
 Native/Mac acceptance still requires evidence from the actual client/host.
 
-For a reader-owned private Cloud plugin, use Plugin Creator's guarded update
-workflow on the intended existing identity. Preserve its audience/workspace,
+When the entry itself needs updating, use Plugin Creator's guarded update
+workflow on the intended reader-owned private Cloud identity. Preserve its audience/workspace,
 notices, private metadata/compatibility overlays and NEW trusted source pins.
 Do not raw-overwrite private metadata with the public archive. Inspect the
 backend result and activate through

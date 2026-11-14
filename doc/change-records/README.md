@@ -4,6 +4,7 @@
 - [Bootstrap distribution](bootstrap-distribution.md)
 - [Checkout action update](github_actions-main-actions-checkout-7.0.1.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
+- [Independent entry and runtime selection](plugin-runtime-decoupling.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)
 - [Pilot prerelease preparation](release-0-2-0-rc-1.md)
 - [Public installation and approved updates](third-party-installation.md)

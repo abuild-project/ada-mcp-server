@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 import stat
+import sys
 import tarfile
 import tempfile
 import urllib.parse
@@ -19,6 +20,275 @@ from typing import Any
 
 MAX_ARCHIVE_BYTES = 32 * 1024 * 1024
 MAX_FILE_BYTES = 4 * 1024 * 1024
+WORKFLOW_CONTRACT = 1
+MAX_SELECTION_BYTES = 64 * 1024
+
+
+class IncompatibleRuntimeError(ValueError):
+    """The installed entry cannot operate this runtime workflow."""
+
+
+def compatible_contract(value: object) -> None:
+    """Accept only the exact workflow interface understood by this entry."""
+    if type(value) is not int or value != WORKFLOW_CONTRACT:
+        raise IncompatibleRuntimeError(
+            "runtime workflow requires an updated compatible skill/plugin entry"
+        )
+
+
+def private_path(value: str | Path) -> Path:
+    """Require an absolute, physical parent for user-selected state paths."""
+    path = Path(value)
+    require(path.is_absolute(), "selection/runtime/binding paths must be absolute")
+    require(path.parent.resolve() == path.parent, "state parent must be a physical path")
+    return path
+
+
+def bounded_file(path: Path, limit: int, *, private: bool = False) -> bytes:
+    """Read bounded regular files; selection records must belong only to this user."""
+    state = path.lstat()
+    require(stat.S_ISREG(state.st_mode), "expected a regular file: " + str(path))
+    if private:
+        require(
+            state.st_uid == os.getuid() and state.st_mode & 0o077 == 0,
+            "selection must be owned by the current user with private permissions",
+        )
+    require(state.st_size <= limit, "selection/runtime input exceeds its size bound")
+    with path.open("rb") as stream:
+        data = stream.read(limit + 1)
+    require(len(data) <= limit, "selection/runtime input exceeds its size bound")
+    return data
+
+
+def inspect_runtime(
+    runtime: Path,
+    manifest_hash: str,
+    binding: Path,
+    contract: object,
+    expected: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Authenticate a compatible exact runtime and binding before loading any helper."""
+    compatible_contract(contract)
+    runtime = private_path(runtime)
+    binding = private_path(binding)
+    require(
+        runtime.resolve() == runtime and runtime.is_dir(), "runtime must be a physical directory"
+    )
+    require(re.fullmatch("[0-9a-f]{64}", manifest_hash), "invalid runtime manifest SHA256")
+    data = bounded_file(runtime / "scripts/runtime-manifest.json", MAX_FILE_BYTES)
+    require(sha256(data) == manifest_hash, "selected runtime manifest SHA256 mismatch")
+    manifest = json.loads(data)
+    require(isinstance(manifest, dict), "runtime manifest must be an object")
+    compatible_contract(manifest.get("workflow_contract"))
+    require(
+        type(manifest.get("version")) is int
+        and manifest["version"] == 1
+        and manifest.get("platform") == "linux/amd64"
+        and re.fullmatch("sha256:[0-9a-f]{64}", manifest["image_id"]),
+        "invalid runtime schema/platform/image pin",
+    )
+    require(
+        re.fullmatch(r"\d+\.\d+\.\d+(?:-rc\.\d+)?", manifest["project_version"])
+        and re.fullmatch("[0-9a-f]{40}", manifest["source_sha"]),
+        "invalid runtime version/source",
+    )
+    if expected is not None:
+        require(
+            all(
+                expected[key] == manifest[key]
+                for key in ["project_version", "source_sha", "image_id"]
+            ),
+            "selected version/source/image metadata mismatch",
+        )
+    declared = manifest["files_sha256"]
+    require(isinstance(declared, dict) and 0 < len(declared) <= 100, "invalid runtime declarations")
+    captured = {}
+    total = 0
+    for name, expected_hash in declared.items():
+        require(
+            canonical(name) == name and re.fullmatch("[0-9a-f]{64}", expected_hash),
+            "invalid runtime file declaration",
+        )
+        path = runtime / name
+        content = bounded_file(path, MAX_FILE_BYTES)
+        total += len(content)
+        require(total <= MAX_ARCHIVE_BYTES, "runtime files exceed the total size bound")
+        require(sha256(content) == expected_hash, "selected runtime file SHA256 mismatch: " + name)
+        if path.suffix == ".py":
+            captured[path] = content
+    setup = runtime / "scripts/ada_mcp_setup.py"
+    require(setup in captured, "selected runtime omits its setup helper")
+    binding_bytes = bounded_file(binding, MAX_SELECTION_BYTES)
+    if expected is not None:
+        require(
+            sha256(binding_bytes) == expected["binding_sha256"], "selected binding SHA256 mismatch"
+        )
+    bound = json.loads(binding_bytes)
+    require(
+        isinstance(bound, dict)
+        and type(bound.get("version")) is int
+        and bound["version"] == 2
+        and bound.get("image_id") == manifest["image_id"]
+        and isinstance(bound.get("image_identity"), dict)
+        and bound["image_identity"].get("config_size") == manifest["image_identity"]["config_size"],
+        "selected binding differs from the runtime image lock",
+    )
+    # Only fully authenticated sources execute. The existing parser then checks
+    # physical roots, image identity, sources and Docker selectors, source-only.
+    namespace: dict[str, Any] = {"__name__": "_ada_selected_setup", "__file__": str(setup)}
+    exec(compile(captured[setup], str(setup), "exec"), namespace)
+    namespace["_verified_sources"].update(captured)
+    namespace["validate_binding"](bound, manifest)
+    return {
+        "schema": 1,
+        "workflow_contract": WORKFLOW_CONTRACT,
+        "runtime": str(runtime),
+        "binding": str(binding),
+        "runtime_manifest_sha256": manifest_hash,
+        "binding_sha256": sha256(binding_bytes),
+        "project_version": manifest["project_version"],
+        "source_sha": manifest["source_sha"],
+        "image_id": manifest["image_id"],
+    }
+
+
+def selected_runtime(path: Path) -> dict[str, Any]:
+    """Resolve only the pinned selected pair; never silently fall back to entry pins."""
+    path = private_path(path)
+    if not os.path.lexists(path):
+        return {"status": "absent", "selection": str(path)}
+    data = bounded_file(path, MAX_SELECTION_BYTES, private=True)
+    record = json.loads(data)
+    fields = {
+        "schema",
+        "workflow_contract",
+        "runtime",
+        "binding",
+        "runtime_manifest_sha256",
+        "binding_sha256",
+        "project_version",
+        "source_sha",
+        "image_id",
+    }
+    require(
+        isinstance(record, dict)
+        and set(record) == fields
+        and type(record["schema"]) is int
+        and record["schema"] == 1,
+        "invalid selection record",
+    )
+    compatible_contract(record["workflow_contract"])
+    actual = inspect_runtime(
+        Path(record["runtime"]),
+        record["runtime_manifest_sha256"],
+        Path(record["binding"]),
+        record["workflow_contract"],
+        expected=record,
+    )
+    require(actual == record, "selected runtime/binding record mismatch")
+    return {
+        "status": "selected",
+        "selection": str(path),
+        "selection_sha256": sha256(data),
+        **actual,
+    }
+
+
+def private_new(path: Path, data: bytes) -> None:
+    """Write a new private record atomically without replacing another file."""
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink()
+
+
+def activate_selection(
+    path: Path, record: dict[str, Any], expected: str | None, backup: Path | None
+) -> None:
+    """Switch explicit local selection with expected-old bytes and a no-clobber backup."""
+    path = private_path(path)
+    require(
+        (expected is None) == (backup is None),
+        "replacement requires expected SHA256 and NEW backup",
+    )
+    if backup is not None:
+        backup = private_path(backup)
+        require(backup != path, "backup must differ from the selection")
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lock = path.with_name(path.name + ".lock")
+    descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    temporary = None
+    try:
+        os.close(descriptor)
+        data = (json.dumps(record, indent=2, sort_keys=True) + "\n").encode()
+        if expected is None:
+            private_new(path, data)
+        else:
+            old = bounded_file(path, MAX_SELECTION_BYTES, private=True)
+            require(
+                re.fullmatch("[0-9a-f]{64}", expected) and sha256(old) == expected,
+                "selection changed; nothing activated",
+            )
+            assert backup is not None
+            private_new(backup, old)
+            with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(data)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+        lock.unlink()
+
+
+def selection_main(arguments: list[str]) -> int:
+    """Read or explicitly activate a compatible pinned runtime; never acquire or install."""
+    parser = argparse.ArgumentParser(
+        description="Inspect or activate the exact Ada MCP runtime selection"
+    )
+    parser.add_argument("action", choices=["show", "activate"])
+    parser.add_argument(
+        "--file",
+        default=os.environ.get(
+            "ADA_MCP_SELECTION", str(Path.home() / ".config/ada-mcp/selection.json")
+        ),
+    )
+    parser.add_argument("--runtime", type=Path)
+    parser.add_argument("--manifest-sha256")
+    parser.add_argument("--binding", type=Path)
+    parser.add_argument("--workflow-contract", type=int)
+    parser.add_argument("--expected-sha256")
+    parser.add_argument("--backup", type=Path)
+    options = parser.parse_args(arguments)
+    try:
+        path = private_path(options.file)
+        if options.action == "activate":
+            require(
+                options.runtime and options.manifest_sha256 and options.binding,
+                "activation requires verified runtime, manifest SHA256 and binding",
+            )
+            record = inspect_runtime(
+                options.runtime, options.manifest_sha256, options.binding, options.workflow_contract
+            )
+            activate_selection(path, record, options.expected_sha256, options.backup)
+        result = selected_runtime(path)
+    except (ValueError, RuntimeError, OSError, KeyError, TypeError) as error:
+        result = {
+            "status": "incompatible" if isinstance(error, IncompatibleRuntimeError) else "invalid",
+            "reason": str(error),
+        }
+    print(json.dumps(result, indent=2))
+    return 0 if result["status"] in {"selected", "absent"} else 1
 
 
 def require(condition: object, message: str) -> None:
@@ -142,7 +412,9 @@ def download_file(
             temporary.unlink()
 
 
-def verified_files(data: bytes, archive_hash: str, manifest_hash: str) -> dict[str, bytes]:
+def verified_files(
+    data: bytes, archive_hash: str, manifest_hash: str, workflow_contract: object = None
+) -> dict[str, bytes]:
     """Validate archive, manifest and every declared regular member before writes."""
     require(re.fullmatch("[0-9a-f]{64}", archive_hash), "invalid archive SHA256")
     require(re.fullmatch("[0-9a-f]{64}", manifest_hash), "invalid runtime manifest SHA256")
@@ -176,6 +448,9 @@ def verified_files(data: bytes, archive_hash: str, manifest_hash: str) -> dict[s
         "runtime manifest SHA256 mismatch",
     )
     manifest = json.loads(files[manifest_name])
+    if workflow_contract is not None:
+        compatible_contract(workflow_contract)
+        compatible_contract(manifest.get("workflow_contract"))
     declared = manifest["files_sha256"]
     require(isinstance(declared, dict) and bool(declared), "missing runtime file declarations")
     require(set(files) == set(declared) | {manifest_name}, "undeclared or missing tooling file")
@@ -225,16 +500,19 @@ def main() -> None:
     parser.add_argument("--sha256", required=True)
     parser.add_argument("--manifest-sha256", required=True)
     parser.add_argument("--destination", type=Path, required=True)
+    parser.add_argument("--workflow-contract", type=int)
     options = parser.parse_args()
     if options.archive:
         with options.archive.open("rb") as stream:
             data = stream.read(MAX_ARCHIVE_BYTES + 1)
     else:
         data = download(options.url)
-    files = verified_files(data, options.sha256, options.manifest_sha256)
+    files = verified_files(data, options.sha256, options.manifest_sha256, options.workflow_contract)
     hashes = materialize(files, options.destination)
     print(json.dumps({"runtime": str(options.destination), "files_sha256": hashes}, indent=2))
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "selection":
+        raise SystemExit(selection_main(sys.argv[2:]))
     main()
