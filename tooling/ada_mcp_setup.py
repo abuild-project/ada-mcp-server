@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, BinaryIO
 
@@ -1061,13 +1062,11 @@ def main() -> int:
                         options.timeout > 0 and options.request,
                         "provide a positive timeout and tools/call/batch request",
                     )
+                    client_main: Callable[[list[str]], int] = load_helper("mcp_client")["main"]
                     require(
                         image_present(binding, report, 60), "locked image is missing; run bootstrap"
                     )
-                    arguments = [
-                        sys.executable,
-                        str(SCRIPT_ROOT / "mcp_client.py"),
-                    ] + launcher_arguments(binding)[1:]
+                    arguments = launcher_arguments(binding)[1:]
                     arguments.extend(["--timeout", str(options.timeout)])
                     arguments.extend(notice_arguments)
                     if options.log_dir:
@@ -1076,7 +1075,7 @@ def main() -> int:
                         ["--name", options.name or "ada-mcp-query-" + uuid.uuid4().hex]
                     )
                     arguments.extend(options.request)
-                    os.execv(sys.executable, arguments)
+                    return client_main(arguments)
                 elif options.mode == "native-config":
                     read_tools = load_helper("mcp_client")["READ_TOOLS"]
 

@@ -225,3 +225,18 @@ without changing their schema, daily/manual policy or process deadline. Keep
 positive/missing/invalid remaining-quota headers informational, preserve real
 Retry-After instructions and exclude unexpected response URLs. Check the
 isolated child's returned deadline as well as controlled HTTP/cache outcomes.
+
+## 2026-11-14: Query dispatch uses the retained client
+
+Decision: dispatch setup queries through the existing source-only helper
+namespace and its client main entry, rather than reopening the client file.
+Reject missing declarations before query startup. Pass explicit optional argv
+and return the client status without an additional setup JSON response.
+
+Decision: preserve client help, input batches, cwd, output/error streams, logs,
+timeouts, read-only policy, locked image/binding selection and EOF cleanup in
+the same frontend process. No new bootstrap or global configuration change is
+needed. This closes the query exception among the bounded installed Python
+helper handoffs; trusted initial entries and Bash/external execution retain
+their existing boundaries. A malformed post-acquisition manifest is distinct
+from a fresh archive, whose declared member set is checked before extraction.

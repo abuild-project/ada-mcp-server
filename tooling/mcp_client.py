@@ -304,8 +304,11 @@ def launcher_command(options: argparse.Namespace) -> list[str]:
     return command
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None) -> int:
+    """Run the same query CLI directly or from a verified helper namespace."""
+    parser = argparse.ArgumentParser(
+        description=__doc__, prog=Path(__file__).name if argv is not None else None
+    )
     add_launch_arguments(parser)
     commands = parser.add_subparsers(dest="mode", required=True)
     commands.add_parser("tools")
@@ -314,7 +317,7 @@ def main() -> int:
     call.add_argument("--arguments", required=True)
     batch = commands.add_parser("batch")
     batch.add_argument("requests", help="JSON batch filename, or - for stdin")
-    options = parser.parse_args()
+    options = parser.parse_args(argv)
     session = None
     result = None
     problem = None

@@ -4,6 +4,8 @@
 
 - Execute installed helpers from their verified source bytes and reject relative
   explicit notice-cache paths before client configuration or query startup.
+- Dispatch setup queries through the retained verified client, preserving the
+  query CLI and rejecting undeclared clients before startup.
 - Retain verified checker/validator bytes through isolated release fetches and
   refuse undeclared installed sources before checking for updates.
 - Require a manifest for packaged smoke startup and retain installed mode if

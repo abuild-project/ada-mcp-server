@@ -52,6 +52,14 @@ cache paths fail before client fragment/log creation or query launch; valid
 absolute Unicode/space paths, no-replace writes and implicit advisory failures
 retain their existing behavior.
 
+Setup queries invoke the retained client main entry in the existing process,
+using explicit argv and returning its status without extra setup JSON. They
+cannot reopen a replaced client source or bypass a missing declaration. The
+query CLI, batch stdin, help, cwd, logging, error streams, read-only policy,
+image/binding selection and EOF cleanup retain their existing behavior. Trusted
+initial entries and Bash/external execution remain separate boundaries from
+the installed Python helper handoffs covered here.
+
 Release checks require both checker and validator in the retained source
 context, including an explicitly empty context; undeclared installed helpers
 cannot fall back to disk. Direct packaged entry authenticates setup source
@@ -132,6 +140,16 @@ requests at it and reject the previous deadline loss. Captured-source child
 controls verify the actual returned retry_until, cache propagation and blocked
 follow-up without another child, including after sibling source replacement.
 The exact response-URL guard rejects deadline metadata before reading a body.
+Twelve query-dispatch controls pass through actual setup verification and query
+dispatch. Late source replacement is ignored with and without a preloaded
+namespace; an explicitly malformed post-acquisition declaration fails before
+image/log startup, and fresh acquisition still rejects undeclared members.
+Private stdio peers exercise real client/launcher I/O, tools/call/batch-file and
+batch-stdin paths, single JSON output, help/error status, timeout, cwd, frontend
+PID, read-only rejection and EOF cleanup. The integrity controls reject the
+previous disk handoff, while the positive CLI cases also pass that baseline.
+Existing sibling-bytecode and actual SDK protocol controls remain separate;
+the private peer establishes no Docker, Ada or native-host acceptance.
 Ruff/format, strict Mypy over 35 files, documentation/link/example checks and
 Bash/whitespace checks passed. Stdio controls ran outside the sandbox after
 its independent asyncio thread-wakeup control failed. Application-cache paths

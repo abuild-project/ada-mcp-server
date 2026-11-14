@@ -313,7 +313,7 @@ def test_generated_native_config_keeps_explicit_notice_policy(tmp_path, monkeypa
     assert not cache.exists()
 
 
-def test_query_forwards_notice_policy_before_batch(tmp_path, monkeypatch):
+def test_query_forwards_notice_policy_before_batch(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(setup, "verified_manifest", lambda: {})
     monkeypatch.setattr(setup, "read_binding", lambda *_: binding(tmp_path))
     monkeypatch.setattr(setup, "image_present", lambda *_: True)
@@ -336,13 +336,18 @@ def test_query_forwards_notice_policy_before_batch(tmp_path, monkeypatch):
     )
     calls = []
 
-    def capture(command, arguments):
+    def capture(arguments):
         calls.append(arguments)
-        raise SystemExit(0)
+        return 37
 
-    monkeypatch.setattr(setup.os, "execv", capture)
-    with pytest.raises(SystemExit):
-        setup.main()
+    original_helper = setup.load_helper
+    monkeypatch.setattr(
+        setup,
+        "load_helper",
+        lambda name: {"main": capture} if name == "mcp_client" else original_helper(name),
+    )
+    assert setup.main() == 37
+    assert capsys.readouterr().out == ""
     arguments = calls[0]
     assert arguments[arguments.index("--update-channel") + 1] == "off"
     assert arguments[arguments.index("--update-cache") + 1] == str(cache)
