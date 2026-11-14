@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-rc.2 — pilot prerelease
 
+- Provide RC2 first-install and initial-upgrade guidance using actual published
+  asset digests and new target pins, retaining the verified RC1 fallback.
+- Publish version-specific reviewed release notes from the approved source
+  commit alongside the unchanged tested artifact set.
 - Execute installed helpers from their verified source bytes and reject relative
   explicit notice-cache paths before client configuration or query startup.
 - Dispatch setup queries through the retained verified client, preserving the

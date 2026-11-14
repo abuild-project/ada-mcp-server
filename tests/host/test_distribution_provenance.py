@@ -11,6 +11,7 @@ import zipfile
 import artifacts
 import distribution_receipt as receipt
 import pytest
+from version import project_version
 
 
 @pytest.fixture
@@ -188,6 +189,7 @@ def test_packaging_checks_native_image_before_export_and_allows_identical_retag(
     root, folder, sha, archive = checked_pair
     receipt.write_receipt(root, folder, sha, archive, "sha256:" + "a" * 64, "linux/amd64")
     monkeypatch.setattr(artifacts, "ROOT", root)
+    monkeypatch.setattr(artifacts, "project_version", lambda: project_version(root))
     monkeypatch.setattr(
         artifacts,
         "inspect_image",

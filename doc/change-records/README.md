@@ -8,4 +8,5 @@
 - [Pilot prerelease preparation](release-0-2-0-rc-1.md)
 - [Public installation and approved updates](third-party-installation.md)
 - [Pydantic hash lock update](pip-main-pydantic-2.14.3.md)
+- [RC2 prerelease preparation](release-0.2.0-rc.2.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)

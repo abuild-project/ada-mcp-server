@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import tarfile
 
-from version import ROOT
+from version import ROOT, project_version
 
 
 def test_dirty_source_never_gets_a_commit_labeled_image(tmp_path):
@@ -54,7 +54,7 @@ def test_dirty_source_never_gets_a_commit_labeled_image(tmp_path):
     )
     actual = arguments.read_text().splitlines()
     assert "SOURCE_SHA=" + git("rev-parse", "HEAD") in actual
-    assert "PROJECT_VERSION=0.2.0-rc.1" in actual
+    assert "PROJECT_VERSION=" + project_version() in actual
     assert actual[-1] == "-"
     assert actual[actual.index("--file") + 1] == "docker/Dockerfile"
 

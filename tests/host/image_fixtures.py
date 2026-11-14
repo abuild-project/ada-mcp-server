@@ -5,6 +5,8 @@ import io
 import json
 import tarfile
 
+from ada_mcp._version import VERSION
+
 
 def digest(data):
     return "sha256:" + hashlib.sha256(data).hexdigest()
@@ -34,7 +36,7 @@ def metadata_archive(oci=False, mutate=None, *, hybrid=False):
                 "Env": ["TEST_PRIVATE_SENTINEL=do-not-log-config-env"],
                 "Labels": {
                     "org.opencontainers.image.revision": "a" * 40,
-                    "org.opencontainers.image.version": "0.2.0-rc.1",
+                    "org.opencontainers.image.version": VERSION,
                 },
             },
             "rootfs": {"diff_ids": [digest(b"fixture layer")]},

@@ -1,6 +1,10 @@
 ---
 name: ada-development
-description: Use for Ada/GPR development and pinned shared Ada MCP setup across repositories. Read project rules, verify the host binding, select real GPR/scenario views and assess complete source-bound results. Compiler CI remains separate.
+description: >
+  Use for Ada/GPR development, pinned shared Ada MCP setup, fresh release checks
+  and user-approved upgrades across repositories. Read project rules, verify the
+  host binding, select real GPR/scenario views and assess complete source-bound
+  results. Compiler CI remains separate.
 ---
 
 # Ada development
@@ -45,7 +49,8 @@ Use the user's selected stable/prerelease channel if explicit. A one-shot
 setting. `updates status` only reads the cache. Honor a reported provider
 `blocked_until` deadline across channels; report pending/unknown/offline results
 honestly. Checks never install anything. Normal startup/reconnect checks remain
-daily; published RC1 has no hook until an initial upgrade to a future release.
+daily; published RC1 has no hook and needs an initial upgrade to published RC2
+or later.
 
 When initialize/project_info supplies an available-version notice, show the
 installed version, target and freshness once per chat. Then follow this workflow

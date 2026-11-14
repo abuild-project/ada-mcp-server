@@ -1,13 +1,13 @@
 # Host setup and project views
 
-For a published RC1 first installation, start with the maintained
+For first installation or an approved upgrade, start with the maintained
 [first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
 It covers a reader-owned private Cloud skill-plugin copy and local Codex setup
 using the existing released helpers. This page supplies detailed host-binding
 rules and locally generated artifact setup. The RC1 archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
-unreleased notifier and the initial approved upgrade needed by RC1 installations.
+RC2-or-later notifier and the initial approved upgrade needed by RC1 installations.
 
 The candidate requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
 Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,

@@ -8,6 +8,7 @@ import mcp_client
 import pytest
 from version import ROOT
 
+from ada_mcp._version import VERSION
 from ada_mcp.update_notice import RELEASES
 
 
@@ -17,7 +18,7 @@ def test_stdio_instructions_and_project_result_preserve_existing_payloads(
 ):
     notice = {
         "schema": 1,
-        "current_version": "0.2.0-rc.1",
+        "current_version": VERSION,
         "available_version": "0.3.0",
         "channel": "prerelease",
         "checked_at": int(time.time()),
@@ -56,7 +57,7 @@ asyncio.run(module.run_server())
             assert "0.3.0" in initialized["instructions"]
             assert "once per chat" in initialized["instructions"]
             assert result["update_notice"]["available_version"] == "0.3.0"
-            assert result["update_notice"]["current_version"] == "0.2.0-rc.1"
+            assert result["update_notice"]["current_version"] == VERSION
             assert result["update_notice"]["release_url"] == RELEASES + "0.3.0"
         else:
             assert initialized["instructions"] == "Existing instructions are preserved."

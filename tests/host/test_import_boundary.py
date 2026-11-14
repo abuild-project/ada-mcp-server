@@ -12,7 +12,7 @@ from pathlib import Path
 
 import artifacts
 from image_fixtures import metadata_archive
-from version import ROOT
+from version import ROOT, project_version
 
 
 def entrypoint_flags():
@@ -66,7 +66,9 @@ def test_cwd_package_override_stops_but_installed_server_imports_still_work(tmp_
     result = json.loads(fixed.stdout)
     assert not Path(result["package"]).is_relative_to(project)
     assert not Path(result["entry"]).is_relative_to(project)
-    assert result["cwd"] == str(project) and result["version"] == "0.2.0rc1"
+    assert result["cwd"] == str(project) and result["version"] == project_version().replace(
+        "-rc.", "rc"
+    )
 
 
 def test_isolated_startup_ignores_python_environment_and_preserves_cwd(tmp_path):
@@ -215,7 +217,7 @@ def test_build_version_parser_ignores_unrelated_cwd_module_with_docker_stub(tmp_
         capture_output=True,
         timeout=20,
     )
-    assert "PROJECT_VERSION=0.2.0-rc.1" in capture.read_text().splitlines()
+    assert "PROJECT_VERSION=" + project_version() in capture.read_text().splitlines()
 
 
 def test_ci_keeps_intentional_source_imports_and_probes_use_isolation():

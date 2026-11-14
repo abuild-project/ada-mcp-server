@@ -20,6 +20,59 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tooling"))
 
 JSON = dict[str, Any]
 REPOSITORY = "abuild-project/ada-mcp-server"
+ROOT = Path(__file__).resolve().parent.parent
+MAX_NOTES_BYTES = 64 * 1024
+
+
+def read_release_notes(source_sha: str, version: str, root: Path | None = None) -> bytes:
+    """Read bounded, versioned notes from the approved Git tree, never the worktree."""
+    if not re.fullmatch("[0-9a-f]{40}", source_sha) or not re.fullmatch(
+        r"\d+\.\d+\.\d+(?:-rc\.\d+)?", version
+    ):
+        raise ValueError("invalid release notes source/version")
+    git = ["git", "-C", str(ROOT if root is None else root), "cat-file"]
+    blob = f"{source_sha}:doc/releases/{version}.md"
+    try:
+        size = int(subprocess.check_output([*git, "-s", blob], stderr=subprocess.PIPE))
+        if not 0 < size <= MAX_NOTES_BYTES:
+            raise ValueError("release notes exceed the supported size")
+        notes = subprocess.check_output([*git, "blob", blob], stderr=subprocess.PIPE)
+        text = notes.decode("utf-8")
+    except (subprocess.CalledProcessError, UnicodeDecodeError) as error:
+        raise ValueError("approved source has no valid UTF-8 release notes") from error
+    heading = f"# Ada MCP Server {version}\n"
+    if len(notes) != size or "\0" in text or not text.startswith(heading):
+        raise ValueError("release notes do not identify the approved version")
+    if not text[len(heading) :].strip():
+        raise ValueError("release notes must describe the release")
+    return notes
+
+
+def publish_release(stage: Path, tag: str, notes: bytes) -> None:
+    """Publish reviewed notes separately from the unchanged staged asset set."""
+    with tempfile.NamedTemporaryFile(
+        prefix="ada-mcp-notes-", suffix=".md", dir=stage.parent
+    ) as notes_file:
+        notes_file.write(notes)
+        notes_file.flush()
+        subprocess.run(
+            [
+                "gh",
+                "release",
+                "create",
+                tag,
+                "--repo",
+                REPOSITORY,
+                "--verify-tag",
+                "--prerelease",
+                "--title",
+                tag,
+                "--notes-file",
+                notes_file.name,
+                *[str(path) for path in sorted(stage.iterdir()) if path.is_file()],
+            ],
+            check=True,
+        )
 
 
 def digest(path: Path) -> str:
@@ -70,6 +123,7 @@ def plan(manifest: JSON) -> JSON:
         "tag": "v" + manifest["version"],
         "registry_reference": "ghcr.io/abuild-project/ada-mcp-server:v" + manifest["version"],
         "repository": REPOSITORY,
+        "notes_path": "doc/releases/" + manifest["version"] + ".md",
         "rebuild": False,
         "requirements": [
             "explicit approval",
@@ -85,6 +139,7 @@ def execute(release: Path, manifest: JSON) -> JSON:
     """Publish only after explicit approval and verify public access before release."""
     if os.environ.get("ADA_MCP_PUBLISH_APPROVED_SOURCE") != manifest["source_sha"]:
         raise PermissionError("publication needs explicit source-bound maintainer approval")
+    notes = read_release_notes(manifest["source_sha"], manifest["version"])
     from ada_mcp_setup import (
         inspect_image,
         loaded_candidates,
@@ -182,24 +237,7 @@ def execute(release: Path, manifest: JSON) -> JSON:
         for path in sorted(stage.iterdir()):
             if path.is_file() and path.name != "SHA256SUMS":
                 sums.write(digest(path) + "  " + path.name + "\n")
-    subprocess.run(
-        [
-            "gh",
-            "release",
-            "create",
-            proposal["tag"],
-            "--repo",
-            REPOSITORY,
-            "--verify-tag",
-            "--prerelease",
-            "--title",
-            proposal["tag"],
-            "--notes",
-            "Tested standalone Ada MCP pilot candidate; see support documentation.",
-            *[str(path) for path in sorted(stage.iterdir()) if path.is_file()],
-        ],
-        check=True,
-    )
+    publish_release(stage, proposal["tag"], notes)
     return promoted
 
 
@@ -211,7 +249,11 @@ def main() -> None:
     parser.add_argument("--execute", action="store_true")
     options = parser.parse_args()
     manifest = validate_release(options.release, options.source_sha)
-    result = execute(options.release, manifest) if options.execute else plan(manifest)
+    if options.execute:
+        result = execute(options.release, manifest)
+    else:
+        notes = read_release_notes(manifest["source_sha"], manifest["version"])
+        result = dict(plan(manifest), notes_sha256=hashlib.sha256(notes).hexdigest())
     print(json.dumps(result, indent=2))
 
 

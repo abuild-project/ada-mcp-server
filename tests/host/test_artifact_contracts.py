@@ -18,12 +18,13 @@ from image_fixtures import classic_identity, metadata_archive
 from version import ROOT, project_version
 
 from ada_mcp import __version__
+from ada_mcp._version import VERSION
 from ada_mcp.server import server
 
 
 def test_one_project_version_reaches_mcp_and_python_metadata():
-    assert project_version() == "0.2.0-rc.1"
-    assert __version__ == "0.2.0rc1"
+    assert project_version() == VERSION
+    assert __version__ == VERSION.replace("-rc.", "rc")
     assert server.create_initialization_options().server_version == __version__
 
 
