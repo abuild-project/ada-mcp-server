@@ -13,7 +13,8 @@ ruff check src tests tooling scripts
 ruff format --check src tests tooling scripts
 mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
     scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py \
-    scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py
+    scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py \
+    scripts/observe_additional.py scripts/additional_oracles.py scripts/real_additional.py
 python -m pytest tests -m 'not integration' -q --tb=short \
     --cov=ada_mcp --cov=tooling --cov-report=term-missing \
     --cov-report="xml:$output/coverage.xml" --cov-report="html:$output/htmlcov"
@@ -26,6 +27,10 @@ python scripts/real_diagnostics.py --output "$output/diagnostic-control" \
     > "$output/real-diagnostic-control.log" 2>&1
 python scripts/real_reading.py --output "$output/reading-control" \
     > "$output/real-reading-control.log" 2>&1
+# Assess only the three evidenced native signature failures; they remain blocked.
+# Strict default mode fails them, and all unrelated mismatches fail this chain.
+python scripts/real_additional.py --output "$output/additional-control" \
+    --allow-native-positional-blocker > "$output/real-additional-control.log" 2>&1
 python -m pytest tests/test_e2e.py -q --tb=short > "$output/mcp-e2e.log" 2>&1
 python scripts/distribution_receipt.py --folder "$output/python-dist" \
     --source-sha "${ADA_MCP_CHECK_SOURCE_SHA:?docker/check must supply the committed source SHA}" \
