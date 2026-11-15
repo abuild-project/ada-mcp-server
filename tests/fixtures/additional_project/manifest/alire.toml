@@ -1,0 +1,25 @@
+name = "additional_probe"
+version = "1.2.3-dev"
+description = "Exact metadata for the additional tool probe"
+authors = ["Fixture Author"]
+maintainers = ["Fixture Maintainer <fixture@example.invalid>"]
+licenses = "MIT"
+website = "https://example.invalid/additional-probe"
+tags = ["fixture", "regression"]
+executables = ["main"]
+project-files = ["additional.gpr"]
+
+[[depends-on]]
+fixture_dependency = "^2.0"
+
+[[depends-on]]
+another_dependency = "~3.1"
+
+[build-profiles]
+"*" = "validation"
+
+[gpr-externals]
+MODE = ["debug", "release"]
+
+[gpr-set-externals]
+MODE = "debug"
