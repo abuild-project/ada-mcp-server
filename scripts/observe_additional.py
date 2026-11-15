@@ -27,17 +27,27 @@ GENERATED = {"obj", "bin"}
 def file_hashes(root: Path) -> dict[str, str]:
     """Hash regular fixture files, rejecting links and special entries before reads."""
     require_no_symlink_ancestors(root)
-    if not root.is_dir():
+    if not stat.S_ISDIR(root.lstat().st_mode):
         raise AssertionError("fixture inspection requires an existing directory")
-    hashes = {}
-    for path in sorted(root.rglob("*")):
-        mode = path.lstat().st_mode
-        if stat.S_ISLNK(mode):
-            raise AssertionError(f"fixture inspection rejects symlink: {path}")
-        if stat.S_ISREG(mode):
-            hashes[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
-        elif not stat.S_ISDIR(mode):
-            raise AssertionError(f"fixture inspection rejects a nonregular entry: {path}")
+    hashes: dict[str, str] = {}
+
+    def inspect_directory(directory: Path) -> None:
+        # Unlike rglob, scandir propagates an unreadable directory's scan error.
+        with os.scandir(directory) as entries:
+            children = sorted(entries, key=lambda entry: entry.name)
+        for entry in children:
+            path = Path(entry.path)
+            mode = entry.stat(follow_symlinks=False).st_mode
+            if stat.S_ISLNK(mode):
+                raise AssertionError(f"fixture inspection rejects symlink: {path}")
+            if stat.S_ISREG(mode):
+                hashes[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
+            elif stat.S_ISDIR(mode):
+                inspect_directory(path)
+            else:
+                raise AssertionError(f"fixture inspection rejects a nonregular entry: {path}")
+
+    inspect_directory(root)
     return hashes
 
 

@@ -389,3 +389,34 @@ reject every replacement, while a recorded completion with opaque data.line
 must still match its unchanged MCP result. These host/replay checks provide
 no new live ALS or compiler evidence; final exact-source managed PR CI and
 independent acceptance remain required.
+
+## 2026-11-15: Final PR traversal correction
+
+Decision: the final PR correction round, 3/3, addresses one independently
+reproduced scan-error class at the accepted prior source. Preserve the four
+published commits and append one correction. Any subsequent finding after
+this round requires a maintainer decision; counters do not restart.
+
+Decision: replace recursive glob enumeration with explicit deterministic
+scandir traversal. Every directory must actually be opened, and every scan,
+stat or file-read error must propagate. Keep no-follow symlink/special-entry
+rejection, sorted names and the regular-file hash contract. An unreadable
+subtree cannot produce an unchanged, supposedly complete snapshot or permit
+the shared writer's mutation batch. Both runners retain available failure
+results and cleanup evidence through their existing inspection boundary.
+
+Decision: reproduce under actual nonroot UID/GID 1000 without mocked
+permissions or skipped tests. Owned mode000 directories contain only owned
+temporary data and a dangling link; restore every permission in finally.
+Require an actual scandir PermissionError, cover source/generated subtrees,
+an unreadable root, both runners and the writer, and retain the previously
+passing unreadable-file control. The base fails six cases and passes that
+control. The managed Trixie check already enforces positive runtime UID/GID,
+so these tests must run there rather than treating a skip as proof.
+
+Decision: retain all prior coordinate/opaque/native/signature/link/literal
+controls, the three original blocked cases and complete exact-source CI.
+Host checks and healthy retained protocol replay do not replace managed
+native/compiler execution or fresh independent acceptance. This correction
+adds no runtime, public schema/API, support, pin, version, changelog or
+review-configuration change, and authorizes no Docker or external write.

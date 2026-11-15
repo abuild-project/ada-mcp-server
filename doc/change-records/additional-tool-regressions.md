@@ -69,6 +69,13 @@ owned-file batch before the first write. A same-byte symlink substitution
 cannot evade hashing or redirect a later source mutation. This controlled
 harness does not claim a concurrent-filesystem sandbox.
 
+Fixture traversal opens every directory explicitly with deterministic
+scandir enumeration. Scan, stat and read errors propagate instead of being
+silently omitted by recursive globbing. An unreadable root or subtree
+therefore cannot masquerade as a complete unchanged snapshot, hide a
+dangling link or permit an owned mutation before full inspection. The same
+shared traversal protects both strict and exploratory runners.
+
 Every one of the 40 ALS-backed calls requires its native request/result
 evidence before semantic classification, including negative paths and known
 blocked signatures. The 57 in-call exchanges include cold initialization,
@@ -216,5 +223,21 @@ mutations of coordinate validation, integer identity, lower/upper bounds and
 the independent one-based set guard are detected with no survivors. Ruff
 and formatting cover 102 files, strict Mypy covers 41 source files, and
 documentation/index/examples, shell syntax and whitespace checks pass.
+
+The final traversal regression retains six failing base cases and one
+pre-existing passing file-read control under actual UID/GID 1000. The
+mode000-directory regression proves a real scandir PermissionError before
+checking snapshot rejection, and tests restore only owned temporary permissions in
+finally. The new tests require nonroot execution without skipping, covering
+source/generated subtrees, the root, both runners and writer preflight.
+All 582 focused tests pass with zero skips. Ruff/format cover 103 files,
+strict Mypy covers 41 source files, and documentation/index/examples, shell
+syntax and whitespace pass. Retained current-PR CI data preserves 53 calls,
+50 accepted results and three blocked signatures; all 57 native-pair deletions
+and seven wrong native replies remain rejected. This is retained replay,
+not a new live ALS or compiler run.
+The required managed Trixie check enforces positive runtime UID/GID and must
+run these regressions on the final source. Host or retained-data results do
+not preclaim that managed CI or independent acceptance.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>
