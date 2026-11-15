@@ -34,6 +34,15 @@ rename, formatting, build and Alire integration are not supported by this
 read-only distribution workflow. They are never described as safe substitutes
 for review or compiler CI.
 
+The [additional-tool regression assessment](assessments/additional-tool-capabilities.md)
+adds bounded internal evidence without expanding this support matrix. Three
+positional active-parameter results from the pinned ALS remain incorrect and
+explicitly unaccepted; named-argument checks do not hide them. Native rename
+application also remains an inherited gap: `preview=false` reports application
+without writing sources. The shipped client continues to require explicit
+rename preview and deny build/formatting calls. Owned compiler, formatting
+and manifest probes do not establish a consumer editing or Alire workflow.
+
 A supplied managed Cloud batch of 15 concrete requests and results was
 independently checked against Arca source commit
 `20564468d00024e6f949e92c1da79850abf59086`. The selected GPR/scenario,
