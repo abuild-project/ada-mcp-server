@@ -71,6 +71,95 @@ COMPLETION_KINDS = (
 )
 
 
+def _require_native_position(value: Any) -> None:
+    if (
+        not isinstance(value, dict)
+        or not {"line", "character"} <= value.keys()
+        or any(
+            type(value[key]) is not int or not 0 <= value[key] <= 2_147_483_647
+            for key in ("line", "character")
+        )
+    ):
+        raise AssertionError(
+            "native coordinates must be exact integers from zero through 2147483647"
+        )
+
+
+def _require_native_range(value: Any) -> None:
+    if not isinstance(value, dict) or not {"start", "end"} <= value.keys():
+        raise AssertionError("native coordinates require both range endpoints")
+    for key in ("start", "end"):
+        _require_native_position(value[key])
+
+
+def require_native_coordinates(value: Any) -> None:
+    """Visit standard coordinate containers, leaving opaque metadata/arguments untouched."""
+    if isinstance(value, list):
+        for child in value:
+            require_native_coordinates(child)
+        return
+    if not isinstance(value, dict):
+        return
+    if "start" in value or "end" in value:
+        _require_native_range(value)
+        return
+    if {"line", "character"} <= value.keys():
+        _require_native_position(value)
+        return
+    if "position" in value:
+        _require_native_position(value["position"])
+    for key in (
+        "range",
+        "selectionRange",
+        "targetRange",
+        "targetSelectionRange",
+        "originSelectionRange",
+        "insert",
+        "replace",
+    ):
+        if key in value:
+            _require_native_range(value[key])
+    for extent in value.get("fromRanges", []):
+        _require_native_range(extent)
+    for key in (
+        "params",
+        "result",
+        "items",
+        "children",
+        "item",
+        "to",
+        "from",
+        "location",
+        "edit",
+        "edits",
+        "textEdit",
+        "additionalTextEdits",
+        "documentChanges",
+        "itemDefaults",
+        "editRange",
+        "context",
+        "diagnostics",
+        "relatedInformation",
+    ):
+        if key in value:
+            require_native_coordinates(value[key])
+    for edits in value.get("changes", {}).values():
+        require_native_coordinates(edits)
+    command = value.get("command")
+    if isinstance(command, dict):
+        require_native_coordinates(command)
+    elif isinstance(command, str):
+        argument_key = {
+            "als-named-parameters": "where",
+            "als-refactor-extract-subprogram": "section_to_extract_sloc",
+            "als-refactor-extract-variable": "section_to_extract_sloc",
+        }.get(command)
+        if argument_key is not None:
+            for argument in value.get("arguments", []):
+                if isinstance(argument, dict) and argument_key in argument:
+                    require_native_coordinates(argument[argument_key])
+
+
 def native_pairs(events: list[JSON]) -> list[Pair]:
     """Require ordered complete exchanges, with no orphan, duplicate or error rows."""
     if len(events) % 2:
@@ -95,6 +184,8 @@ def native_pairs(events: list[JSON]) -> list[Pair]:
                 "native per-call evidence requires unique successful matching pairs"
             )
         identifiers.add(ident)
+        require_native_coordinates(request["params"])
+        require_native_coordinates(response["result"])
         pairs.append((request["method"], request["params"], response["result"]))
     return pairs
 

@@ -16,7 +16,7 @@ from typing import Any
 
 import additional_oracles as oracle
 import observe_additional as observation
-from additional_native import require_call_native
+from additional_native import require_call_native, require_native_coordinates
 from real_diagnostics import process_state
 from real_reading import require_child_exit
 
@@ -47,6 +47,7 @@ def require_native_signature(
     events: list[JSON], file: Path, line: int, column: int, result: JSON
 ) -> None:
     """Reject candidate coordinate or index conversion defects before native triage."""
+    require_native_coordinates(events)
     requests = [
         row
         for row in events
@@ -151,6 +152,7 @@ def require_native_rename(
     events: list[JSON], locations: set[oracle.Location], token: str, replacement: str
 ) -> None:
     """Check original native edit endpoints and replacements before summarization."""
+    require_native_coordinates(events)
     result = native_result(events, "textDocument/rename")
     actual = []
     for uri, edits in result.get("changes", {}).items():
@@ -191,6 +193,7 @@ def require_native_rename(
 
 def require_native_action(events: list[JSON], root: Path) -> None:
     """Require the meaningful named-parameter command and exact source arguments."""
+    require_native_coordinates(events)
     actions = native_result(events, "textDocument/codeAction")
     expected = {
         "title": "Name parameters in the call",
@@ -222,6 +225,7 @@ def require_native_calls(
     token: str | None = None,
 ) -> None:
     """Require native call-site ranges, including multiple sites for one edge."""
+    require_native_coordinates(events)
     calls = native_result(events, "callHierarchy/" + method + "Calls")
     actual = []
     for call in calls or []:

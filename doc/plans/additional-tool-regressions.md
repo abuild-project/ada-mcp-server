@@ -349,3 +349,43 @@ while keeping healthy MCP replies. Every corruption must fail within its
 offending call with accepted=false. This replay supplies no new live ALS or
 compiler proof. Exact-source managed PR CI and fresh independent acceptance
 remain required before the normal PR handoff; merge/release is unauthorized.
+
+## 2026-11-15: Second PR coordinate-domain correction
+
+Decision: the next PR review exposed one coordinate-domain defect class,
+independently reproduced by the coordinator, tester and reviewer at the
+accepted first-correction source. Continue PR correction 2/3 and append one
+commit after that source; preserve all published commits and prior counters.
+This changes test oracles only, with no runtime, public API, version, pin,
+capability negotiation or changelog change.
+
+Decision: validate native Position line/character fields before arithmetic,
+indexing, slicing, set comparison, projection or copying prepared hierarchy
+items. Each must have exact type int within 0..2147483647. Visit explicit
+standard Position/Range containers, including unexposed endpoints, locations,
+LocationLinks, child symbols, completion/workspace edits and prepared items.
+Follow only the known ALS command argument forms where.position and
+section_to_extract_sloc.range. Opaque data and arbitrary command arguments
+remain uninterpreted. Do not infer Position semantics from arbitrary metadata
+key names or introduce general protocol-schema validation.
+
+Decision: keep valid raw zero and MAX; conversion exposes one and MAX+1,
+respectively. Direct source-bound hierarchy/rename set oracles require exact
+integer one-based coordinates within 1..2147483648 before equality can erase
+Boolean or float aliases. Existing type-sensitive request/MCP comparisons
+remain in place and are not newly reported defects. Physical-source checks
+continue to reject domain-valid coordinates that do not match the fixture.
+The original signature cases, exact raw envelopes and three blocked results
+remain unchanged.
+
+Decision: retain seven failing base reproductions and the existing passing
+request-equality control. Exercise malformed values, raw/public boundaries,
+standard nested containers, unused endpoints, both workspace-edit forms and
+positive opaque metadata. Retained current-PR CI data must preserve all 53
+calls, 50 accepted results and three blocked signatures; all 57 pair deletions
+and seven wrong native payloads must still fail. An isolated field assay
+replaces each of the 514 real standard coordinate fields with null and must
+reject every replacement, while a recorded completion with opaque data.line
+must still match its unchanged MCP result. These host/replay checks provide
+no new live ALS or compiler evidence; final exact-source managed PR CI and
+independent acceptance remain required.

@@ -79,6 +79,18 @@ converters. Existing source-derived expectations remain the semantic authority.
 Thirteen explicitly native-free calls require empty event slices; compiler,
 manifest, dependency and filename-spec paths do not invent ALS provenance.
 
+Native Position fields now require exact integers in 0..2147483647 before
+conversion, indexing, slicing, copying or comparison. Boolean and float
+aliases cannot become healthy integer coordinates through Python arithmetic
+or set equality. Explicit standard containers cover nested and unexposed
+range endpoints, locations/LocationLinks, child symbols, completion edits,
+workspace edits and prepared hierarchy items. Opaque data and arbitrary
+command arguments retain their protocol freedom; only the known ALS
+where.position and extraction-location argument shapes are inspected.
+Valid raw MAX becomes one-based MAX+1 (2147483648). Direct hierarchy/rename
+set oracles check their corresponding one-based domain independently;
+physical source expectations still reject incorrect fixture locations.
+
 The initial immutable managed observation established meaningful native
 responses for all ten tools and exposed stale hierarchy data and a native
 positional-signature defect. The [capability assessment](../assessments/additional-tool-capabilities.md)
@@ -185,5 +197,24 @@ retained; one sensitivity attempt exposed a nonisolating multiline lexer
 test, which now keeps the qualified literal and following string on the
 same source line. Final exact-source managed PR CI and independent acceptance
 remain required; no future CI result is claimed here.
+
+The coordinate refinement retains seven base failures: five complete-runner
+Boolean aliases and two direct semantic-set aliases. A passing control
+confirms that existing recursive request equality already distinguishes
+Boolean and integer coordinates. An independent retained-data assay rejects
+all 514 malformed standard coordinate fields while accepting a recorded
+completion with opaque data.line metadata and unchanged public results.
+Domain tests preserve zero/MAX and the one-based offset; malformed types,
+negative/overflow values and unused endpoints fail before interpretation.
+The same 53-call native replay, three blocked cases, 57 pair-deletion and
+seven wrong-payload counterexamples remain mandatory. All evidence is host
+development or retained protocol replay; the final immutable source still
+requires managed PR CI and independent acceptance.
+
+The refined host basis passes 575 focused tests. Five targeted in-memory
+mutations of coordinate validation, integer identity, lower/upper bounds and
+the independent one-based set guard are detected with no survivors. Ruff
+and formatting cover 102 files, strict Mypy covers 41 source files, and
+documentation/index/examples, shell syntax and whitespace checks pass.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>

@@ -63,6 +63,17 @@ def require_token(location: Location, token: str) -> None:
         raise AssertionError("the expected location must identify the exact source token")
 
 
+def _require_mcp_location(item: JSON) -> None:
+    """Keep exact one-based coordinate types before set membership can erase aliases."""
+    if any(
+        type(item.get(key)) is not int or not 1 <= item[key] <= 2_147_483_648
+        for key in ("line", "column")
+    ):
+        raise AssertionError(
+            "one-based source coordinates must be exact integers from 1 through 2147483648"
+        )
+
+
 def require_hierarchy(result: JSON, symbol: str, outgoing: set[Edge], incoming: set[Edge]) -> None:
     """Require complete unique source-bound caller and callee edge sets."""
     if result.get("found") is not True or result.get("symbol") != symbol or result.get("error"):
@@ -71,6 +82,8 @@ def require_hierarchy(result: JSON, symbol: str, outgoing: set[Edge], incoming: 
         items = result.get(direction + "_calls")
         if not isinstance(items, list):
             raise AssertionError("hierarchy edges must be lists")
+        for item in items:
+            _require_mcp_location(item)
         actual = [
             (row.get("name"), row.get("kind"), row.get("file"), row.get("line"), row.get("column"))
             for row in items
@@ -237,6 +250,8 @@ def require_rename(result: JSON, old_name: str, new_name: str, locations: set[Lo
     changes = result.get("changes")
     if not isinstance(changes, list):
         raise AssertionError("rename changes must be a list")
+    for change in changes:
+        _require_mcp_location(change)
     actual = [
         (
             row.get("file"),
