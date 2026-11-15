@@ -303,3 +303,49 @@ replies are unchanged and the original three cases remain blocked. Ruff,
 format, strict Mypy, maintained documentation, shell and whitespace checks
 pass. These are development/replay results; the new immutable candidate
 still requires its own managed CI and independent acceptance before PR work.
+
+## 2026-11-15: First PR correction bundle
+
+Decision: the first PR review identified three concrete correctness and
+evidence-boundary defects, independently reproduced by the coordinator,
+tester and reviewer. Continue the same topic in PR correction 1/3; the
+completed local 3/3 phase does not restart. Preserve the two published topic
+commits and append one coherent correction commit without rewriting history.
+
+Decision: fixture inspection rejects root, ancestor, file, directory and
+dangling symbolic links, including generated-output paths, before reading
+bytes. Inspect original sources before copying and preserve links during
+copying so they cannot silently become followed regular files. Validate the
+entire owned existing-file mutation batch before its first write. Both the
+exploratory template/restoration writes and strict runner use the shared
+guard. Retain inspection failures in available call/summary evidence. This
+controlled harness does not claim a concurrent-filesystem sandbox.
+
+Decision: every native-backed call requires correlated successful native
+exchanges, exact request parameters and independent native/MCP field fidelity
+before semantic classification or acceptance. The frozen fixture exercises
+40 such calls and 57 in-call pairs, including cold initialization, both
+project commands, document-symbol synchronization, hierarchy preparation,
+negative semantic paths and rename preparation. The 13 native-free paths
+remain explicit and require empty event slices: four dependency, four
+manifest, two build, two filename-spec and one invalid-identifier case.
+No production conversion helper supplies the oracle. Preserve the exact
+three original native signature envelopes, expected-correct positions,
+strict-default failure and blocked/unaccepted assessment classification.
+
+Decision: distinguish a character-literal terminator from the apostrophe
+opening the quote character in a qualified expression such as
+`Character'('"')`. Preserve ordinary and whitespace-separated qualified
+character literals, attributes, doubled quotes, comments and line boundaries.
+This refines noncode masking only; ordinary with-clause scope is unchanged.
+
+Decision: preserve the twelve failing base reproductions at the unchanged
+published source and all subsequent failed development attempts. Replay the
+current sealed PR-CI protocol data through the new runner as retained replay,
+with process/build stand-ins identified explicitly. Require the healthy 53
+calls to retain 50 accepted results and three blocked cases; remove each of
+the 57 in-call pairs and replace each of the seven reported native payloads
+while keeping healthy MCP replies. Every corruption must fail within its
+offending call with accepted=false. This replay supplies no new live ALS or
+compiler proof. Exact-source managed PR CI and fresh independent acceptance
+remain required before the normal PR handoff; merge/release is unauthorized.

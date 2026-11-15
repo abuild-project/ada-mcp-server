@@ -215,6 +215,19 @@ def test_full_observation_keeps_semantic_failures_unaccepted(runner):
     assert json.loads((runner.output / "summary.json").read_text()) == report
 
 
+def test_exploratory_template_and_restore_writes_use_the_shared_batch_guard(runner, monkeypatch):
+    guarded = observation.mutate_owned
+    batches = []
+
+    def record(root, changes):
+        batches.append(len(changes))
+        guarded(root, changes)
+
+    monkeypatch.setattr(observation, "mutate_owned", record)
+    observation.run_observation(runner.output)
+    assert batches == [3, 3, 1]
+
+
 @pytest.mark.parametrize(
     "name",
     ["src/main.adb", "additional.gpr", "manifest/alire.toml", "states/main-after.adb", "stray.o"],

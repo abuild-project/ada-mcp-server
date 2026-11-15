@@ -122,7 +122,7 @@ def runner(tmp_path, monkeypatch):
                 ):
                     stream.write(json.dumps(row) + "\n")
 
-        def initialize(self):
+        def initialize_native(self):
             self.emit(
                 "initialize",
                 {
@@ -143,6 +143,9 @@ def runner(tmp_path, monkeypatch):
             )
             return {"mock_initialize": True}
 
+        def initialize(self):
+            return {"mock_initialize": True}
+
         def tools(self):
             return [{"name": "mock catalog"}]
 
@@ -161,7 +164,45 @@ def runner(tmp_path, monkeypatch):
             main = self.root / "src/main.adb"
             spec = self.root / "src/probe.ads"
             changed = "Probe.Merge" in main.read_text()
+            document = (
+                {"textDocument": {"uri": Path(args["file"]).as_uri()}} if "file" in args else {}
+            )
+            located = {
+                **document,
+                "position": {
+                    "line": args.get("line", 1) - 1,
+                    "character": args.get("column", 1) - 1,
+                },
+            }
             if tool == "ada_project_info":
+                self.initialize_native()
+                self.emit(
+                    "workspace/executeCommand",
+                    {
+                        "tree": {"root-project": {"id": "fixture-root"}},
+                        "projects": [
+                            {
+                                "project": {
+                                    "id": "fixture-root",
+                                    "name": "Additional",
+                                    "file-name": str(self.root / "additional.gpr"),
+                                    "source-directories": [
+                                        str(self.root / "src"),
+                                        str(self.root / "formatting"),
+                                    ],
+                                    "object-directory": str(self.root / "obj") + "/",
+                                    "executable-directory": str(self.root / "bin"),
+                                }
+                            }
+                        ],
+                    },
+                    {"command": "als-project-view-information", "arguments": []},
+                )
+                self.emit(
+                    "workspace/executeCommand",
+                    [str(main)],
+                    {"command": "als-mains", "arguments": []},
+                )
                 return {
                     "complete": True,
                     "project_file": str(self.root / "additional.gpr"),
@@ -172,10 +213,38 @@ def runner(tmp_path, monkeypatch):
                     "main_units": ["main.adb"],
                 }
             if tool == "ada_document_symbols":
-                return {"symbols": [{"name": "Probe"}]}
+                self.emit(
+                    "textDocument/documentSymbol",
+                    [
+                        {
+                            "name": "Probe",
+                            "kind": 4,
+                            "range": {
+                                "start": {"line": 0, "character": 0},
+                                "end": {"line": 0, "character": 16},
+                            },
+                            "selectionRange": {
+                                "start": {"line": 0, "character": 8},
+                                "end": {"line": 0, "character": 13},
+                            },
+                        }
+                    ],
+                    document,
+                )
+                return {
+                    "symbols": [
+                        {
+                            "name": "Probe",
+                            "kind": "package",
+                            "line": 1,
+                            "column": 9,
+                            "range": {"start": 1, "end": 1},
+                        }
+                    ]
+                }
             if tool == "ada_call_hierarchy":
                 if args.get("line") == 7 and args.get("column") == 7:
-                    self.emit("textDocument/prepareCallHierarchy", None)
+                    self.emit("textDocument/prepareCallHierarchy", None, located)
                     return {"found": False, "outgoing_calls": [], "incoming_calls": []}
                 is_main = args["file"] == str(main)
                 name = "Main" if is_main else "Advance" if changed else "Increment"
@@ -211,7 +280,31 @@ def runner(tmp_path, monkeypatch):
                     if is_main
                     else [{"name": "Main", "kind": 12, "file": str(main), "line": 2, "column": 11}]
                 )
-                self.emit("textDocument/prepareCallHierarchy", [{"name": name}])
+                item = {
+                    "name": name,
+                    "kind": 12,
+                    "uri": Path(args["file"]).as_uri(),
+                    "range": {
+                        "start": located["position"],
+                        "end": {
+                            "line": args["line"] - 1,
+                            "character": args["column"] - 1 + len(name),
+                        },
+                    },
+                }
+                self.emit("textDocument/prepareCallHierarchy", [item], located)
+
+                def endpoint(value):
+                    start = {"line": value["line"] - 1, "character": value["column"] - 1}
+                    return {
+                        "name": value["name"],
+                        "kind": value["kind"],
+                        "uri": Path(value["file"]).as_uri(),
+                        "range": {
+                            "start": start,
+                            "end": {**start, "character": start["character"] + len(value["name"])},
+                        },
+                    }
 
                 def ranges(member):
                     values = []
@@ -232,19 +325,21 @@ def runner(tmp_path, monkeypatch):
                     self.emit(
                         "callHierarchy/outgoingCalls",
                         [
-                            {"to": {"name": item["name"]}, "fromRanges": ranges(item["name"])}
+                            {"to": endpoint(item), "fromRanges": ranges(item["name"])}
                             for item in outgoing
                         ]
                         or None,
+                        {"item": item},
                     )
                 else:
                     outgoing = []
                 if direction in ("incoming", "both"):
                     self.emit(
                         "callHierarchy/incomingCalls",
-                        [{"from": {"name": "Main"}, "fromRanges": ranges(name)}]
+                        [{"from": endpoint(incoming[0]), "fromRanges": ranges(name)}]
                         if incoming
                         else None,
+                        {"item": item},
                     )
                 else:
                     incoming = []
@@ -273,14 +368,46 @@ def runner(tmp_path, monkeypatch):
                 }
             if tool == "ada_completions":
                 if args["line"] == 7 and args["column"] == 7:
+                    self.emit(
+                        "textDocument/completion", None, {**located, "context": {"triggerKind": 1}}
+                    )
                     return {"completions": [], "count": 0, "is_incomplete": False}
                 result = completions(changed)
+                self.emit(
+                    "textDocument/completion",
+                    {
+                        "items": [
+                            {
+                                "label": row["label"],
+                                "kind": 3,
+                                "detail": row["detail"],
+                                "documentation": row["documentation"],
+                                "insertText": row["insert_text"],
+                                "sortText": row["sort_text"],
+                            }
+                            for row in result["completions"]
+                        ],
+                        "isIncomplete": False,
+                    },
+                    {
+                        **located,
+                        "context": {
+                            "triggerKind": 2,
+                            "triggerCharacter": args["trigger_character"],
+                        },
+                    },
+                )
                 if args.get("limit") == 1:
                     result["completions"] = result["completions"][:1]
                     result["count"] = 1
                 return result
             if tool == "ada_signature_help":
                 if args["column"] == 7:
+                    self.emit(
+                        "textDocument/signatureHelp",
+                        {"signatures": [], "activeSignature": 0},
+                        located,
+                    )
                     return {
                         "found": False,
                         "signatures": [],
@@ -332,6 +459,25 @@ def runner(tmp_path, monkeypatch):
                     if args["start_line"] == 5
                     else "declaration"
                 )
+                params = {
+                    **document,
+                    "range": {
+                        "start": {
+                            "line": args["start_line"] - 1,
+                            "character": args["start_column"] - 1,
+                        },
+                        "end": {"line": args["end_line"] - 1, "character": args["end_column"] - 1},
+                    },
+                    "context": {"diagnostics": []},
+                }
+                extras = [
+                    {
+                        "title": row["title"],
+                        "kind": row["kind"],
+                        "command": {"title": "", "command": "mock-extract"},
+                    }
+                    for row in actions(location)["actions"]
+                ]
                 if location == "call":
                     self.emit(
                         "textDocument/codeAction",
@@ -354,8 +500,12 @@ def runner(tmp_path, monkeypatch):
                                     ],
                                 },
                             }
-                        ],
+                        ]
+                        + extras[1:],
+                        params,
                     )
+                else:
+                    self.emit("textDocument/codeAction", extras, params)
                 return actions(location)
             if tool == "ada_rename_symbol":
                 if args["new_name"] == "Invalid__Name":
@@ -366,6 +516,7 @@ def runner(tmp_path, monkeypatch):
                         "total_changes": 0,
                     }
                 if args["line"] == 7 and args["column"] == 7:
+                    self.emit("textDocument/prepareRename", None, located)
                     return {
                         "success": False,
                         "error": "Cannot rename symbol at this location",
@@ -374,6 +525,9 @@ def runner(tmp_path, monkeypatch):
                     }
                 result = rename_result(
                     self.root, args["new_name"], changed, args["file"] == str(spec)
+                )
+                self.emit(
+                    "textDocument/prepareRename", {"placeholder": result["old_name"]}, located
                 )
                 edits = {}
                 for item in result["changes"]:
@@ -392,11 +546,33 @@ def runner(tmp_path, monkeypatch):
                             "newText": item["new_text"],
                         }
                     )
-                self.emit("textDocument/rename", {"changes": edits})
+                self.emit(
+                    "textDocument/rename",
+                    {"changes": edits},
+                    {**located, "newName": args["new_name"]},
+                )
                 return result
             if tool == "ada_format_file":
+                params = {
+                    **document,
+                    "options": {"tabSize": args["tab_size"], "insertSpaces": args["insert_spaces"]},
+                }
                 if Path(args["file"]).read_text().splitlines()[2].startswith("   "):
+                    self.emit("textDocument/formatting", None, params)
                     return {"formatted": False, "file": args["file"], "changes": 0, "edits": []}
+                self.emit(
+                    "textDocument/formatting",
+                    [
+                        {
+                            "range": {
+                                "start": {"line": 2, "character": 0},
+                                "end": {"line": 3, "character": 0},
+                            },
+                            "newText": "   null;\n",
+                        }
+                    ],
+                    params,
+                )
                 return format_result(self.root)
             if tool == "ada_get_spec":
                 if Path(args["file"]).name == "orphan.adb":
@@ -409,6 +585,23 @@ def runner(tmp_path, monkeypatch):
                         "error": "No spec file found",
                     }
                 line, column = (args["line"], 14) if "line" in args else (1, 1)
+                if "line" in args:
+                    self.emit(
+                        "textDocument/declaration",
+                        {
+                            "uri": spec.as_uri(),
+                            "range": {
+                                "start": {"line": line - 1, "character": column - 1},
+                                "end": {
+                                    "line": line - 1,
+                                    "character": column
+                                    - 1
+                                    + len("Advance" if changed else "Increment"),
+                                },
+                            },
+                        },
+                        located,
+                    )
                 return {
                     "found": True,
                     "spec_file": str(spec),
@@ -758,7 +951,7 @@ def test_native_corruption_is_unaccepted_even_with_healthy_mcp_summary(runner, m
         RuntimeError,
         match=(
             "native rename ranges|native named-parameter action proposal|"
-            "native complete call-site ranges"
+            "native complete call-site ranges|native/MCP result fidelity for ada_rename_symbol"
         ),
     ):
         real.run_control(runner.output, True)

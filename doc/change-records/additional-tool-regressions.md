@@ -17,6 +17,12 @@ requests synchronize their queried file before native preparation; this is
 not a global refresh of other changed open files. The changes have factual
 Unreleased entries and leave published RC3 notes intact.
 
+Qualified quote-character literals, including whitespace around qualification,
+also preserve the following string's masking boundary. A token such as
+`Character'('"')` must not expose a fake unit declaration inside that string.
+Ordinary character literals, attributes and ordinary with-clause scope remain
+unchanged.
+
 Signature help now gives the selected SignatureInformation's explicit active
 parameter precedence over the top-level fallback, including zero. Missing
 and valid out-of-range active-signature indices use signature zero. Only
@@ -54,6 +60,24 @@ negatives are checked. Input hashes include Ada/GPR/TOML and state templates,
 separately from permitted generated obj/bin files. Raw MCP envelopes,
 correlated native requests/results/errors, complete source states, process
 births and normal EOF/child cleanup survive failures.
+
+Fixture inspection rejects symbolic links at the root, in ancestors and in
+every file/directory entry, including dangling links and obj/bin. Original
+fixtures are inspected before copying; copying preserves links for rejection.
+Both exploratory and strict source mutations validate the complete existing
+owned-file batch before the first write. A same-byte symlink substitution
+cannot evade hashing or redirect a later source mutation. This controlled
+harness does not claim a concurrent-filesystem sandbox.
+
+Every one of the 40 ALS-backed calls requires its native request/result
+evidence before semantic classification, including negative paths and known
+blocked signatures. The 57 in-call exchanges include cold initialization,
+project commands, document-symbol synchronization and hierarchy/rename
+preparation. The independent native oracle checks correlation, request
+coordinates/options and all exposed result fields without importing production
+converters. Existing source-derived expectations remain the semantic authority.
+Thirteen explicitly native-free calls require empty event slices; compiler,
+manifest, dependency and filename-spec paths do not invent ALS provenance.
 
 The initial immutable managed observation established meaningful native
 responses for all ten tools and exposed stale hierarchy data and a native
@@ -143,5 +167,23 @@ shell and whitespace checks pass. The eleven retained native replies remain
 unchanged and the three original cases remain blocked; the replay supplies
 no new real ALS acceptance. Exact final-source managed CI and independent
 acceptance remain required.
+
+The later evidence-boundary correction retained twelve base-red cases against
+the unchanged published source. Focused development now passes 447 tests.
+Ruff/format checks cover 101 files, strict Mypy covers 41 source files, and
+documentation/index/examples, CI shell syntax and whitespace checks pass.
+The retained current-PR CI replay preserves 53 calls, 50 accepted results and
+the same three blocked cases; all 57 single native-pair deletions and all seven
+reported wrong native payloads fail inside the offending call with
+accepted=false. Seven additional shape-valid wrong-field controls establish
+native/MCP fidelity rather than relying only on malformed reply rejection.
+The replay uses explicit process/build stand-ins and supplies no new live
+ALS or compiler proof. Seven focused in-memory mutations of the new native,
+inspection, batch-write and lexical boundaries are detected. Their source
+files stay unchanged during those checks. Failed development attempts remain
+retained; one sensitivity attempt exposed a nonisolating multiline lexer
+test, which now keeps the qualified literal and following string on the
+same source line. Final exact-source managed PR CI and independent acceptance
+remain required; no future CI result is claimed here.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>

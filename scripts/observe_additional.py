@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import sys
 import time
 from pathlib import Path
@@ -24,12 +25,39 @@ GENERATED = {"obj", "bin"}
 
 
 def file_hashes(root: Path) -> dict[str, str]:
-    """Hash every regular fixture file without conflating generated outputs."""
-    return {
-        str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(root.rglob("*"))
-        if path.is_file()
-    }
+    """Hash regular fixture files, rejecting links and special entries before reads."""
+    require_no_symlink_ancestors(root)
+    if not root.is_dir():
+        raise AssertionError("fixture inspection requires an existing directory")
+    hashes = {}
+    for path in sorted(root.rglob("*")):
+        mode = path.lstat().st_mode
+        if stat.S_ISLNK(mode):
+            raise AssertionError(f"fixture inspection rejects symlink: {path}")
+        if stat.S_ISREG(mode):
+            hashes[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
+        elif not stat.S_ISDIR(mode):
+            raise AssertionError(f"fixture inspection rejects a nonregular entry: {path}")
+    return hashes
+
+
+def require_no_symlink_ancestors(path: Path) -> None:
+    """Reject even dangling links in a requested path or any of its ancestors."""
+    if any(parent.is_symlink() for parent in (path, *path.parents)):
+        raise AssertionError(f"owned fixture path rejects symlink: {path}")
+
+
+def mutate_owned(root: Path, changes: dict[Path, bytes]) -> None:
+    """Validate the entire existing-file batch before writing any fresh owned source."""
+    file_hashes(root)
+    for path in changes:
+        if not path.is_relative_to(root) or path.is_relative_to(FIXTURE) or ".." in path.parts:
+            raise AssertionError("source mutation must stay in the fresh owned fixture")
+        require_no_symlink_ancestors(path)
+        if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
+            raise AssertionError("source mutation requires an existing owned regular file")
+    for path, text in changes.items():
+        path.write_bytes(text)
 
 
 def input_hashes(root: Path) -> dict[str, str]:
@@ -110,10 +138,11 @@ def run_observation(output: Path) -> JSON:
     """Retain one bounded exploratory run and fail on harness boundary errors."""
     from mcp_client import Session, validate_calls
 
+    require_no_symlink_ancestors(output)
     output.mkdir(parents=True, exist_ok=False)
     root = output / "fixture"
-    shutil.copytree(FIXTURE, root)
     original = file_hashes(FIXTURE)
+    shutil.copytree(FIXTURE, root, symlinks=True)
     main, spec, body = (root / "src" / name for name in ("main.adb", "probe.ads", "probe.adb"))
     initial_sources = {
         str(path.relative_to(root)): path.read_bytes() for path in (main, spec, body)
@@ -174,7 +203,11 @@ def run_observation(output: Path) -> JSON:
             record["request_error"] = type(error).__name__ + ": " + str(error)
             raise
         finally:
-            after = file_hashes(root)
+            try:
+                after = file_hashes(root)
+            except Exception as error:
+                record["file_inspection_error"] = type(error).__name__ + ": " + str(error)
+                raise
             record["file_sha256_after"] = after
             record["input_sha256_after"] = input_hashes(root)
             record["inputs_unchanged"] = (
@@ -302,9 +335,13 @@ def run_observation(output: Path) -> JSON:
         call("semantic-spec", "ada_get_spec", {"file": str(body), "line": 2, "column": 14})
         call("sibling-spec", "ada_get_spec", {"file": str(body)})
         call("missing-spec", "ada_get_spec", {"file": str(root / "formatting/orphan.adb")})
-        for source in (main, spec, body):
-            template = root / "states" / (source.stem + "-after" + source.suffix)
-            source.write_bytes(template.read_bytes())
+        mutate_owned(
+            root,
+            {
+                source: (root / "states" / (source.stem + "-after" + source.suffix)).read_bytes()
+                for source in (main, spec, body)
+            },
+        )
         state("warm-semantic-change")
         # This must precede every handler which synchronizes changed sources.
         call(
@@ -347,8 +384,7 @@ def run_observation(output: Path) -> JSON:
             {"file": str(body), "line": 4, "column": 14},
         )
         call("changed-dependencies", "ada_dependency_graph", {"file": str(root / "src")})
-        for name, content in initial_sources.items():
-            (root / name).write_bytes(content)
+        mutate_owned(root, {root / name: content for name, content in initial_sources.items()})
         state("restored-for-build")
         for directory in ("manifest", "malformed", "formatting"):
             call("manifest-" + directory, "ada_alire_info", {"project_dir": str(root / directory)})
@@ -390,7 +426,7 @@ def run_observation(output: Path) -> JSON:
             for name, digest in file_hashes(root).items()
             if Path(name).parts[0] in GENERATED
         }
-        main.write_bytes((root / "states/main-error.adb").read_bytes())
+        mutate_owned(root, {main: (root / "states/main-error.adb").read_bytes()})
         state("deliberate-compiler-error")
         call(
             "compiler-error",
@@ -416,7 +452,11 @@ def run_observation(output: Path) -> JSON:
             except Exception as error:
                 report["cleanup_error"] = type(error).__name__ + ": " + str(error)
                 problem = problem or report["cleanup_error"]
-        report["original_fixture_unchanged"] = file_hashes(FIXTURE) == original
+        try:
+            report["original_fixture_unchanged"] = file_hashes(FIXTURE) == original
+        except Exception as error:
+            report["original_fixture_unchanged"] = False
+            report["original_fixture_inspection_error"] = type(error).__name__ + ": " + str(error)
         if not report["original_fixture_unchanged"]:
             problem = problem or "AssertionError: the original additional fixture changed"
         report["error"] = problem
@@ -437,7 +477,7 @@ def main() -> None:
     if options.serve_trace is not None:
         observed_server(options.serve_trace)
     else:
-        print(json.dumps(run_observation(options.output.resolve()), indent=2))
+        print(json.dumps(run_observation(options.output.absolute()), indent=2))
 
 
 if __name__ == "__main__":

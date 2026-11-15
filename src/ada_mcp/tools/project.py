@@ -203,8 +203,11 @@ async def handle_call_hierarchy(
 
 def _mask_ada_noncode(text: str) -> str:
     """Blank comments and quoted strings while preserving source line boundaries."""
+    # In Character'('"'), the first apostrophe starts qualification;
+    # its third apostrophe opens the quote character literal. Do not consume
+    # that apostrophe as a character-literal terminator before a double quote.
     return re.sub(
-        r"""'[^'\r\n]'|"(?:[^"\r\n]|"")*"|--[^\r\n]*""",
+        r"""'[^'\r\n]'(?!")|"(?:[^"\r\n]|"")*"|--[^\r\n]*""",
         lambda match: " " * len(match.group()),
         text,
     )

@@ -16,6 +16,7 @@ from typing import Any
 
 import additional_oracles as oracle
 import observe_additional as observation
+from additional_native import require_call_native
 from real_diagnostics import process_state
 from real_reading import require_child_exit
 
@@ -312,10 +313,11 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
     """Retain strict live results, explicit native blockers and all failure evidence."""
     from mcp_client import Session, validate_calls
 
+    observation.require_no_symlink_ancestors(output)
     output.mkdir(parents=True, exist_ok=False)
     root = output / "fixture"
     original = observation.file_hashes(FIXTURE)
-    shutil.copytree(FIXTURE, root)
+    shutil.copytree(FIXTURE, root, symlinks=True)
     main, spec, body = (root / "src" / name for name in ("main.adb", "probe.ads", "probe.adb"))
     named = root / "formatting/named.adb"
     initial_sources = {path: path.read_bytes() for path in (main, spec, body, named)}
@@ -392,7 +394,12 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
             record["request_error"] = type(error).__name__ + ": " + str(error)
             raise
         finally:
-            after = observation.file_hashes(root)
+            record["native_events"] = trace_rows()[native_before:]
+            try:
+                after = observation.file_hashes(root)
+            except Exception as error:
+                record["file_inspection_error"] = type(error).__name__ + ": " + str(error)
+                raise
             record["file_sha256_after"] = after
             record["input_sha256_after"] = observation.input_hashes(root)
             record["inputs_unchanged"] = (
@@ -401,7 +408,6 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
             record["changed_files"] = sorted(
                 name for name in before.keys() | after.keys() if before.get(name) != after.get(name)
             )
-            record["native_events"] = trace_rows()[native_before:]
         observation.require_changes(before, after, build)
         if raw.get("isError"):
             raise AssertionError("MCP tool transport reported isError")
@@ -411,10 +417,15 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
             if observed != identity:
                 raise AssertionError("MCP/ALS process births changed during additional control")
         try:
-            check(result)
+            require_no_action_execution(record["native_events"])
+            require_call_native(
+                record["native_events"], tool, arguments, result, root, require_native_signature
+            )
+            if tool == "ada_project_info":
+                require_trace(record["native_events"], root)
             if native_check is not None:
                 native_check(record["native_events"])
-            require_no_action_execution(record["native_events"])
+            check(result)
         except Exception as error:
             record["oracle_error"] = type(error).__name__ + ": " + str(error)
             raise
@@ -432,10 +443,7 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
         )
 
     def mutate(label: str, changes: dict[Path, bytes]) -> None:
-        for path, text in changes.items():
-            if not path.is_relative_to(root) or path.is_relative_to(FIXTURE):
-                raise AssertionError("source mutation must stay in the fresh owned fixture")
-            path.write_bytes(text)
+        observation.mutate_owned(root, changes)
         state(label)
 
     def equal(expected: JSON, purpose: str) -> Check:
@@ -939,7 +947,11 @@ def run_control(output: Path, allow_positional_blocker: bool = False) -> JSON:
         except Exception as error:
             report["native_trace_error"] = type(error).__name__ + ": " + str(error)
             problem = problem or report["native_trace_error"]
-        report["original_fixture_unchanged"] = observation.file_hashes(FIXTURE) == original
+        try:
+            report["original_fixture_unchanged"] = observation.file_hashes(FIXTURE) == original
+        except Exception as error:
+            report["original_fixture_unchanged"] = False
+            report["original_fixture_inspection_error"] = type(error).__name__ + ": " + str(error)
         if not report["original_fixture_unchanged"]:
             problem = problem or "AssertionError: the original additional fixture changed"
         report["error"] = problem
@@ -963,7 +975,8 @@ def main() -> None:
     options = parser.parse_args()
     print(
         json.dumps(
-            run_control(options.output.resolve(), options.allow_native_positional_blocker), indent=2
+            run_control(options.output.absolute(), options.allow_native_positional_blocker),
+            indent=2,
         )
     )
 
