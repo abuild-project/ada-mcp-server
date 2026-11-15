@@ -64,7 +64,12 @@ committed source states, surround each read-only call. The probe
 retains raw protocol, results, both source states and failure summaries;
 EOF cleanup must remove the observed ALS birth. Mocked oracle guards reject
 empty, wrong, duplicated and stale payloads, including old locations paired
-with fresh disk previews, but do not establish live proof.
+with fresh disk previews. Full-runner mocked controls also reject source
+changes during calls, changed process births and changes to an owned temporary
+original-fixture copy, preserving the intended failure and available evidence.
+The initial state's comment line is serialized metadata; no-target calls
+exercise the changed state. These mocked controls do not establish live proof.
+The documentation checker also enforces alphabetical change-record titles.
 
 For fast development only, a local venv may run a targeted check:
 

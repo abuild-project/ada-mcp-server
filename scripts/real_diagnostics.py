@@ -140,7 +140,7 @@ def observe_process_pair(server_pid: int, program: str, proc_root: Path | None =
 def process_state(session: Session, errors: Path) -> JSON:
     """Observe actual Linux process identities plus one ALS start without restart."""
     if session.process.poll() is not None:
-        raise RuntimeError("MCP process exited during diagnostic control")
+        raise RuntimeError("MCP process exited during probe")
     program = Path(os.environ.get("ALS_PATH", "ada_language_server")).name
     observed = observe_process_pair(session.process.pid, program)
     if session.process.poll() is not None:
@@ -151,7 +151,7 @@ def process_state(session: Session, errors: Path) -> JSON:
         or "ALS restarted" in logs
         or "Attempting ALS restart" in logs
     ):
-        raise RuntimeError("diagnostic control must not start/restart another ALS instance")
+        raise RuntimeError("probe must not start/restart another ALS instance")
     return {**observed, "als_start_count": 1}
 
 

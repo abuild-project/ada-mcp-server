@@ -65,3 +65,24 @@ with previews regenerated from the current source, including a still-valid
 old Counter declaration and incorrect reference sets at the correct new
 count. These mocked controls must reject stale locations independently of
 stale preview text; the final source still needs real pinned-ALS acceptance.
+
+## 2026-11-15: Runner and documentation guard sensitivity
+
+Decision: test the complete runner with otherwise-valid mocked semantics.
+Inject owned Ada, GPR and state-template changes, additions and deletions
+during a call, vary each observed process PID/birth field after mutation,
+and change only an owned temporary original-fixture copy. Require the exact
+intended failure, before/after hashes, available arguments/results and normal
+EOF attempts in the retained summary. Preserve changed process observations
+before comparison, including the final no-target comparison. These controls
+prove guard sensitivity, not real ALS or process-cleanup acceptance.
+
+Decision: add healthy and separate missing/wrong/extra project-field and
+namespace-envelope controls, and verify that disabling each previously
+uncovered guard makes its corresponding committed tests fail. Substitute
+the reading module's clock privately rather than patching the shared stdlib
+clock. Enforce alphabetical change-record titles through the integrated
+documentation checker and test a swapped index in an owned minimal tree.
+The initial comment line remains serialized fixture metadata; semantic
+no-target calls exercise the changed state. Final exact-head CI and independent
+acceptance evidence belong in the PR, separately from host details in the record.

@@ -37,21 +37,46 @@ source. They reject the still-valid old Counter target and incorrect reference
 sets even at the correct new count. These controls do not replace real
 acceptance of the final immutable candidate.
 
+Healthy full-runner controls accompany injected Ada/GPR/template changes,
+source additions/deletions, changed MCP/ALS PIDs and birth ticks, and changes
+to an owned temporary original-fixture copy. Each counterexample must reach
+its intended guard with otherwise-valid semantic replies, fail with the
+exact error and retain available call/hash/process and EOF evidence. Separate
+project source/main-field and namespace-envelope controls reject missing,
+wrong and extra data. The cleanup clock substitute is local to the reading
+module. The initial comment line remains serialized metadata; no-target
+navigation and hover run against the changed state.
+
 Mocked guard tests deliberately corrupt expected-result payloads with empty,
 wrong, duplicate, unrelated and stale results. These test the live oracles and
 failure evidence handling; they do not provide real ALS acceptance. Existing
 parent-GPR/scenario, diagnostic error/repair/error, Arca/Spawn/Anet and both
-Linux identity gates remain mandatory. Host development validation and the
-complete immutable-candidate AMD64 Trixie run are recorded separately below.
+Linux identity gates remain mandatory. Host development details appear below.
+The PR links final exact-head AMD64 Trixie CI and independent acceptance
+evidence after those checks complete; this record does not preclaim them.
 No runtime behavior, SDK pin, version, release asset or support claim changes.
 
-Targeted host development validation passed 61 tests covering the new oracle
-guards, diagnostic controls and existing navigation/symbol units. Repository
-Ruff checks and format checks passed for 88 files; strict Mypy passed for the
+The documentation checker enforces alphabetical titles in the change-record
+index. Its integrated minimal-tree controls accept the healthy order and
+reject a swapped index without weakening link, example or version checks.
+
+Targeted host development validation passed 103 tests covering semantic
+oracles, full-runner failures, process observation, diagnostics, navigation,
+symbols and integrated documentation checks. Repository Ruff checks and
+format checks passed for 90 files; strict Mypy passed for the
 37-file CI selection including the new probe. Maintained documentation,
 example syntax, CI shell syntax and whitespace checks passed. These checks
 exercise mocked guards and source contracts. Real MCP/ALS outcomes require
 the complete hosted build/check run of the immutable candidate; no local
 Docker or host-compiler substitute was used.
+
+The untouched 72-test guard/documentation suite also passed an in-memory
+sensitivity control. Disabling each source-hash, post-mutation identity,
+original-fixture, project source-directory, project main-unit and namespace
+guard made its intended committed counterexamples fail. Disabling the sorted
+index invocation and final no-target identity comparison likewise failed
+their corresponding tests. Each mutation changed exactly one check in memory;
+candidate bytes stayed unchanged. These expected failures establish guard
+sensitivity rather than live ALS behavior.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>

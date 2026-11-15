@@ -3,6 +3,8 @@
 import copy
 import json
 import shutil
+import time
+from types import SimpleNamespace
 
 import mcp_client
 import pytest
@@ -112,6 +114,62 @@ def test_document_oracle_rejects_wrong_structure(corruption):
         wrong["symbols"].append(copy.deepcopy(wrong["symbols"][0]))
     with pytest.raises(AssertionError, match="document hierarchy|namespace envelope"):
         reading.require_document(wrong, reading.INITIAL_STATE)
+
+
+@pytest.mark.parametrize("corruption", ["missing", "kind", "name", "duplicate"])
+def test_document_oracle_rejects_bad_namespace_with_valid_semantic_tree(corruption):
+    result = document()
+    reading.require_document(result, reading.INITIAL_STATE)
+    main = copy.deepcopy(result["symbols"][0])
+    if corruption == "missing":
+        result["symbols"].pop()
+    elif corruption == "kind":
+        result["symbols"][-1]["kind"] = "package"
+    elif corruption == "name":
+        result["symbols"][-1]["name"] = "Other clauses"
+    else:
+        result["symbols"].append(copy.deepcopy(result["symbols"][-1]))
+    assert result["symbols"][0] == main
+    with pytest.raises(AssertionError, match="expected one ALS With clauses namespace envelope"):
+        reading.require_document(result, reading.INITIAL_STATE)
+
+
+def project(root):
+    return {
+        "complete": True,
+        "project_file": str(root / "reading.gpr"),
+        "source_dirs": [str(root / "src")],
+        "main_units": ["main.adb"],
+    }
+
+
+def test_project_oracle_accepts_exact_view(fixture):
+    reading.require_project(project(fixture), fixture)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("source_dirs", None),
+        ("source_dirs", []),
+        ("source_dirs", ["wrong"]),
+        ("source_dirs", ["src", "extra"]),
+        ("main_units", None),
+        ("main_units", []),
+        ("main_units", ["wrong.adb"]),
+        ("main_units", ["main.adb", "extra.adb"]),
+    ],
+)
+def test_project_oracle_rejects_missing_wrong_or_extra_sources_and_mains(fixture, field, value):
+    result = project(fixture)
+    if value is None:
+        result.pop(field)
+    elif field == "source_dirs":
+        result[field] = [str(fixture / path) for path in value]
+    else:
+        result[field] = value
+    with pytest.raises(AssertionError, match="expected the explicit reading GPR view"):
+        reading.require_project(result, fixture)
 
 
 def test_mutated_source_rejects_old_document_and_hover_payloads(fixture):
@@ -312,9 +370,22 @@ def test_cleanup_checks_process_birth_and_rejects_a_surviving_zombie(monkeypatch
     assert reading.require_child_exit(identity)["pid_reused"] is True
     monkeypatch.setattr(reading, "read_identity", lambda _: {"start_ticks": 100, "state": "Z"})
     samples = iter((0, 6))
-    monkeypatch.setattr(reading.time, "monotonic", lambda: next(samples))
+    original_clock = time.monotonic
+    monkeypatch.setattr(reading, "time", SimpleNamespace(monotonic=lambda: next(samples)))
     with pytest.raises(AssertionError, match="survived MCP EOF cleanup"):
         reading.require_child_exit(identity)
+    assert time.monotonic is original_clock
+
+
+def test_cleanup_accepts_observed_child_disappearance(monkeypatch):
+    def disappeared(_):
+        raise FileNotFoundError
+
+    monkeypatch.setattr(reading, "read_identity", disappeared)
+    assert reading.require_child_exit({"als_pid": 42, "als_start_ticks": 100}) == {
+        "als_pid": 42,
+        "observed_child_exited": True,
+    }
 
 
 def test_failed_live_oracle_retains_result_summary_and_closes_session(tmp_path, monkeypatch):

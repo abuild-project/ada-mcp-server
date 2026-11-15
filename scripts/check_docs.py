@@ -11,6 +11,14 @@ from pathlib import Path
 from version import ROOT, project_version
 
 
+def check_change_record_index(root: Path) -> None:
+    """Require the maintained record index to be sorted by displayed title."""
+    text = (root / "doc/change-records/README.md").read_text()
+    titles = [title.casefold() for title in re.findall(r"^- \[([^\]]+)\]\([^)]+\)$", text, re.M)]
+    if titles != sorted(titles):
+        raise ValueError("change-record index must be sorted by title")
+
+
 def check_documents(root: Path = ROOT) -> None:
     """Validate maintained docs without rewriting historical import records."""
     paths = [root / "README.md", root / "AGENTS.md", root / "CHANGELOG.md", root / "ROADMAP.md"]
@@ -28,6 +36,7 @@ def check_documents(root: Path = ROOT) -> None:
                 json.loads(content)
             elif language in {"bash", "sh"}:
                 subprocess.run(["bash", "-n"], input=content, text=True, check=True)
+    check_change_record_index(root)
     project = tomllib.loads((root / "pyproject.toml").read_text())
     if not all(
         "abuild-project/ada-mcp-server" in url for url in project["project"]["urls"].values()
@@ -43,4 +52,4 @@ def check_documents(root: Path = ROOT) -> None:
 
 if __name__ == "__main__":
     check_documents()
-    print("Maintained links, examples and version references passed.")
+    print("Maintained links, examples, index order and version references passed.")

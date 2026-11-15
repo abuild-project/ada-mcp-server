@@ -258,6 +258,7 @@ def run_control(output: Path) -> JSON:
             },
         )
         identity = process_state(session, output / "mcp/server-stderr.log")
+        report["initial_process"] = identity
         require_project(project_result, root)
         require_location(
             call("ada_goto_definition", {"file": str(main), "line": 6, "column": 15}),
@@ -344,10 +345,10 @@ def run_control(output: Path) -> JSON:
                 expect_errors=False,
             )
             observed = process_state(session, output / "mcp/server-stderr.log")
+            state_record["process"] = observed
             if identity is not None and observed != identity:
                 raise AssertionError("MCP/ALS identities changed after source mutation")
             identity = observed
-            state_record["process"] = observed
         for tool in (
             "ada_goto_definition",
             "ada_implementation",
