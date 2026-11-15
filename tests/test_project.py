@@ -1,7 +1,7 @@
 """Unit tests for Phase 3: Project Intelligence tools."""
 
 from pathlib import Path
-from unittest.mock import AsyncMock, call
+from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest
 
@@ -34,6 +34,8 @@ def mock_als_client():
     """Create a mock ALS client."""
     client = AsyncMock()
     client.send_request = AsyncMock()
+    client.is_new_project_source = MagicMock(return_value=False)
+    client.is_known_project_source = MagicMock(return_value=False)
     return client
 
 

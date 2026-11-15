@@ -330,7 +330,9 @@ async def handle_code_actions(
                 # Check if it has a command
                 if "command" in action:
                     cmd = action["command"]
-                    action_info["command"] = cmd.get("title", cmd.get("command", ""))
+                    action_info["command"] = (
+                        cmd if isinstance(cmd, str) else cmd.get("title", cmd.get("command", ""))
+                    )
 
                 actions.append(action_info)
 
@@ -462,7 +464,7 @@ async def handle_rename_symbol(
                         "line": line_num,
                         "column": col_num,
                         "old_text": old_text,
-                        "new_text": new_name,
+                        "new_text": edit["newText"],
                     }
                 )
 
@@ -480,7 +482,7 @@ async def handle_rename_symbol(
                             "line": line_num,
                             "column": col_num,
                             "old_text": old_text,
-                            "new_text": new_name,
+                            "new_text": edit["newText"],
                         }
                     )
 
