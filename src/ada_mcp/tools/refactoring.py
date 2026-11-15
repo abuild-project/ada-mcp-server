@@ -244,11 +244,30 @@ async def handle_signature_help(
             }
         )
 
+    active_signature = result.get("activeSignature", 0)
+    selected_index = active_signature
+    if type(selected_index) is not int or not 0 <= selected_index < len(signatures):
+        selected_index = 0
+    if type(active_signature) is int and active_signature >= len(signatures):
+        active_signature = 0
+
+    selected = result["signatures"][selected_index]
+    active_parameter = selected.get("activeParameter", result.get("activeParameter", 0))
+    parameters = selected.get("parameters", [])
+    if (
+        "activeParameter" not in selected
+        and type(active_parameter) is int
+        and active_parameter >= 0
+        and parameters
+        and active_parameter >= len(parameters)
+    ):
+        active_parameter = 0
+
     return {
         "found": True,
         "signatures": signatures,
-        "active_signature": result.get("activeSignature", 0),
-        "active_parameter": result.get("activeParameter", 0),
+        "active_signature": active_signature,
+        "active_parameter": active_parameter,
     }
 
 
@@ -330,7 +349,9 @@ async def handle_code_actions(
                 # Check if it has a command
                 if "command" in action:
                     cmd = action["command"]
-                    action_info["command"] = cmd.get("title", cmd.get("command", ""))
+                    action_info["command"] = (
+                        cmd if isinstance(cmd, str) else cmd.get("title", cmd.get("command", ""))
+                    )
 
                 actions.append(action_info)
 
@@ -462,7 +483,7 @@ async def handle_rename_symbol(
                         "line": line_num,
                         "column": col_num,
                         "old_text": old_text,
-                        "new_text": new_name,
+                        "new_text": edit["newText"],
                     }
                 )
 
@@ -480,7 +501,7 @@ async def handle_rename_symbol(
                             "line": line_num,
                             "column": col_num,
                             "old_text": old_text,
-                            "new_text": new_name,
+                            "new_text": edit["newText"],
                         }
                     )
 
