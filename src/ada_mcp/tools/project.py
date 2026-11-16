@@ -247,8 +247,20 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     for ada_file in ada_files:
         content = _mask_ada_noncode(ada_file.read_text())
 
-        # Extract package or procedure name from this file
-        pkg_match = re.search(pkg_pattern, content, re.IGNORECASE)
+        # Generic formals and access profiles are not compilation units.
+        # Masking preserves whitespace across comments and line breaks.
+        pkg_match = next(
+            (
+                match
+                for match in re.finditer(pkg_pattern, content, re.IGNORECASE)
+                if not re.search(
+                    r"\b(?:with|access(?:\s+protected)?)\s*$",
+                    content[: match.start()],
+                    re.IGNORECASE,
+                )
+            ),
+            None,
+        )
         if not pkg_match:
             continue
 

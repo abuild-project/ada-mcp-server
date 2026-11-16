@@ -10,7 +10,10 @@ import asyncio
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -365,6 +368,81 @@ async def run_integration_tests() -> bool:
             )
         else:
             test_result("ada_diagnostics", False, str(result.get("error")))
+
+        # Compile and query a fresh generic fixture without changing old views.
+        print("\n[9a] Checking generic unit dependency ownership...")
+        with tempfile.TemporaryDirectory(prefix="ada-mcp-generic-") as temporary:
+            owned = Path(temporary) / "generic_project"
+            shutil.copytree(project_root / "tests" / "fixtures" / "generic_project", owned)
+
+            def input_hashes():
+                return {
+                    str(path.relative_to(owned)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in owned.rglob("*")
+                    if path.is_file() and path.relative_to(owned).parts[0] not in {"obj", "bin"}
+                }
+
+            before_generic = input_hashes()
+            source = owned / "src" / "generic_probe.ads"
+            command = [
+                "gprbuild",
+                "-P",
+                str(owned / "generic.gpr"),
+                "-p",
+                "-c",
+                "-u",
+                "generic_probe.ads",
+            ]
+            try:
+                result = await call_tool(client, "ada_dependency_graph", {"file": str(source)})
+                test_result(
+                    "Generic unit owns exact context imports",
+                    result
+                    == {
+                        "dependencies": [
+                            {
+                                "package": "Generic_Probe",
+                                "file": str(source),
+                                "depends_on": ["Ada.Text_IO", "Generic_Seed"],
+                            }
+                        ],
+                        "package_count": 1,
+                    },
+                    json.dumps(result),
+                )
+                compiled = await asyncio.to_thread(
+                    subprocess.run,
+                    command,
+                    cwd=owned,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    timeout=60,
+                    check=False,
+                )
+                artifact = owned / "obj" / "generic_probe.ali"
+                print(
+                    json.dumps(
+                        {
+                            "command": command,
+                            "exit_code": compiled.returncode,
+                            "output": compiled.stdout.decode("utf-8", errors="replace"),
+                            "input_sha256": before_generic,
+                            "artifact_sha256": (
+                                hashlib.sha256(artifact.read_bytes()).hexdigest()
+                                if artifact.is_file()
+                                else None
+                            ),
+                        }
+                    )
+                )
+                test_result(
+                    "Generic fixture compiles and produces ALI",
+                    compiled.returncode == 0 and artifact.is_file(),
+                )
+            finally:
+                test_result(
+                    "Generic inputs unchanged; outputs confined", input_hashes() == before_generic
+                )
 
     except Exception as e:
         print(f"\n    ✗ Test error: {e}")
