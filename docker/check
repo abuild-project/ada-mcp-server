@@ -38,6 +38,7 @@ docker run --rm --platform linux/amd64 --network none --read-only \
     --env "ADA_MCP_CHECK_SOURCE_SHA=$source_sha" \
     --env "ADA_MCP_CHECK_IMAGE_TARGET=$resolved_image" \
     --env ADA_MCP_CHECK_IMAGE_PLATFORM=linux/amd64 \
+    --env ADA_MCP_REQUIRE_PERMISSION_TESTS=1 \
     --tmpfs /tmp:rw,nosuid,nodev,noexec \
     --tmpfs "/ci-work:rw,nosuid,nodev,exec,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \
     --tmpfs "/home/ada-mcp:rw,nosuid,nodev,uid=$runtime_uid,gid=$runtime_gid,mode=0700" \

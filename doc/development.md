@@ -129,6 +129,17 @@ python3 -m venv .venv
 .venv/bin/python -m pytest tests/test_als_pool.py -q
 ```
 
+Local pytest runs as root explicitly skip the six mode-000 permission-denial
+cases in tests/host/test_additional_inspection.py. This is a development
+convenience, not permission or native acceptance. Use a real nonroot account
+to exercise those assertions. Set ADA_MCP_REQUIRE_PERMISSION_TESTS=1 when
+these checks are mandatory: root then fails setup instead of skipping.
+docker/check sets that flag explicitly and retains its real nonroot UID/GID
+guard, so the complete container chain cannot silently skip this proof.
+The Docker-sentinel source-guard test uses an owned identity stub only for
+its mocked CLI path; actual permission tests and native checks use real
+identities.
+
 These host checks are labeled as development evidence; they do not replace the
 container chain. Update input requirements and regenerate the hash lock
 deliberately. Python package notices and exact Debian/ALS versions are retained

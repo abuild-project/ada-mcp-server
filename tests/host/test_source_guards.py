@@ -181,11 +181,35 @@ elif sys.argv[1] != 'run': raise SystemExit('unexpected Docker call')
     result = subprocess.run(command, env=environment, capture_output=True, text=True)
     assert result.returncode == 2 and "prior evidence" in result.stderr
     assert not calls.exists() and evidence.read_bytes() == b"original frozen evidence"
+    # Only the Docker sentinel path uses this owned identity stub.
+    identity = binary / "id"
+    identity.write_text("""#!/bin/sh
+case "$1" in
+    -u|-g) printf '%s' 1000 ;;
+    *) exit 2 ;;
+esac
+""")
+    identity.chmod(0o755)
     new = repository / "build/another-check"
     subprocess.run(command + ["--output", str(new)], env=environment, check=True)
     before = calls.read_bytes()
     assert b"ADA_MCP_CHECK_IMAGE_TARGET=sha256:" + b"a" * 64 in before
     assert b"ADA_MCP_CHECK_IMAGE_PLATFORM=linux/amd64" in before
+    assert b"ADA_MCP_REQUIRE_PERMISSION_TESTS=1" in before
     assert new.is_dir() and evidence.read_bytes() == b"original frozen evidence"
     result = subprocess.run(command + ["--output", str(new)], env=environment, capture_output=True)
     assert result.returncode == 2 and calls.read_bytes() == before
+
+    identity.write_text("""#!/bin/sh
+case "$1" in
+    -u) printf '%s' 0 ;;
+    -g) printf '%s' 1000 ;;
+    *) exit 2 ;;
+esac
+""")
+    rejected = repository / "build/root-check"
+    result = subprocess.run(
+        command + ["--output", str(rejected)], env=environment, capture_output=True
+    )
+    assert result.returncode == 2 and calls.read_bytes() == before
+    assert not rejected.exists() and evidence.read_bytes() == b"original frozen evidence"
