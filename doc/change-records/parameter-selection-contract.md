@@ -30,11 +30,25 @@ remain raw and simultaneous diagnostics are absent. Existing cases cover
 raw types, selected-signature precedence, unused malformed fields and the
 unsigned-domain boundary. The actual server-dispatch check requires both
 independent diagnostics and exact raw Boolean/null types in the JSON payload.
-Focused development checks pass 298 affected handler, dispatch and existing
-native-oracle control tests, Ruff/format, strict Mypy and documentation
-validation. These reused-image checks do not establish native acceptance;
-complete exact-source container validation and independent review remain
-required.
+
+At implementation revision `1f0621446d95abc63d1875d559c9b797f4efc7de`,
+the tester's fresh detached worktree passed the complete docker/build and
+docker/check chain using its exact committed-source AMD64 Trixie/GNAT 14/
+pinned-ALS image. All 1,289 selected unit tests passed, with one integration
+case deselected and no skips. Ruff/format, strict Mypy, distributions,
+Twine, documentation and completed-check provenance passed. Actual ALS/MCP
+probes, diagnostics, reading and additional-tool controls completed with
+source guards, stable observed process identities and cleanup. The additional
+control retains exactly three positional cases as unaccepted, with
+semantic_acceptance=false and their unchanged native defect descriptors.
+
+Six independently run contract controls also passed, including the original
+counterexample, actual MCP serialization of both diagnostics with exact raw
+types, unused malformed fields, valid per-signature out-of-list selection
+and the negative empty reply. Those supplied-ALS-reply controls establish
+public conversion and serialization behavior; they do not establish native
+acceptance of malformed values. The complete native chain remains distinct
+from these controls and adds no new host/artifact-identity or macOS evidence.
 
 The native oracle continues to reject every malformed raw field, including
 unused fields, before defaults or classification. Safe public fallback does

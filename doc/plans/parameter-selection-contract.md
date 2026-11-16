@@ -55,3 +55,32 @@ Host or reused-image checks are development evidence. Complete exact-source
 container validation, fresh detached testing and independent review remain
 required. Only the assigned developer edits candidates; no external writes,
 publication, merge or release are part of this implementation work.
+
+## 2026-11-16: Completed implementation validation
+
+Decision: record the completed implementation checks at revision
+`1f0621446d95abc63d1875d559c9b797f4efc7de`. The tester used a fresh
+detached worktree and the exact-source image target
+`sha256:74e6e600020996ac860f907e72575ed3b923caf1d933422c66c86215f4e1f1d8`.
+The committed source archive has SHA256
+`a51e9e486985dbaffb54840ad4ebc4864c81301250781b97f1abcd4c1ef39f03`.
+The complete docker/build and docker/check chain passed: 1,289 selected
+unit tests, one integration deselection, no skips, Ruff/format, strict
+Mypy, distributions/Twine, documentation, completed-check provenance and
+the real pinned-ALS/MCP probes. Reading and diagnostic controls passed;
+additional controls retained exactly the three known unaccepted positional
+cases with semantic_acceptance=false, unchanged native defect descriptors,
+complete raw traces, source guards, stable process births and cleanup.
+
+Decision: retain the original base counterexample and the tester's six
+independent contract controls, including actual MCP serialization of both
+diagnostics, exact raw types and unchanged native-oracle rejection of
+malformed fields. These supplied-ALS-reply controls establish conversion
+behavior, separately from the real native chain. No malformed native value
+gains semantic acceptance, and no new host/artifact-identity or macOS proof
+is claimed. Earlier plans, records, refs and primary evidence remain intact.
+
+Decision: complete the record using this identified tested revision.
+The documentation-only completion still requires exact-head validation
+and independent review before the coordinator's PR handoff. Do not claim
+that future validation has already passed; stop before merge or release.
