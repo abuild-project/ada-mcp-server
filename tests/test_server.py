@@ -71,6 +71,41 @@ async def test_call_tool_goto_definition():
 
 
 @pytest.mark.asyncio
+async def test_signature_help_serializes_malformed_selection_diagnostic(tmp_path):
+    """The real handler's effective index and exact raw Boolean reach the MCP payload."""
+    from ada_mcp.server import call_tool
+
+    source = tmp_path / "main.adb"
+    source.write_text("procedure Main is begin null; end Main;\n")
+    client = AsyncMock()
+    client.send_request.return_value = {
+        "signatures": [
+            {"label": "First", "parameters": [{"label": "Only"}], "activeParameter": 0},
+            {"label": "Second", "parameters": [{"label": "Other"}], "activeParameter": 0},
+        ],
+        "activeSignature": True,
+    }
+    with (
+        patch("ada_mcp.server.get_als_client", new_callable=AsyncMock, return_value=client),
+        patch("ada_mcp.tools.refactoring._ensure_file_open", new_callable=AsyncMock),
+    ):
+        response = await call_tool(
+            "ada_signature_help", {"file": str(source), "line": 1, "column": 1}
+        )
+
+    assert len(response) == 1 and response[0].type == "text"
+    result = json.loads(response[0].text)
+    assert result["found"] is True and type(result["active_signature"]) is int
+    assert result["active_signature"] == result["active_parameter"] == 0
+    assert result["selection_diagnostic"] == {
+        "reason": "malformed-active-signature",
+        "raw_active_signature": True,
+        "fallback": "first-signature",
+    }
+    assert result["selection_diagnostic"]["raw_active_signature"] is True
+
+
+@pytest.mark.asyncio
 async def test_project_load_failure_discards_cached_client():
     """A failed project view must not remain cached after the request."""
     from ada_mcp.server import call_tool

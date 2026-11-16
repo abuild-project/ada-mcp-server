@@ -47,11 +47,17 @@ exception. General signature conversion uses the selected signature's
 `activeParameter` when present, including zero, before the top-level/default
 fallback. Valid differing native fields can pass through normal effective
 selection. Documented valid out-of-range signature/top-level indices use
-zero; malformed raw indices remain diagnostic evidence, and per-signature
-out-of-range selection is not silently clamped or accepted. The raw integer
-domain is 0..2147483647, excluding booleans. Validate top-level and all
-per-signature fields, including unused signatures and missing/empty parameter
-lists, before precedence or defaults. An invalid unused top-level field
+zero. Public `active_signature` is the effective selected index. A present
+malformed native `activeSignature` selects zero and adds `selection_diagnostic`
+with reason `malformed-active-signature`, the exact `raw_active_signature` and
+fallback `first-signature`. Missing and valid out-of-range indices add no
+diagnostic; empty replies keep the existing negative shape. Malformed parameter
+indices retain their existing public evidence. Malformed raw indices remain
+unaccepted, and per-signature out-of-range selection is not silently clamped
+or accepted. The raw integer domain is 0..2147483647, excluding booleans.
+Validate top-level and all per-signature fields, including unused signatures
+and missing/empty parameter lists, before precedence or defaults. An invalid
+unused top-level field
 cannot replace a valid per-signature selection or gain acceptance. The oracle
 independently checks that effective selection and unchanged request/cursor,
 without importing the production conversion helper. A correct effective native

@@ -172,7 +172,9 @@ async def test_signature_help_uses_selected_signature_parameter(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("response", [None, {"signatures": []}])
+@pytest.mark.parametrize(
+    "response", [None, {"signatures": []}, {"signatures": [], "activeSignature": -1}]
+)
 async def test_signature_help_without_signatures_remains_negative(tmp_path, response):
     """An empty native signature reply preserves the existing explicit negative."""
     source = tmp_path / "main.adb"
@@ -192,16 +194,20 @@ async def test_signature_help_without_signatures_remains_negative(tmp_path, resp
 @pytest.mark.asyncio
 @pytest.mark.parametrize("field", ["selected", "top", "per"])
 @pytest.mark.parametrize("value", [None, False, True, "1", 1.0, -1])
-async def test_signature_help_preserves_malformed_native_values_for_diagnosis(
+async def test_signature_help_labels_malformed_selection_and_preserves_parameter_evidence(
     tmp_path, field, value
 ):
-    """Malformed native indices remain visible rather than becoming valid defaults."""
+    """Selection is effective; malformed raw indices remain labeled diagnostic evidence."""
     source = tmp_path / "main.adb"
     source.write_text("procedure Main is begin null; end Main;\n")
     native = {
         "signatures": [
-            {"label": "First", "parameters": [{"label": "Left"}], "activeParameter": 0},
-            {"label": "Second", "parameters": [{"label": "Right"}], "activeParameter": 1},
+            {
+                "label": "First",
+                "parameters": [{"label": "Left"}, {"label": "Right"}],
+                "activeParameter": 1,
+            },
+            {"label": "Second", "parameters": [{"label": "Only"}], "activeParameter": 0},
         ],
         "activeSignature": 0,
         "activeParameter": 0,
@@ -217,10 +223,38 @@ async def test_signature_help_preserves_malformed_native_values_for_diagnosis(
     client.send_request.return_value = native
     with patch("ada_mcp.tools.refactoring._ensure_file_open", new_callable=AsyncMock):
         result = await handle_signature_help(client, str(source), 1, 11)
-    observed = result["active_signature" if field == "selected" else "active_parameter"]
-    assert type(observed) is type(value) and observed == value
     if field == "selected":
-        assert result["active_parameter"] == 0
+        assert result == {
+            "found": True,
+            "signatures": [
+                {
+                    "label": "First",
+                    "documentation": "",
+                    "parameters": [
+                        {"label": "Left", "documentation": ""},
+                        {"label": "Right", "documentation": ""},
+                    ],
+                },
+                {
+                    "label": "Second",
+                    "documentation": "",
+                    "parameters": [{"label": "Only", "documentation": ""}],
+                },
+            ],
+            "active_signature": 0,
+            "active_parameter": 1,
+            "selection_diagnostic": {
+                "reason": "malformed-active-signature",
+                "raw_active_signature": value,
+                "fallback": "first-signature",
+            },
+        }
+        assert type(result["active_signature"]) is int
+        assert type(result["selection_diagnostic"]["raw_active_signature"]) is type(value)
+    else:
+        assert type(result["active_parameter"]) is type(value)
+        assert result["active_parameter"] == value
+        assert "selection_diagnostic" not in result
 
 
 @pytest.mark.asyncio
@@ -229,8 +263,8 @@ async def test_signature_help_preserves_malformed_native_values_for_diagnosis(
     [
         ("active", 0, 0),
         ("active", 2147483647, 0),
-        ("active", 2147483648, 2147483648),
-        ("active", False, False),
+        ("active", 2147483648, 0),
+        ("active", False, 0),
         ("top-fallback", 0, 0),
         ("top-fallback", 2147483647, 0),
         ("top-fallback", 2147483648, 2147483648),
@@ -263,8 +297,10 @@ async def test_signature_help_preserves_malformed_native_values_for_diagnosis(
         "per-bool",
     ],
 )
-async def test_signature_help_normalizes_only_valid_lsp_uintegers(tmp_path, kind, raw, expected):
-    """MAX uses documented defaults; MAX+1 stays raw and never defeats per precedence."""
+async def test_signature_help_selection_and_parameter_domain_boundaries(
+    tmp_path, kind, raw, expected
+):
+    """Malformed selections are labeled; parameter policies retain their raw evidence."""
     source = tmp_path / "main.adb"
     source.write_text("procedure Main is begin null; end Main;\n")
     native = {
@@ -293,3 +329,12 @@ async def test_signature_help_normalizes_only_valid_lsp_uintegers(tmp_path, kind
         result = await handle_signature_help(client, str(source), 1, 11)
     actual = result["active_signature" if kind == "active" else "active_parameter"]
     assert type(actual) is type(expected) and actual == expected
+    if kind == "active" and (type(raw) is not int or raw > 2147483647):
+        assert result["selection_diagnostic"] == {
+            "reason": "malformed-active-signature",
+            "raw_active_signature": raw,
+            "fallback": "first-signature",
+        }
+        assert type(result["selection_diagnostic"]["raw_active_signature"]) is type(raw)
+    else:
+        assert "selection_diagnostic" not in result
