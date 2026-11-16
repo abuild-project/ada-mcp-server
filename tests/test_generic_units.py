@@ -1,9 +1,11 @@
 """Generic formals do not own the compilation unit's context imports."""
 
+import re
 from pathlib import Path
 
 import pytest
 
+from ada_mcp.tools import project as project_tools
 from ada_mcp.tools.project import handle_dependency_graph
 
 
@@ -71,3 +73,36 @@ async def test_generic_fixture_file_and_directory_owners():
         "package_count": 2,
     }
     assert {path: path.read_bytes() for path in before} == before
+
+
+@pytest.mark.asyncio
+async def test_generated_formals_do_not_rescan_growing_prefixes(tmp_path, monkeypatch):
+    """Bound regex input for one generated generic, without a timing threshold."""
+    source_text = (
+        "with Ada.Text_IO;\ngeneric\n"
+        + "".join(f"   with function Formal_{index} return Boolean;\n" for index in range(128))
+        + "package Owner is end Owner;\n"
+    )
+    source = tmp_path / "owner.ads"
+    source.write_text(source_text)
+    inspected_lengths = []
+
+    class MeasuredRegex:
+        def __getattr__(self, name):
+            operation = getattr(re, name)
+            if name not in {"finditer", "search", "findall"}:
+                return operation
+
+            def measured(pattern, text, *args, **kwargs):
+                inspected_lengths.append(len(text))
+                return operation(pattern, text, *args, **kwargs)
+
+            return measured
+
+    monkeypatch.setattr(project_tools, "re", MeasuredRegex())
+    assert await handle_dependency_graph(str(source)) == {
+        "dependencies": [{"package": "Owner", "file": str(source), "depends_on": ["Ada.Text_IO"]}],
+        "package_count": 1,
+    }
+    assert source.read_text() == source_text
+    assert sum(inspected_lengths) <= 4 * len(source_text), inspected_lengths

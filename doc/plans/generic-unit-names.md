@@ -49,3 +49,21 @@ commit on the original base in a fresh validation worktree. The coordinator
 retains the canonical ref until acceptance and runs the full exact-source
 managed chain. The package remains at local 1/3 and PR 0/3; prior topics and
 counters do not reset. Developer external writes remain unauthorized.
+
+## 2026-11-16: Forward unit selection
+
+Decision: PR correction 1/3 replaces repeated growing-prefix copies/searches
+with one forward declaration scan that captures optional non-unit
+introducers. Preserve complete keywords, `with` and `access [protected]`
+exclusions, masking, ordinary imports, exact owners, paths and response
+shape. Add one generated-formals regression with a deterministic inspected
+regex-input budget; no timing threshold, broad performance claim or new
+grammar matrix is warranted.
+
+Decision: preserve the published parent
+`8c0997ab1444c51f62b999d12c901f20955912fa`, all earlier refs and evidence.
+Use a fresh worktree and one append commit, with focused host quality,
+typing, docs and regression checks before the required actual-head managed
+chain and independent roles. The local phase remains closed at 1/3; this
+separate PR phase is at 1/3. No history rewrite, external developer write,
+native host check, harness/fixture expansion or unrelated change is allowed.
