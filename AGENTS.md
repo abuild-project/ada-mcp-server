@@ -77,7 +77,8 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   attribution. Keep ticket identifiers out of these texts.
 - Write records around the final problem, behavior, scope, validation at an
   identified revision and remaining limits. Size records to the change: a
-  few-line fix needs about 100–250 words. Link detailed mechanics in
+  few-line fix needs about 100–250 words. For substantial changes, use
+  300–700 words as guidance. Link detailed mechanics in
   assessments/development docs; place durable history in the dated plan and
   operational attempts in logs. Omit chronological test counts and review-round
   narratives.
