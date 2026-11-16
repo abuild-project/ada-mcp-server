@@ -38,9 +38,11 @@ The [additional-tool regression assessment](assessments/additional-tool-capabili
 adds bounded internal evidence without expanding this support matrix. Three
 positional active-parameter results from the pinned ALS remain incorrect and
 explicitly unaccepted; named-argument checks do not hide them. Native rename
-application also remains an inherited gap: `preview=false` reports application
-without writing sources. The shipped client continues to require explicit
-rename preview and deny build/formatting calls. Owned compiler, formatting
+application is unsupported: `preview=false` returns an explicit failure with
+no changes and `applied=false` before rename synchronization or native rename
+requests. The shared server connection may already be initialized. The shipped
+client continues to require explicit rename preview and deny build/formatting
+calls. Owned compiler, formatting
 and manifest probes do not establish a consumer editing or Alire workflow.
 
 A supplied managed Cloud batch of 15 concrete requests and results was

@@ -401,11 +401,22 @@ async def handle_rename_symbol(
         line: Line number (1-based)
         column: Column number (1-based)
         new_name: New name for the symbol
-        preview: If True, only return changes without applying
+        preview: Return proposed edits (default True); False rejects unsupported application
 
     Returns:
-        Dictionary with rename changes
+        Dictionary with preview edits or an explicit unsupported-application failure
     """
+    if not preview:
+        return {
+            "success": False,
+            "error": (
+                "Rename application is not supported; use preview=true to inspect proposed changes."
+            ),
+            "changes": [],
+            "total_changes": 0,
+            "applied": False,
+        }
+
     # Validate new name
     if not _is_valid_ada_identifier(new_name):
         return {
@@ -453,7 +464,7 @@ async def handle_rename_symbol(
             "total_changes": 0,
         }
 
-    # Perform the rename
+    # Request rename edits without applying them
     result = await als_client.send_request(
         "textDocument/rename",
         {
@@ -519,7 +530,7 @@ async def handle_rename_symbol(
         "changes": changes,
         "total_changes": len(changes),
         "files_affected": files_affected,
-        "applied": not preview,
+        "applied": False,
     }
 
 

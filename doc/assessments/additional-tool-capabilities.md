@@ -12,7 +12,7 @@ requests/replies, MCP results, source states, hashes and process cleanup.
 | Completions | Exact controlled qualified members, signatures and insertions, limit and comment cases, renamed members | Native completeness is distinct from the tool's requested result limit |
 | Signature help | Exact declaration/formal order, named association selection, changed types/arity and comment case | Three native positional selections remain blocked below |
 | Code actions | Known named-parameter proposal and exact summary/native command arguments, trigger removal and comment cases | Discovery only; summary API omits native edits/command arguments and executes none |
-| Rename preview | Exact local and three-file edit sets, changed locations/counts, invalid/comment negatives | Explicit preview only; native application remains unimplemented |
+| Rename preview | Exact local and three-file edit sets, changed locations/counts, invalid/comment negatives | Preview/default returns proposals; application is unsupported and preview=false is rejected |
 | Formatting | Bounded nonoverlapping edits reconstruct fixed formatted bytes; already-formatted native null | Returns edits; explicit writes occur only in the fresh test fixture |
 | Spec selection | Exact body-to-declaration target, separate sibling fallback and no-sibling negative | File fallback is a 1:1 file-level result, not semantic navigation |
 | Build | Real owned GPRbuild success/executable and deliberate source-bound compiler errors | Outputs confined to explicitly owned obj/bin; no consumer build support promotion |
@@ -63,10 +63,13 @@ case retains its correct expectation and wrong observation with
 not repair ALS or accept positional selection. Named association checks
 provide separate evidence while preserving the positional limitation.
 
-## Native application gap
+## Native application
 
-The initial observation also reproduced `ada_rename_symbol preview=false`
-returning `applied=true` with unchanged source hashes. The inherited handler
-constructs preview data and sets that Boolean without applying edits. This
-work implements no writer. The shipped read-only client still rejects false,
-absent and nonboolean preview values, as well as formatting and build calls.
+`ada_rename_symbol preview=false` returns an explicit unsupported-application
+failure with no proposed changes and `applied=false`. The rename handler
+rejects that mode before source synchronization or native prepare/rename
+requests; the server's shared ALS connection setup is unchanged. Preview
+and the handler's default return native proposals without applying them.
+No writer is implemented. The shipped read-only client continues to require
+explicit preview=true and rejects false, absent and nonboolean preview values,
+as well as formatting and build calls.

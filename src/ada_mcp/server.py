@@ -790,7 +790,9 @@ async def list_tools() -> list[Tool]:
         # Phase 5: Refactoring
         Tool(
             name="ada_rename_symbol",
-            description="Rename an Ada symbol across the entire project",
+            description=(
+                "Preview an Ada symbol rename across the project; application is not supported"
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -812,7 +814,10 @@ async def list_tools() -> list[Tool]:
                     },
                     "preview": {
                         "type": "boolean",
-                        "description": "If true, only return changes without applying",
+                        "description": (
+                            "Only preview=true is supported; false returns "
+                            "an unsupported application error"
+                        ),
                         "default": True,
                     },
                 },

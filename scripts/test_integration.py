@@ -3,10 +3,11 @@
 Integration test for Ada MCP Server with real ALS.
 
 This test starts the MCP server with ALS_PATH configured, uses the
-sample Ada project, and tests all tools with real ALS responses.
+sample Ada project, and checks selected tools and unsupported rename application.
 """
 
 import asyncio
+import hashlib
 import json
 import os
 import sys
@@ -217,6 +218,50 @@ async def run_integration_tests() -> bool:
                 has_contents or result.get("found") is not None,
                 f"found={result.get('found')}",
             )
+
+        # Reject unsupported application on the existing initialized project.
+        print("\n[4a] Rejecting unsupported rename application...")
+        rename_inputs = (
+            sample_project / "sample.gpr",
+            test_file,
+            utils_file,
+            sample_project / "src" / "utils.adb",
+        )
+        before_rename = {
+            path: hashlib.sha256(path.read_bytes()).hexdigest() for path in rename_inputs
+        }
+        try:
+            result = await call_tool(
+                client,
+                "ada_rename_symbol",
+                {
+                    "file": str(test_file),
+                    "line": 4,
+                    "column": 12,
+                    "new_name": "Renamed_Main",
+                    "preview": False,
+                },
+            )
+        finally:
+            after_rename = {
+                path: hashlib.sha256(path.read_bytes()).hexdigest() for path in rename_inputs
+            }
+            test_result("Rename fixture inputs unchanged", before_rename == after_rename)
+        test_result(
+            "Rename application explicitly unsupported",
+            result
+            == {
+                "success": False,
+                "error": (
+                    "Rename application is not supported; "
+                    "use preview=true to inspect proposed changes."
+                ),
+                "changes": [],
+                "total_changes": 0,
+                "applied": False,
+            },
+            json.dumps(result),
+        )
 
         # Test goto_definition
         print("\n[5] Testing ada_goto_definition...")
