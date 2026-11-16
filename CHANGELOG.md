@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Return integer zero for a malformed selected native parameter index and
+  preserve its exact raw value and source in `parameter_selection_diagnostic`.
+  Keep any simultaneous signature-selection diagnostic independently.
 - Return the effective signature index used for parameter selection. A malformed
   native `activeSignature` selects the first signature and preserves its exact
   raw value in a conditional `selection_diagnostic` field.

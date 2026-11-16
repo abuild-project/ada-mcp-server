@@ -9,6 +9,7 @@
 - [Generic unit dependency names](generic-unit-names.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
+- [Parameter selection result contract](parameter-selection-contract.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)
 - [Permission-test identity preconditions](permission-test-ergonomics.md)
 - [Pilot prerelease preparation](release-0-2-0-rc-1.md)

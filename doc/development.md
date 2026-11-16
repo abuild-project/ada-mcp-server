@@ -95,8 +95,19 @@ indices and a per-signature out-of-range index remain unaccepted. Public
 For nonempty replies, a present malformed native `activeSignature` selects zero
 and adds `selection_diagnostic` with reason `malformed-active-signature`, the
 exact `raw_active_signature` and fallback `first-signature`. Missing and valid
-out-of-range indices produce no diagnostic. Empty replies retain the negative
-shape, and parameter-index policies are unchanged. Validate every raw index,
+out-of-range indices produce no diagnostic. A malformed parameter index
+actually selected by the existing presence-based precedence also reports
+integer zero, with a separate `parameter_selection_diagnostic`: reason
+`malformed-active-parameter`, exact `raw_active_parameter`, source
+`selected-signature` or `top-level`, and fallback `zero`. Both diagnostics
+can coexist. Missing, domain-valid out-of-range and unused malformed parameter
+fields add no parameter diagnostic. Explicit null is malformed; a present
+malformed selected-signature parameter still overrides the top-level value.
+Domain-valid selected-signature out-of-range values and empty/missing-list
+defaults remain unchanged. Empty replies retain the negative shape.
+The [parameter contract plan](plans/parameter-selection-contract.md) bounds
+this public fallback; it does not establish native acceptance.
+Validate every raw index,
 including unused fields, against LSP's 0..2147483647 integer domain before
 precedence or defaults; MAX is valid and MAX+1 remains malformed. It retains expected-correct
 and observed-wrong values with `accepted=false`, `semantic_acceptance=false`
