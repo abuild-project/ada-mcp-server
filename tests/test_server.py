@@ -72,7 +72,7 @@ async def test_call_tool_goto_definition():
 
 @pytest.mark.asyncio
 async def test_signature_help_serializes_malformed_selection_diagnostic(tmp_path):
-    """The real handler's effective index and exact raw Boolean reach the MCP payload."""
+    """Independent selection diagnostics and exact raw types reach the MCP payload."""
     from ada_mcp.server import call_tool
 
     source = tmp_path / "main.adb"
@@ -80,10 +80,11 @@ async def test_signature_help_serializes_malformed_selection_diagnostic(tmp_path
     client = AsyncMock()
     client.send_request.return_value = {
         "signatures": [
-            {"label": "First", "parameters": [{"label": "Only"}], "activeParameter": 0},
+            {"label": "First", "parameters": [{"label": "Only"}], "activeParameter": None},
             {"label": "Second", "parameters": [{"label": "Other"}], "activeParameter": 0},
         ],
         "activeSignature": True,
+        "activeParameter": 1,
     }
     with (
         patch("ada_mcp.server.get_als_client", new_callable=AsyncMock, return_value=client),
@@ -103,6 +104,14 @@ async def test_signature_help_serializes_malformed_selection_diagnostic(tmp_path
         "fallback": "first-signature",
     }
     assert result["selection_diagnostic"]["raw_active_signature"] is True
+    assert type(result["active_parameter"]) is int
+    assert result["parameter_selection_diagnostic"] == {
+        "reason": "malformed-active-parameter",
+        "raw_active_parameter": None,
+        "source": "selected-signature",
+        "fallback": "zero",
+    }
+    assert result["parameter_selection_diagnostic"]["raw_active_parameter"] is None
 
 
 @pytest.mark.asyncio

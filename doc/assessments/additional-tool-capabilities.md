@@ -51,8 +51,16 @@ zero. Public `active_signature` is the effective selected index. A present
 malformed native `activeSignature` selects zero and adds `selection_diagnostic`
 with reason `malformed-active-signature`, the exact `raw_active_signature` and
 fallback `first-signature`. Missing and valid out-of-range indices add no
-diagnostic; empty replies keep the existing negative shape. Malformed parameter
-indices retain their existing public evidence. Malformed raw indices remain
+diagnostic; empty replies keep the existing negative shape. A malformed
+parameter index actually selected by presence-based precedence reports integer
+zero plus `parameter_selection_diagnostic`, with reason
+`malformed-active-parameter`, exact `raw_active_parameter`, source
+`selected-signature` or `top-level`, and fallback `zero`. Both diagnostics
+remain independent. Missing values and unused malformed fields add no parameter
+diagnostic; explicit null is malformed. Domain-valid per-signature out-of-range
+values and the existing empty/missing-parameter-list defaults are unchanged.
+See the [parameter contract plan](../plans/parameter-selection-contract.md).
+Malformed raw indices remain
 unaccepted, and per-signature out-of-range selection is not silently clamped
 or accepted. The raw integer domain is 0..2147483647, excluding booleans.
 Validate top-level and all per-signature fields, including unused signatures

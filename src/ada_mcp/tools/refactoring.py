@@ -202,8 +202,8 @@ async def handle_signature_help(
         column: Column number (1-based)
 
     Returns:
-        Signature information with the effective selected index. Malformed
-        native activeSignature values are retained in selection_diagnostic.
+        Malformed selected indices use zero; exact raw values are retained
+        in independent selection diagnostics.
     """
     file_uri = file_to_uri(file)
     lsp_pos = to_lsp_position(line, column)
@@ -254,15 +254,15 @@ async def handle_signature_help(
         selected_index = 0
 
     selected = result["signatures"][selected_index]
-    active_parameter = selected.get("activeParameter", result.get("activeParameter", 0))
+    raw_active_parameter = selected.get("activeParameter", result.get("activeParameter", 0))
+    malformed_parameter = (
+        type(raw_active_parameter) is not int or not 0 <= raw_active_parameter <= 2_147_483_647
+    )
+    active_parameter = raw_active_parameter
     parameters = selected.get("parameters", [])
-    if (
-        "activeParameter" not in selected
-        and type(active_parameter) is int
-        and 0 <= active_parameter <= 2_147_483_647
-        and parameters
-        and active_parameter >= len(parameters)
-    ):
+    if malformed_parameter:
+        active_parameter = 0
+    elif "activeParameter" not in selected and parameters and active_parameter >= len(parameters):
         active_parameter = 0
 
     response = {
@@ -276,6 +276,13 @@ async def handle_signature_help(
             "reason": "malformed-active-signature",
             "raw_active_signature": raw_active_signature,
             "fallback": "first-signature",
+        }
+    if malformed_parameter:
+        response["parameter_selection_diagnostic"] = {
+            "reason": "malformed-active-parameter",
+            "raw_active_parameter": raw_active_parameter,
+            "source": "selected-signature" if "activeParameter" in selected else "top-level",
+            "fallback": "zero",
         }
     return response
 

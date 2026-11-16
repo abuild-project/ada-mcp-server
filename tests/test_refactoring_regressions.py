@@ -121,6 +121,7 @@ async def test_rename_preview_preserves_each_native_replacement(tmp_path, shape)
         ({"activeParameter": 0}, [{"activeParameter": 1}, {"activeParameter": 2}], 0, 1),
         ({"activeSignature": 9, "activeParameter": 0}, [{"activeParameter": 1}], 0, 1),
         ({"activeParameter": 9}, [{}], 0, 0),
+        ({}, [{"activeParameter": 1}, {"activeParameter": None}], 0, 1),
     ],
     ids=[
         "per-one-over-top-zero",
@@ -132,6 +133,7 @@ async def test_rename_preview_preserves_each_native_replacement(tmp_path, shape)
         "missing-selected-signature",
         "out-of-range-signature",
         "out-of-range-top-parameter",
+        "unused-malformed-parameter",
     ],
 )
 async def test_signature_help_uses_selected_signature_parameter(
@@ -194,7 +196,7 @@ async def test_signature_help_without_signatures_remains_negative(tmp_path, resp
 @pytest.mark.asyncio
 @pytest.mark.parametrize("field", ["selected", "top", "per"])
 @pytest.mark.parametrize("value", [None, False, True, "1", 1.0, -1])
-async def test_signature_help_labels_malformed_selection_and_preserves_parameter_evidence(
+async def test_signature_help_labels_malformed_selection_and_parameter_evidence(
     tmp_path, field, value
 ):
     """Selection is effective; malformed raw indices remain labeled diagnostic evidence."""
@@ -219,6 +221,7 @@ async def test_signature_help_labels_malformed_selection_and_preserves_parameter
         native["activeParameter"] = value
     else:
         native["signatures"][0]["activeParameter"] = value
+        native["activeParameter"] = 1
     client = AsyncMock()
     client.send_request.return_value = native
     with patch("ada_mcp.tools.refactoring._ensure_file_open", new_callable=AsyncMock):
@@ -251,9 +254,16 @@ async def test_signature_help_labels_malformed_selection_and_preserves_parameter
         }
         assert type(result["active_signature"]) is int
         assert type(result["selection_diagnostic"]["raw_active_signature"]) is type(value)
+        assert "parameter_selection_diagnostic" not in result
     else:
-        assert type(result["active_parameter"]) is type(value)
-        assert result["active_parameter"] == value
+        assert type(result["active_parameter"]) is int and result["active_parameter"] == 0
+        assert result["parameter_selection_diagnostic"] == {
+            "reason": "malformed-active-parameter",
+            "raw_active_parameter": value,
+            "source": "top-level" if field == "top" else "selected-signature",
+            "fallback": "zero",
+        }
+        assert type(result["parameter_selection_diagnostic"]["raw_active_parameter"]) is type(value)
         assert "selection_diagnostic" not in result
 
 
@@ -267,16 +277,20 @@ async def test_signature_help_labels_malformed_selection_and_preserves_parameter
         ("active", False, 0),
         ("top-fallback", 0, 0),
         ("top-fallback", 2147483647, 0),
-        ("top-fallback", 2147483648, 2147483648),
-        ("top-fallback", False, False),
+        ("top-fallback", 2147483648, 0),
+        ("top-fallback", False, 0),
         ("top-overridden", 0, 0),
         ("top-overridden", 2147483647, 0),
         ("top-overridden", 2147483648, 0),
         ("top-overridden", False, 0),
         ("per", 0, 0),
         ("per", 2147483647, 2147483647),
-        ("per", 2147483648, 2147483648),
-        ("per", False, False),
+        ("per", 2147483648, 0),
+        ("per", False, 0),
+        ("top-empty", 2147483647, 2147483647),
+        ("top-empty", 2147483648, 0),
+        ("per-missing", 2147483647, 2147483647),
+        ("per-missing", None, 0),
     ],
     ids=[
         "active-zero",
@@ -295,12 +309,16 @@ async def test_signature_help_labels_malformed_selection_and_preserves_parameter
         "per-max",
         "per-overflow",
         "per-bool",
+        "top-empty-max",
+        "top-empty-overflow",
+        "per-missing-max",
+        "per-missing-null",
     ],
 )
 async def test_signature_help_selection_and_parameter_domain_boundaries(
     tmp_path, kind, raw, expected
 ):
-    """Malformed selections are labeled; parameter policies retain their raw evidence."""
+    """Malformed selected indices use zero; domain-valid parameter defaults stay unchanged."""
     source = tmp_path / "main.adb"
     source.write_text("procedure Main is begin null; end Main;\n")
     native = {
@@ -316,13 +334,17 @@ async def test_signature_help_selection_and_parameter_domain_boundaries(
     }
     if kind == "active":
         native["activeSignature"] = raw
-    elif kind == "top-fallback":
+    elif kind in {"top-fallback", "top-empty"}:
         del native["signatures"][0]["activeParameter"]
         native["activeParameter"] = raw
+        if kind == "top-empty":
+            native["signatures"][0]["parameters"] = []
     elif kind == "top-overridden":
         native["activeParameter"] = raw
     else:
         native["signatures"][0]["activeParameter"] = raw
+        if kind == "per-missing":
+            del native["signatures"][0]["parameters"]
     client = AsyncMock()
     client.send_request.return_value = native
     with patch("ada_mcp.tools.refactoring._ensure_file_open", new_callable=AsyncMock):
@@ -338,3 +360,15 @@ async def test_signature_help_selection_and_parameter_domain_boundaries(
         assert type(result["selection_diagnostic"]["raw_active_signature"]) is type(raw)
     else:
         assert "selection_diagnostic" not in result
+    if kind in {"top-fallback", "top-empty", "per", "per-missing"} and (
+        type(raw) is not int or not 0 <= raw <= 2147483647
+    ):
+        assert result["parameter_selection_diagnostic"] == {
+            "reason": "malformed-active-parameter",
+            "raw_active_parameter": raw,
+            "source": "top-level" if kind.startswith("top-") else "selected-signature",
+            "fallback": "zero",
+        }
+        assert type(result["parameter_selection_diagnostic"]["raw_active_parameter"]) is type(raw)
+    else:
+        assert "parameter_selection_diagnostic" not in result
