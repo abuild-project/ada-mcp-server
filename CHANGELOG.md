@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Attribute a separate task body's ordinary context imports to its declared
+  task name, instead of an inner declaration or an omitted unit.
 - Return integer zero for a malformed selected native parameter index and
   preserve its exact raw value and source in `parameter_selection_diagnostic`.
   Keep any simultaneous signature-selection diagnostic independently.

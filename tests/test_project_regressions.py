@@ -48,6 +48,32 @@ async def test_dependency_graph_ignores_comment_and_literal_declarations(tmp_pat
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "body",
+    [
+        "task body Worker is begin null; end Worker;\n",
+        "task -- function False_Owner is\nbody Worker is\n"
+        "   procedure Inner is begin null; end Inner;\n"
+        "begin Inner; end Worker;\n",
+        "procedure Worker is\n   procedure Inner is begin null; end Inner;\n"
+        "begin Inner; end Worker;\n",
+        "package body Worker is\n   procedure Inner is begin null; end Inner;\nend Worker;\n",
+    ],
+    ids=["task-only", "task-before-inner", "separate-procedure", "separate-package"],
+)
+async def test_dependency_graph_separate_body_owns_its_context(tmp_path, body):
+    """Subunit imports belong to its declared name, without parent qualification."""
+    source = tmp_path / "parent-worker.adb"
+    source.write_text("with Visible;\nseparate (Parent)\n" + body)
+    before = source.read_bytes()
+    assert await handle_dependency_graph(str(source)) == {
+        "dependencies": [{"package": "Worker", "file": str(source), "depends_on": ["Visible"]}],
+        "package_count": 1,
+    }
+    assert source.read_bytes() == before
+
+
+@pytest.mark.asyncio
 async def test_call_hierarchy_synchronizes_cold_queried_source(tmp_path, mock_als_client):
     """Opening the queried file must precede native hierarchy preparation."""
     source = tmp_path / "actual.adb"

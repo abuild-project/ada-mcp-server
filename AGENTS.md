@@ -72,14 +72,18 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   commits to obtain a single-commit PR.
 - Add doc/change-records/<topic>.md and its sorted index entry. Derive the topic
   from the branch by dropping the first prefix and replacing other slashes
-  with hyphens. The record supplies the PR description and ends with the same
-  accurate coauthor attribution. Keep ticket identifiers out of these texts.
+  with hyphens. The PR description is the record verbatim; post later head
+  validation as a PR comment. End the record with the same accurate coauthor
+  attribution. Keep ticket identifiers out of these texts.
 - Write records around the final problem, behavior, scope, validation at an
-  identified revision and remaining limits. For substantial changes, use
-  300–700 words as guidance; small changes can be much shorter. Link detailed
-  mechanics in assessments/development docs; place durable history in the dated
-  plan and operational attempts in logs. Omit chronological test counts and
-  review-round narratives.
+  identified revision and remaining limits. Size records to the change: a
+  few-line fix needs about 100–250 words. For substantial changes, use
+  300–700 words as guidance. Link detailed mechanics in
+  assessments/development docs; place durable history in the dated plan and
+  operational attempts in logs. Omit chronological test counts and review-round
+  narratives.
+- Mention standing blockers or unrelated controls only when the change touches
+  them. State each evidence boundary once.
 - Update CHANGELOG.md for user/integrator changes, not internal agent-process
   adjustments. Keep transient review rounds and delivery status out of records.
 - Prepare the complete PR packet before the normal handoff. A request to submit

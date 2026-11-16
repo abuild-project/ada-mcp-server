@@ -156,6 +156,19 @@ container chain. Update input requirements and regenerate the hash lock
 deliberately. Python package notices and exact Debian/ALS versions are retained
 in the image's component index; see licensing.md.
 
+### Task-subunit fixture check
+
+scripts/test_integration.py copies tests/fixtures/separate_task_project
+into fresh scratch and requires the task source's exact STDIO dependency
+reply. It compiles the parent with
+`gprbuild -P tasks.gpr -p -c -u task_probe.adb`, using a 60-second timeout
+and retaining command/output. The parent obj/task_probe.ali must be absent
+before compilation; its resulting hash is retained. Hashes of tasks.gpr,
+src/task_probe.adb and src/task_probe-worker.adb must remain unchanged.
+These hashes cover the three known inputs, not arbitrary filesystem
+writes. The compiler establishes fixture validity separately from the
+lexical dependency query.
+
 ## Generate and test the actual artifacts
 
 After committing the candidate and passing container checks:

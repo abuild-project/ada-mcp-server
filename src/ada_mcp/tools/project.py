@@ -243,7 +243,8 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     # Regex patterns for parsing
     pkg_pattern = (
         r"\b(?:(?P<introducer>with|access(?:\s+protected)?)\s+)?"
-        r"(?:package|procedure|function)\b\s+(?:body\s+)?(?P<unit>\w+(?:\.\w+)*)"
+        r"(?:(?:package|procedure|function)\b\s+(?:body\s+)?|task\s+body\b\s+)"
+        r"(?P<unit>\w+(?:\.\w+)*)"
     )
     with_pattern = r"^\s*with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
 

@@ -448,6 +448,85 @@ async def run_integration_tests() -> bool:
                     "Known generic fixture inputs unchanged", input_hashes() == before_generic
                 )
 
+        print("\n[9b] Checking separate task-body dependency ownership...")
+        with tempfile.TemporaryDirectory(prefix="ada-mcp-task-") as temporary:
+            owned = Path(temporary) / "separate_task_project"
+            shutil.copytree(project_root / "tests/fixtures/separate_task_project", owned)
+            task_inputs = (
+                owned / "tasks.gpr",
+                owned / "src/task_probe.adb",
+                owned / "src/task_probe-worker.adb",
+            )
+
+            def task_input_hashes():
+                return {
+                    str(path.relative_to(owned)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in task_inputs
+                }
+
+            before_task = task_input_hashes()
+            source = owned / "src/task_probe-worker.adb"
+            command = [
+                "gprbuild",
+                "-P",
+                str(owned / "tasks.gpr"),
+                "-p",
+                "-c",
+                "-u",
+                "task_probe.adb",
+            ]
+            artifact = owned / "obj/task_probe.ali"
+            try:
+                test_result("Task fixture starts without compiled ALI", not artifact.exists())
+                result = await call_tool(client, "ada_dependency_graph", {"file": str(source)})
+                test_result(
+                    "Separate task body owns exact context imports",
+                    result
+                    == {
+                        "dependencies": [
+                            {
+                                "package": "Worker",
+                                "file": str(source),
+                                "depends_on": ["Ada.Text_IO"],
+                            }
+                        ],
+                        "package_count": 1,
+                    },
+                    json.dumps(result),
+                )
+                compiled = await asyncio.to_thread(
+                    subprocess.run,
+                    command,
+                    cwd=owned,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    timeout=60,
+                    check=False,
+                )
+                print(
+                    json.dumps(
+                        {
+                            "command": command,
+                            "exit_code": compiled.returncode,
+                            "output": compiled.stdout.decode("utf-8", errors="replace"),
+                            "input_sha256": before_task,
+                            "artifact_sha256": (
+                                hashlib.sha256(artifact.read_bytes()).hexdigest()
+                                if artifact.is_file()
+                                else None
+                            ),
+                        }
+                    )
+                )
+                test_result(
+                    "Task fixture parent compiles and produces ALI",
+                    compiled.returncode == 0 and artifact.is_file(),
+                )
+            finally:
+                test_result(
+                    "Known task fixture inputs unchanged", task_input_hashes() == before_task
+                )
+
     except Exception as e:
         print(f"\n    ✗ Test error: {e}")
         import traceback
