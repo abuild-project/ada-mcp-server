@@ -241,18 +241,30 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     seen_packages = set()
 
     # Regex patterns for parsing
-    pkg_pattern = r"(?:package|procedure|function)\s+(?:body\s+)?(\w+(?:\.\w+)*)"
+    pkg_pattern = (
+        r"\b(?:(?P<introducer>with|access(?:\s+protected)?)\s+)?"
+        r"(?:package|procedure|function)\b\s+(?:body\s+)?(?P<unit>\w+(?:\.\w+)*)"
+    )
     with_pattern = r"^\s*with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
 
     for ada_file in ada_files:
         content = _mask_ada_noncode(ada_file.read_text())
 
-        # Extract package or procedure name from this file
-        pkg_match = re.search(pkg_pattern, content, re.IGNORECASE)
+        # Consume non-unit introducers in the same forward scan, without
+        # repeatedly copying/searching the prefix for each generic formal.
+        # Masking preserves whitespace across comments and line breaks.
+        pkg_match = next(
+            (
+                match
+                for match in re.finditer(pkg_pattern, content, re.IGNORECASE)
+                if match.group("introducer") is None
+            ),
+            None,
+        )
         if not pkg_match:
             continue
 
-        package_name = pkg_match.group(1)
+        package_name = pkg_match.group("unit")
         seen_packages.add(package_name)
 
         # Find all 'with' clauses

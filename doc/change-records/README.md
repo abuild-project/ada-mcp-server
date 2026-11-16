@@ -5,6 +5,7 @@
 - [Bounded additional-tool regressions](additional-tool-regressions.md)
 - [Bounded reading-tool regressions](reading-regression-baseline.md)
 - [Checkout action update](github_actions-main-actions-checkout-7.0.1.md)
+- [Generic unit dependency names](generic-unit-names.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)

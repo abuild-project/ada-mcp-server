@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Attribute dependency imports to the actual generic unit instead of its
+  formal subprograms, formal packages or access-to-subprogram profiles,
+  using a forward scan without repeated growing-prefix searches.
 - Reject unsupported rename application (`preview=false`) explicitly instead
   of reporting that proposed changes were applied.
 - Preserve legal bare code-action command identifiers and native rename
