@@ -19,6 +19,7 @@
 - [RC3 prerelease and public notification check](release-0.2.0-rc.3.md)
 - [Rename application result](rename-application-result.md)
 - [Retire optional additional-tool exploration](retire-exploration.md)
+- [Review follow-up evidence](review-followups.md)
 - [Separate task-body dependency owners](separate-task-bodies.md)
 - [Signature selection result contract](signature-selection-contract.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)
