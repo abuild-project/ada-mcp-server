@@ -279,6 +279,10 @@ def test_implicit_advisory_failure_does_not_reject_launch(installed, tmp_path):
             installed["target"],
             "--root",
             str(installed["roots"]),
+            "--uid",
+            "1000",
+            "--gid",
+            "1000",
         ],
         tmp_path,
     )

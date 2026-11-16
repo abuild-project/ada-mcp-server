@@ -29,3 +29,18 @@ native controls, fixtures, pins, version and support unchanged. Update the
 contributor guide and concise record/index, without a changelog entry.
 Start this distinct package at local 0/3 and later PR 0/3; stop at the
 checked PR before merge or release.
+
+## 2026-11-16: Explicit identities in mocked launcher paths
+
+Decision: give the existing Docker-stub launcher success and advisory paths
+explicit --uid 1000 --gid 1000 arguments. A real root suite exposed that
+those paths inherited UID 0 and stopped at the launcher's correct identity
+guard before reaching their intended assertions. This changes only four
+test invocation sites in test_launcher_roots.py, test_update_bytecode.py
+and test_verified_helpers.py. Preserve the production launcher, real
+permission denials, native identities and explicit rejection checks.
+
+Decision: repeat the actual root default, mandatory and wrongly-skipping
+helper controls and the complete immutable-candidate container chain.
+Retain the earlier candidate and its evidence, including the unsuccessful
+root run; a successful nonroot chain does not establish root ergonomics.
