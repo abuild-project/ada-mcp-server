@@ -420,3 +420,46 @@ Host checks and healthy retained protocol replay do not replace managed
 native/compiler execution or fresh independent acceptance. This correction
 adds no runtime, public schema/API, support, pin, version, changelog or
 review-configuration change, and authorizes no Docker or external write.
+
+## 2026-11-16: Bounded documentation exception
+
+Decision: the maintainer explicitly authorized shortening this topic's record
+and clarifying the rules that allowed scope and record growth. This is one
+bounded documentation exception after exhausted local 3/3 and PR 3/3, not a
+counter reset or another correction round. Preserve source revision
+147983437b71832fb84cfcd61814852633fa7aa2, all five published commits and all
+sealed evidence.
+
+Decision: permit exactly AGENTS.md, the canonical additional-tool change
+record and this dated plan append. Describe the final problem, five production
+fixes, final test basis, support/native-defect limits and revision-bound
+validation concisely. Link the assessment/development guide for mechanics;
+retain chronological attempts and operational evidence in existing plans/logs.
+Bind the existing 1,278-unit/one-end-to-end, 2,985/3,802 coverage and both-UID
+results to source 147983437b71832fb84cfcd61814852633fa7aa2 and managed run
+43766438216. Do not attribute them to the new documentation revision or
+preclaim its hosted CI.
+
+Decision: clarify final-state records with 300–700 words as guidance for
+substantial changes; small changes may be much shorter. Require
+record/PR-description checks by the coordinator and independent reviewer at
+handoff, and evidence-based triage of review findings. Existing promised
+boundaries and evidence must be fixed or escalated when invalidated, including
+by mocked or malformed counterexamples. Explain deferral/rejection of
+optional, speculative or new-scope requests; prefer the smallest useful
+counterexample and expand matrices only for a distinct gap or changed behavior.
+Do not add a hard word-count lint, general mutation campaign, review
+infrastructure or blanket approval gate.
+
+Decision: provide one uncommitted three-file draft for the coordinator's
+wording check. After that check, create one append-only documentation commit;
+formal independent acceptance covers the frozen commit and exact hosted CI.
+Run targeted documentation/index/example and whitespace checks, without
+repeating broad host/native tests for these three documentation files. The
+coordinator handles freezing, hosted CI, final roles and PR delivery. No
+runtime, test, fixture, CI, dependency, version, changelog, client or reviewer
+configuration change is authorized. The developer makes no external writes;
+the coordinator's existing PR-delivery authorization covers pushes, exact
+hosted CI and PR metadata. Merge, release and publication remain unauthorized.
+Any further source correction after this exception's commit requires a
+maintainer decision.

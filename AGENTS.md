@@ -31,6 +31,12 @@ work. This guide applies to every agent and contributor, regardless of vendor.
 - scripts/ci defines the complete check chain, including unit tests, Ruff,
   strict typing, coverage, packaging, documentation and real ALS/MCP probes.
   New tests must reject the original defect or a targeted invalid input.
+- Triage findings by a reproducible or plausible defect in promised behavior
+  or evidence, and value versus harness complexity. Fix or escalate an
+  invalidated existing boundary even when exposed by a mock or malformed input.
+  Explain deferral/rejection of optional, speculative or new-scope requests.
+  Use the smallest useful counterexample; expand matrices only for a distinct
+  gap or changed behavior, not to mechanically satisfy bot feedback.
 - The coordinator assigns developer, tester and independent reviewer once for
   the task. Leaf roles do not recursively delegate the same workflow. Only the
   developer edits candidates; other roles report findings without fixing them.
@@ -44,6 +50,8 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   rebases and replacement PRs. Infrastructure retries without candidate edits
   consume no round. Findings after round three block the phase pending a
   maintainer decision. Do not defer unresolved local defects into PR review.
+  A specific maintainer-authorized exception records its limited file/action
+  scope in the dated plan and retains counters/evidence; it opens no new round.
 - Keep operational logs/counters outside tracked source or under ignored
   build/. Durable decisions belong in an append-only dated plan section.
   Both test and independent-review evidence must cover the final candidate.
@@ -66,11 +74,19 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   from the branch by dropping the first prefix and replacing other slashes
   with hyphens. The record supplies the PR description and ends with the same
   accurate coauthor attribution. Keep ticket identifiers out of these texts.
+- Write records around the final problem, behavior, scope, validation at an
+  identified revision and remaining limits. For substantial changes, use
+  300–700 words as guidance; small changes can be much shorter. Link detailed
+  mechanics in assessments/development docs; place durable history in the dated
+  plan and operational attempts in logs. Omit chronological test counts and
+  review-round narratives.
 - Update CHANGELOG.md for user/integrator changes, not internal agent-process
   adjustments. Keep transient review rounds and delivery status out of records.
 - Prepare the complete PR packet before the normal handoff. A request to submit
   a PR with Copilot can authorize the necessary push, PR creation, review request
   and factual replies. Preparation alone does not grant external writes.
+  At each handoff, the coordinator and independent reviewer check the record
+  and PR description against the final state, agreed scope and actual evidence.
 - Read hosted CI and all Copilot feedback at the actual head. Copilot supplements
   independent review; it does not replace it. Merge, tags, releases, image/plugin
   publication, settings changes and force-push need separate authorization.
