@@ -202,7 +202,8 @@ async def handle_signature_help(
         column: Column number (1-based)
 
     Returns:
-        Dictionary with signature information
+        Signature information with the effective selected index. Malformed
+        native activeSignature values are retained in selection_diagnostic.
     """
     file_uri = file_to_uri(file)
     lsp_pos = to_lsp_position(line, column)
@@ -244,16 +245,13 @@ async def handle_signature_help(
             }
         )
 
-    active_signature = result.get("activeSignature", 0)
-    selected_index = active_signature
-    if type(selected_index) is not int or not 0 <= selected_index < len(signatures):
+    raw_active_signature = result.get("activeSignature", 0)
+    malformed_selection = (
+        type(raw_active_signature) is not int or not 0 <= raw_active_signature <= 2_147_483_647
+    )
+    selected_index = raw_active_signature
+    if malformed_selection or selected_index >= len(signatures):
         selected_index = 0
-    if (
-        type(active_signature) is int
-        and 0 <= active_signature <= 2_147_483_647
-        and active_signature >= len(signatures)
-    ):
-        active_signature = 0
 
     selected = result["signatures"][selected_index]
     active_parameter = selected.get("activeParameter", result.get("activeParameter", 0))
@@ -267,12 +265,19 @@ async def handle_signature_help(
     ):
         active_parameter = 0
 
-    return {
+    response = {
         "found": True,
         "signatures": signatures,
-        "active_signature": active_signature,
+        "active_signature": selected_index,
         "active_parameter": active_parameter,
     }
+    if malformed_selection:
+        response["selection_diagnostic"] = {
+            "reason": "malformed-active-signature",
+            "raw_active_signature": raw_active_signature,
+            "fallback": "first-signature",
+        }
+    return response
 
 
 async def handle_code_actions(

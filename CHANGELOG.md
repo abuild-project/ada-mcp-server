@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Return the effective signature index used for parameter selection. A malformed
+  native `activeSignature` selects the first signature and preserves its exact
+  raw value in a conditional `selection_diagnostic` field.
 - Attribute dependency imports to the actual generic unit instead of its
   formal subprograms, formal packages or access-to-subprogram profiles,
   using a forward scan without repeated growing-prefix searches.

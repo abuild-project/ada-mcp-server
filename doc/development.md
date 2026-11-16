@@ -89,8 +89,14 @@ the three evidenced cases, requiring the unchanged native request/cursor,
 the exact original raw defect envelope and effective native/MCP index fidelity.
 The selected signature's explicit parameter index takes precedence over the
 top-level fallback, including zero. Only documented defaults normalize valid
-out-of-range signature/top-level indices; malformed raw indices and a
-per-signature out-of-range index remain unaccepted. Validate every raw index,
+out-of-range signature/top-level indices for native acceptance; malformed raw
+indices and a per-signature out-of-range index remain unaccepted. Public
+`active_signature` reports the effective index used for parameter selection.
+For nonempty replies, a present malformed native `activeSignature` selects zero
+and adds `selection_diagnostic` with reason `malformed-active-signature`, the
+exact `raw_active_signature` and fallback `first-signature`. Missing and valid
+out-of-range indices produce no diagnostic. Empty replies retain the negative
+shape, and parameter-index policies are unchanged. Validate every raw index,
 including unused fields, against LSP's 0..2147483647 integer domain before
 precedence or defaults; MAX is valid and MAX+1 remains malformed. It retains expected-correct
 and observed-wrong values with `accepted=false`, `semantic_acceptance=false`
