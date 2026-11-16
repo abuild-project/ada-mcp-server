@@ -1,0 +1,465 @@
+# Bounded additional-tool regressions
+
+Base revision: `fe6aabec2f33a8766f6a63c9b35f670b89ed3cfa`.
+
+## 2026-11-15: Scope and boundaries
+
+Decision: cover the ten advertised tools outside the accepted reading probe:
+`ada_call_hierarchy`, `ada_dependency_graph`, `ada_completions`,
+`ada_signature_help`, `ada_code_actions`, `ada_rename_symbol` with explicit
+`preview=true`, `ada_format_file`, `ada_get_spec`, `ada_build` and
+`ada_alire_info`. Retain the nine-tool reading probe and every existing CI,
+coverage, packaging, documentation, Arca/Spawn/Anet and Linux identity gate.
+Keep MCP 1.30.0, version 0.2.0-rc.3 and all release, plugin and support
+boundaries unchanged. Pure test changes need no changelog entry; actual
+user-facing correctness fixes need a factual entry.
+
+Decision: only the assigned developer edits candidates. The coordinator
+assigns the separate tester and independent reviewer. The new bounded
+package starts at local 0/3 and later PR 0/3; the previous reading topic's
+closed counters remain intact. Evidence and counters live outside source.
+Normal maintainer handoff precedes PR submission. This scope does not
+authorize merge, release, publication, force pushes or GitHub writes by
+the developer.
+
+Decision: native rename application is outside this work. The inherited
+handler returns `applied=true` for `preview=false` without writing files.
+Reproduce and document that gap using owned data, preserve read-only client
+denials, and obtain a maintainer decision before implementing any writer.
+Formatting returns edits; its tests must not silently apply them to consumer
+roots. Alire acceptance concerns manifest metadata, not an Alire toolchain.
+Advertising 19 tools does not establish support for all 19 tools.
+
+## 2026-11-15: Implementation and acceptance plan
+
+Decision: use a small committed Ada/GPR fixture with explicit Source_Dirs,
+Object_Dir and Exec_Dir, two source-bound calls, a separate same-name symbol,
+a package specification/body, deliberately uneven formatting and exact
+`alire.toml` metadata. Copy it into a new evidence-owned directory before
+starting a session. Hash all Ada, GPR and TOML inputs separately from allowed
+generated obj/bin files. Retain source states and raw evidence on failure.
+
+Decision: propose one frozen managed-CI observational phase before selecting
+implementation-specific pinned ALS expectations. Run the exact committed
+source through the existing AMD64 Trixie/GNAT 14/pinned ALS build/check
+environment. Add test-only child instrumentation around ALS requests to
+retain native initialize capabilities, request parameters, results and LSP
+errors while preserving production dispatch and responses. Retain MCP
+protocol and stderr separately. This phase is exploration, not positive
+semantic acceptance; empty results cannot establish a working capability.
+Unsupported methods are explicit blockers with their native error/capability
+evidence. Do not weaken a fixture or add a skip to hide them.
+
+Decision: observe call hierarchy as the first file-semantic call after explicit
+GPR selection, then warm it and request incoming/outgoing/both directions.
+Acceptance requires exact expected source-bound caller/callee names, kinds,
+files and coordinates, excludes the unrelated same-name symbol, and includes
+a genuine no-symbol comment. Retain the native call-site ranges even though
+the current MCP summary omits them. Assess absent synchronization separately
+before any routine correction backed by a failing regression.
+
+Decision: dependency acceptance requires an exact bounded set of ordinary
+with-clause edges for a file and directory, the exact unique unit count and
+an explicit missing-path negative. The current regex is not a complete Ada
+parser: comments, string literals, limited/private clauses and multiline
+forms require explicit assessment and targeted failing examples before any
+production change. Do not call this a complete semantic dependency graph.
+
+Decision: completion acceptance selects known package members at an exact
+source position and checks their labels, kinds and insertion values, limit
+behavior and completeness metadata. Signature acceptance selects the known
+overload and active parameter at separate arguments, checking the complete
+parameter labels. Include a comment/no-call negative. Freeze exact native
+presentation expectations after observation, independently of handler code.
+
+Decision: code-action acceptance requires a known meaningful action at the
+controlled source range, its exact title/kind/preference/edit-file count and
+unchanged source hashes. Preserve native edit ranges/replacements or command
+IDs/arguments for independent assessment. The MCP handler exposes summaries,
+so this scope does not add a public edit/apply API or claim to execute actions.
+A bare legal LSP Command and an empty native action result need explicit
+unit/negative coverage; unsupported positive behavior is a blocker.
+
+Decision: rename preview acceptance requires the exact complete edit set,
+old/new names and file/change counts, confirms every old token against source
+and excludes the unrelated symbol. Reject invalid identifiers and a genuine
+non-symbol location. Preview calls must return `applied=false` and preserve
+all source inputs. Keep the existing client prohibition on native application.
+
+Decision: formatting acceptance requires nonempty valid bounded edits whose
+application in memory produces an independently fixed formatted source.
+Request formatting of that text only after writing a separate fresh owned
+copy; require the expected already-formatted result. Check edit positions,
+replacement text, count and file, and reject out-of-bounds/overlapping/no-op
+payloads in oracle guards. Never apply returned edits outside owned copies.
+
+Decision: spec acceptance checks a source-bound body-to-spec declaration
+target, explicit sibling-file fallback and a missing-spec unit with no
+sibling. Preserve the distinction between a native semantic target and the
+fallback's file-level 1:1 result; an empty declaration response followed by
+fallback is not semantic navigation evidence.
+
+Decision: build acceptance invokes the actual GPRbuild only on the fresh
+owned project, with generation confined to its explicitly declared obj/bin
+directories. Require success, zero errors and an executable, then change
+only an owned source to a deliberate compiler type error and require failure
+with the exact source-bound error location/message. Retain both input states
+and before/after input hashes separately from generated files. The compiler
+control supplements rather than replaces the repository compiler/CI chain.
+
+Decision: Alire acceptance compares every exposed field to exact committed
+TOML metadata, including dependency constraints, profiles, externals and
+project/executable lists. Separate fresh copies provide malformed and missing
+manifest negatives. No `alr` execution or dependency download is evidence of
+this manifest-reading tool's contract.
+
+Decision: positive live oracles receive deliberately empty, wrong, duplicate,
+unrelated and stale payloads, plus invalid edit ranges/text and wrong compiler
+or manifest data. Full-runner controls inject input additions/deletions/
+changes, generated files outside obj/bin, original-fixture changes, process
+birth changes and cleanup failures with otherwise healthy semantics. Each
+counterexample must hit its intended guard and preserve available evidence.
+Disable each guard in memory and require its committed counterexample to
+fail, addressing the preceding topic's surviving-guard lesson.
+
+Decision: host development uses the existing external venv with bytecode off
+and modest focused tests. Preserve failed logs and archive/verify before
+removing only this task's repetitive temporary pytest data. No local Docker
+build/load/prune, image deletion, large artifact downloads or host compiler
+substitution is permitted under the current disk limit. Freeze clean coherent
+unpublished commits before independent testing and review of the same revision.
+
+## 2026-11-15: Approved capability observation
+
+Decision: the coordinator approved one exploratory execution ref,
+`codex/validation/additional-tool-observation`. The canonical topic remains
+unpublished at its accepted base while the coordinator snapshots and pushes
+that immutable observation. This execution ref does not reset scope or
+correction counters. The complete existing managed CI remains mandatory.
+Native tracing preserves decoded request parameters, results and exceptions,
+including the unchanged initialize request and its capability response. It
+does not claim a complete LSP wire or callback transcript.
+
+Decision: include `formatting` explicitly in the selected GPR Source_Dirs.
+The known action trigger is naming positional arguments in the Combine call;
+the action request spans that invocation, alongside declaration/comment
+observations. Keep compiler outputs under owned obj/bin using explicit `-p`.
+Before the deliberate compiler error, restore the original valid sources.
+Observe a complete warm source mutation that moves and renames the callee,
+changes the signature's formal types/arity and adds a caller edge. Call
+hierarchy runs first after that mutation, before a synchronizing handler.
+
+Decision: preserve targeted synthetic reproductions of the inherited bare
+LSP Command crash and the rename handler ignoring native replacement text.
+They are handler robustness evidence, not actual ALS capability evidence.
+Propose bounded corrections to the coordinator before any production edit.
+
+## 2026-11-15: Observed behavior and bounded corrections
+
+Decision: the frozen observation completed the unchanged managed chain at
+revision `0950488ebbdc9710d59c5a5ed28b288d4ba00deb`. All ten tools produced
+meaningful positive observations, while native source staleness and signature
+selection issues remain separate from capability discovery. Final semantic
+acceptance still requires independent oracles and the final immutable source.
+
+Decision: the coordinator approved three bounded corrections after base-red
+reproductions. Summarize a legal bare LSP Command's string identifier without
+calling dictionary methods on it. Preserve each native rename replacement
+in preview output for both workspace-edit shapes. Mask Ada comments and
+double-quoted strings before the existing dependency regexes, respecting
+doubled quotes, comment markers inside strings and line boundaries. Keep
+ordinary with-clause scope, the response shapes and read-only client policy.
+These actual user-facing fixes require the changelog entries above; the
+original test-only changelog exception does not cover them.
+
+Decision: assess the native positional signature-selection discrepancy rather
+than accepting the observed indices as correct. MCP converts coordinates
+to LSP correctly; the pinned native response already contains the unexpected
+index. The independent source-derived actual-to-formal expectation remains
+authoritative. No upstream implementation is imported or silently patched.
+
+Decision: isolate call-hierarchy source synchronization with a main-only
+mutation that removes an existing callee edge while package sources stay
+unchanged. Hierarchy must run first after that mutation. The earlier complete
+three-file change cannot prove that synchronizing one queried file refreshes
+every other open source. Any routine synchronization fix needs a targeted
+failing regression and final live proof; no global refresh is authorized.
+
+## 2026-11-15: Current test scope and native blocker
+
+Decision: the coordinator bounded this work under the existing maintainer
+instruction to keep unassured functions in development. A pre-existing
+external ALS defect does not require a new public-support decision to finish
+unaffected tests and the four routine correctness fixes. This is not a
+maintainer answer approving a native-defect option. The preference for
+separate ALS work remains unresolved; no answer is assumed.
+
+Decision: keep strict signature checks as the default. The CI assessment
+option permits only the three primary-evidenced positional cases, correlates
+their exact unchanged native request/cursor and integer native/MCP indices,
+and records expected-correct versus observed-wrong results as blocked with
+`accepted=false` and `semantic_acceptance=false`. Correct-native/wrong-MCP,
+boolean indices, other labels/states/paths/cursors and unrelated mismatches
+fail. The overall status is `assessed-with-native-blocker`, not passed.
+Named-association positives supplement rather than replace those cases.
+
+Decision: add a three-file native WorkspaceEdit preview for Increment's
+specification, body declaration/end and Main call. Require four exact edits
+across three files and exclude the unrelated Increment. After the main-only
+hierarchy mutation, repeat the original code-action range at 5:15–5:36 and
+require the original three proposals to disappear from the new comment.
+Do not claim isolated action synchronization after hierarchy already refreshed
+Main. Keep every native postcondition inside the call's acceptance boundary.
+
+Decision: preserve the host ENOSPC attempt and partial evidence. Subsequent
+focused batches run separately; completed owned pytest trees are archived,
+byte-hash verified and only then removed. Regenerable task caches may be
+removed explicitly; immutable source, raw CI and older evidence remain intact.
+
+Decision: freeze the first strict managed run on execution ref
+`codex/validation/additional-tool-round-1`, preserving canonical unpublished
+topic history. Prepare coherent correctness and regression commits with
+their own maintained tests. The coordinator retains the exact source and
+managed evidence; independent roles assess that immutable head. A local
+canonical fast-forward to identical accepted commits changes no tested bytes.
+Do not rewrite published validation history or reset correction counters.
+
+Decision: all 25 named in-memory guard/oracle mutations were detected by
+their committed counterexamples, with candidate files unchanged. Preserve
+those expected failures separately from healthy host checks and final real
+MCP/ALS evidence. No host mock or cached runtime substitutes for the required
+exact-source managed chain.
+
+## 2026-11-15: Selected signature precedence and oracle correction
+
+Decision: the maintainer accepted a bounded fifth correctness fix. Use the
+selected SignatureInformation's activeParameter when present, including zero;
+otherwise use the top-level/default value. Missing and valid out-of-range
+activeSignature selects zero. Normalize only the documented top-level
+parameter fallback when selected parameter information exists. Do not invent
+per-signature out-of-range clamping. Safe lookup avoids accidental Python
+indexing of malformed native values, which remain visible for diagnosis.
+
+Decision: the independent native oracle follows effective LSP precedence,
+without importing production conversion logic. Correct effective selection
+with differing native fields passes; wrong MCP conversion and a semantically
+correct MCP value hiding wrong native selection both fail. Malformed raw
+indices are rejected before healthy or known-defect classification. The
+historical exception still requires its three exact contexts and exact
+original raw envelope/presence, including both explicit native parameter
+fields carrying the same wrong index. No new native variation is accepted
+under that exception, and the three original cases remain blocked.
+
+Decision: continue the same topic and counters on a new execution worktree
+and ref, codex/validation/additional-tool-round-2, created from the accepted
+base and populated from the prior accepted tree before this correction.
+Preserve all earlier published refs, commits, authorship and sealed evidence;
+the old canonical local ref stays at its prior accepted head until coordinated
+promotion. Assemble two coherent new fix/test commits before first PR rather
+than amending, rebasing or force-updating published validation history.
+
+Decision: preserve base-red evidence against unchanged production and oracle
+bytes at 452a32f546704b72bbb2477ec504cc5433c13587. The first targeted run
+failed 23 cases before the correction, while 28 cases passed. A replay of
+retained prior native observations preserves all eleven public replies and
+the three historical blocked cases, but supplies no new real ALS acceptance.
+The corrected immutable source still needs the full managed chain and
+independent testing/review. Release, merge and publication remain outside
+this work; the accepted plan authorizes the later normal PR/Copilot phase.
+
+Decision: the current host basis passes 317 focused tests and all 34 named
+in-memory mutations are detected, including independent effective-fidelity
+and exact-envelope checks. Preserve the earlier and current evidence without
+resetting the topic counters. The maintainer explicitly requested normal
+PR/Copilot rounds for this package without waiting for an upstream ALS fix;
+the three original native cases remain blocked and support is unchanged.
+
+## 2026-11-15: Final local correction, 3/3
+
+Decision: the independent tester and reviewer identified the same remaining
+LSP uinteger bound defect. Continue the same topic in its final local
+correction round, 3/3; PR review has not started and counters do not reset.
+Only integers from zero through 2147483647 are valid before applying
+documented defaults. Preserve oversized used raw values for diagnosis.
+An invalid unused top-level field must not override valid per-signature
+precedence. The native oracle validates every raw index before precedence
+or defaults, including unselected signatures and missing/empty parameter
+lists. MAX is valid and MAX+1 is malformed; Boolean and other malformed
+indices remain unaccepted. Keep the three original native defects blocked.
+
+Decision: create codex/validation/additional-tool-round-3 from the accepted
+base and import the exact previous tree before editing. Preserve all prior
+published refs, objects, authorship and the canonical local ref. Reassemble
+two coherent new commits with self-contained core regressions followed by
+the protocol/oracle/host tests and documentation. Preserve base-red evidence
+against unchanged production/oracle bytes at 8b68936bd580a8ba2ab2ce80e582c4bb0d34b806.
+The boundary suite failed nine cases before the fix, while 20 controls passed.
+This changes no source pin, version, API shape, capability negotiation or
+read-only policy, and authorizes no Docker or external publication action.
+
+Decision: the bounded correction passes 346 focused host tests and all 38
+named sensitivity mutations are detected. The eleven retained prior native
+replies are unchanged and the original three cases remain blocked. Ruff,
+format, strict Mypy, maintained documentation, shell and whitespace checks
+pass. These are development/replay results; the new immutable candidate
+still requires its own managed CI and independent acceptance before PR work.
+
+## 2026-11-15: First PR correction bundle
+
+Decision: the first PR review identified three concrete correctness and
+evidence-boundary defects, independently reproduced by the coordinator,
+tester and reviewer. Continue the same topic in PR correction 1/3; the
+completed local 3/3 phase does not restart. Preserve the two published topic
+commits and append one coherent correction commit without rewriting history.
+
+Decision: fixture inspection rejects root, ancestor, file, directory and
+dangling symbolic links, including generated-output paths, before reading
+bytes. Inspect original sources before copying and preserve links during
+copying so they cannot silently become followed regular files. Validate the
+entire owned existing-file mutation batch before its first write. Both the
+exploratory template/restoration writes and strict runner use the shared
+guard. Retain inspection failures in available call/summary evidence. This
+controlled harness does not claim a concurrent-filesystem sandbox.
+
+Decision: every native-backed call requires correlated successful native
+exchanges, exact request parameters and independent native/MCP field fidelity
+before semantic classification or acceptance. The frozen fixture exercises
+40 such calls and 57 in-call pairs, including cold initialization, both
+project commands, document-symbol synchronization, hierarchy preparation,
+negative semantic paths and rename preparation. The 13 native-free paths
+remain explicit and require empty event slices: four dependency, four
+manifest, two build, two filename-spec and one invalid-identifier case.
+No production conversion helper supplies the oracle. Preserve the exact
+three original native signature envelopes, expected-correct positions,
+strict-default failure and blocked/unaccepted assessment classification.
+
+Decision: distinguish a character-literal terminator from the apostrophe
+opening the quote character in a qualified expression such as
+`Character'('"')`. Preserve ordinary and whitespace-separated qualified
+character literals, attributes, doubled quotes, comments and line boundaries.
+This refines noncode masking only; ordinary with-clause scope is unchanged.
+
+Decision: preserve the twelve failing base reproductions at the unchanged
+published source and all subsequent failed development attempts. Replay the
+current sealed PR-CI protocol data through the new runner as retained replay,
+with process/build stand-ins identified explicitly. Require the healthy 53
+calls to retain 50 accepted results and three blocked cases; remove each of
+the 57 in-call pairs and replace each of the seven reported native payloads
+while keeping healthy MCP replies. Every corruption must fail within its
+offending call with accepted=false. This replay supplies no new live ALS or
+compiler proof. Exact-source managed PR CI and fresh independent acceptance
+remain required before the normal PR handoff; merge/release is unauthorized.
+
+## 2026-11-15: Second PR coordinate-domain correction
+
+Decision: the next PR review exposed one coordinate-domain defect class,
+independently reproduced by the coordinator, tester and reviewer at the
+accepted first-correction source. Continue PR correction 2/3 and append one
+commit after that source; preserve all published commits and prior counters.
+This changes test oracles only, with no runtime, public API, version, pin,
+capability negotiation or changelog change.
+
+Decision: validate native Position line/character fields before arithmetic,
+indexing, slicing, set comparison, projection or copying prepared hierarchy
+items. Each must have exact type int within 0..2147483647. Visit explicit
+standard Position/Range containers, including unexposed endpoints, locations,
+LocationLinks, child symbols, completion/workspace edits and prepared items.
+Follow only the known ALS command argument forms where.position and
+section_to_extract_sloc.range. Opaque data and arbitrary command arguments
+remain uninterpreted. Do not infer Position semantics from arbitrary metadata
+key names or introduce general protocol-schema validation.
+
+Decision: keep valid raw zero and MAX; conversion exposes one and MAX+1,
+respectively. Direct source-bound hierarchy/rename set oracles require exact
+integer one-based coordinates within 1..2147483648 before equality can erase
+Boolean or float aliases. Existing type-sensitive request/MCP comparisons
+remain in place and are not newly reported defects. Physical-source checks
+continue to reject domain-valid coordinates that do not match the fixture.
+The original signature cases, exact raw envelopes and three blocked results
+remain unchanged.
+
+Decision: retain seven failing base reproductions and the existing passing
+request-equality control. Exercise malformed values, raw/public boundaries,
+standard nested containers, unused endpoints, both workspace-edit forms and
+positive opaque metadata. Retained current-PR CI data must preserve all 53
+calls, 50 accepted results and three blocked signatures; all 57 pair deletions
+and seven wrong native payloads must still fail. An isolated field assay
+replaces each of the 514 real standard coordinate fields with null and must
+reject every replacement, while a recorded completion with opaque data.line
+must still match its unchanged MCP result. These host/replay checks provide
+no new live ALS or compiler evidence; final exact-source managed PR CI and
+independent acceptance remain required.
+
+## 2026-11-15: Final PR traversal correction
+
+Decision: the final PR correction round, 3/3, addresses one independently
+reproduced scan-error class at the accepted prior source. Preserve the four
+published commits and append one correction. Any subsequent finding after
+this round requires a maintainer decision; counters do not restart.
+
+Decision: replace recursive glob enumeration with explicit deterministic
+scandir traversal. Every directory must actually be opened, and every scan,
+stat or file-read error must propagate. Keep no-follow symlink/special-entry
+rejection, sorted names and the regular-file hash contract. An unreadable
+subtree cannot produce an unchanged, supposedly complete snapshot or permit
+the shared writer's mutation batch. Both runners retain available failure
+results and cleanup evidence through their existing inspection boundary.
+
+Decision: reproduce under actual nonroot UID/GID 1000 without mocked
+permissions or skipped tests. Owned mode000 directories contain only owned
+temporary data and a dangling link; restore every permission in finally.
+Require an actual scandir PermissionError, cover source/generated subtrees,
+an unreadable root, both runners and the writer, and retain the previously
+passing unreadable-file control. The base fails six cases and passes that
+control. The managed Trixie check already enforces positive runtime UID/GID,
+so these tests must run there rather than treating a skip as proof.
+
+Decision: retain all prior coordinate/opaque/native/signature/link/literal
+controls, the three original blocked cases and complete exact-source CI.
+Host checks and healthy retained protocol replay do not replace managed
+native/compiler execution or fresh independent acceptance. This correction
+adds no runtime, public schema/API, support, pin, version, changelog or
+review-configuration change, and authorizes no Docker or external write.
+
+## 2026-11-16: Bounded documentation exception
+
+Decision: the maintainer explicitly authorized shortening this topic's record
+and clarifying the rules that allowed scope and record growth. This is one
+bounded documentation exception after exhausted local 3/3 and PR 3/3, not a
+counter reset or another correction round. Preserve source revision
+147983437b71832fb84cfcd61814852633fa7aa2, all five published commits and all
+sealed evidence.
+
+Decision: permit exactly AGENTS.md, the canonical additional-tool change
+record and this dated plan append. Describe the final problem, five production
+fixes, final test basis, support/native-defect limits and revision-bound
+validation concisely. Link the assessment/development guide for mechanics;
+retain chronological attempts and operational evidence in existing plans/logs.
+Bind the existing 1,278-unit/one-end-to-end, 2,985/3,802 coverage and both-UID
+results to source 147983437b71832fb84cfcd61814852633fa7aa2 and managed run
+43766438216. Do not attribute them to the new documentation revision or
+preclaim its hosted CI.
+
+Decision: clarify final-state records with 300–700 words as guidance for
+substantial changes; small changes may be much shorter. Require
+record/PR-description checks by the coordinator and independent reviewer at
+handoff, and evidence-based triage of review findings. Existing promised
+boundaries and evidence must be fixed or escalated when invalidated, including
+by mocked or malformed counterexamples. Explain deferral/rejection of
+optional, speculative or new-scope requests; prefer the smallest useful
+counterexample and expand matrices only for a distinct gap or changed behavior.
+Do not add a hard word-count lint, general mutation campaign, review
+infrastructure or blanket approval gate.
+
+Decision: provide one uncommitted three-file draft for the coordinator's
+wording check. After that check, create one append-only documentation commit;
+formal independent acceptance covers the frozen commit and exact hosted CI.
+Run targeted documentation/index/example and whitespace checks, without
+repeating broad host/native tests for these three documentation files. The
+coordinator handles freezing, hosted CI, final roles and PR delivery. No
+runtime, test, fixture, CI, dependency, version, changelog, client or reviewer
+configuration change is authorized. The developer makes no external writes;
+the coordinator's existing PR-delivery authorization covers pushes, exact
+hosted CI and PR metadata. Merge, release and publication remain unauthorized.
+Any further source correction after this exception's commit requires a
+maintainer decision.

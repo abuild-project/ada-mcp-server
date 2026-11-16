@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ada_mcp.als.client import ALSClient, LSPError
+from ada_mcp.tools.navigation import _ensure_file_open
 
 from ..utils.position import to_lsp_position
 from ..utils.uri import file_to_uri, uri_to_file
@@ -133,6 +134,7 @@ async def handle_call_hierarchy(
     """
     file_uri = file_to_uri(file)
     lsp_pos = to_lsp_position(line, column)
+    await _ensure_file_open(als_client, file)
 
     # First, prepare call hierarchy
     prepare_result = await als_client.send_request(
@@ -199,6 +201,18 @@ async def handle_call_hierarchy(
     }
 
 
+def _mask_ada_noncode(text: str) -> str:
+    """Blank comments and quoted strings while preserving source line boundaries."""
+    # In Character'('"'), the first apostrophe starts qualification;
+    # its third apostrophe opens the quote character literal. Do not consume
+    # that apostrophe as a character-literal terminator before a double quote.
+    return re.sub(
+        r"""'[^'\r\n]'(?!")|"(?:[^"\r\n]|"")*"|--[^\r\n]*""",
+        lambda match: " " * len(match.group()),
+        text,
+    )
+
+
 async def handle_dependency_graph(file: str) -> dict[str, Any]:
     """Handle ada_dependency_graph tool request.
 
@@ -231,7 +245,7 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     with_pattern = r"^\s*with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
 
     for ada_file in ada_files:
-        content = ada_file.read_text()
+        content = _mask_ada_noncode(ada_file.read_text())
 
         # Extract package or procedure name from this file
         pkg_match = re.search(pkg_pattern, content, re.IGNORECASE)

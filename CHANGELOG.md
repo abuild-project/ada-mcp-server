@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Preserve legal bare code-action command identifiers and native rename
+  preview replacement text without applying edits.
+- Ignore Ada comments and quoted strings when identifying units in bounded
+  dependency summaries, including doubled quote escaping and quote-character
+  literals inside qualified expressions.
+- Synchronize a queried source before evaluating its call hierarchy, so
+  changes to that file replace its previously opened contents.
+- Honor the selected signature's active parameter before the top-level
+  fallback, including an explicit zero and documented index defaults. Apply
+  defaults only within the LSP unsigned integer domain; retain malformed
+  raw values for diagnosis.
+
 ## 0.2.0-rc.3 — pilot prerelease
 
 - Validate selection inputs on the same non-symlink descriptor used to read

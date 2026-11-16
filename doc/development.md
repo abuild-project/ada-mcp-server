@@ -71,6 +71,34 @@ The initial state's comment line is serialized metadata; no-target calls
 exercise the changed state. These mocked controls do not establish live proof.
 The documentation checker also enforces alphabetical change-record titles.
 
+The additional-tool control requires exact fixture-derived call edges and
+native call-site ranges, qualified members, signatures, code-action discovery,
+single- and cross-unit rename previews, spec targets, formatting edits,
+manifest fields and actual owned GPRbuild success/error results. An isolated
+main-only change tests hierarchy synchronization before any other handler;
+a later package/signature change explicitly synchronizes those other files.
+Ada/GPR/TOML/template hashes exclude only the fixture's declared obj/bin
+outputs. Native requests/results, MCP envelopes, complete source states,
+process births and cleanup survive failure. Actions and rename previews
+never execute edits; formatting is reconstructed in memory before an explicit
+write to the fresh owned fixture for the already-formatted check.
+
+Three pinned-ALS positional signature cases remain unaccepted. The default
+control fails their incorrect active indices. CI explicitly assesses only
+the three evidenced cases, requiring the unchanged native request/cursor,
+the exact original raw defect envelope and effective native/MCP index fidelity.
+The selected signature's explicit parameter index takes precedence over the
+top-level fallback, including zero. Only documented defaults normalize valid
+out-of-range signature/top-level indices; malformed raw indices and a
+per-signature out-of-range index remain unaccepted. Validate every raw index,
+including unused fields, against LSP's 0..2147483647 integer domain before
+precedence or defaults; MAX is valid and MAX+1 remains malformed. It retains expected-correct
+and observed-wrong values with `accepted=false`, `semantic_acceptance=false`
+and status `assessed-with-native-blocker`. Named associations supplement the
+selection checks. New coordinates, candidate conversion defects and every
+unrelated mismatch fail. This bounded test basis does not promote the
+additional tools beyond the [support limits](support.md) or fix ALS itself.
+
 For fast development only, a local venv may run a targeted check:
 
 ```sh
