@@ -1,4 +1,4 @@
-"""Require real nonroot scan errors to abort fixture inspection; never skip proof."""
+"""Require genuine scan denials; skip only unavailable local root preconditions."""
 
 import json
 import os
@@ -10,6 +10,22 @@ import real_additional as real
 from tests.host import test_additional_runner as runner_tests
 
 strict_runner = runner_tests.runner
+
+
+def _require_nonroot_permissions() -> None:
+    """Keep mandatory permission checks strict and local root skips explicit."""
+    if os.geteuid() != 0:
+        return
+    message = "Permission-denial tests require a real nonroot identity"
+    if os.environ.get("ADA_MCP_REQUIRE_PERMISSION_TESTS") == "1":
+        pytest.fail(message + "; mandatory checks cannot be skipped", pytrace=False)
+    pytest.skip(message + "; skipped in this local root run")
+
+
+@pytest.fixture(autouse=True)
+def nonroot_permission_precondition() -> None:
+    """Check identity before the permission-denial fixtures are modified."""
+    _require_nonroot_permissions()
 
 
 def make_unreadable(root, name="hidden"):
