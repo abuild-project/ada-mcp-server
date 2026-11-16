@@ -268,8 +268,12 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
         package_name = pkg_match.group("unit")
         seen_packages.add(package_name)
 
-        # Find all 'with' clauses
-        with_clauses = re.findall(with_pattern, content, re.MULTILINE | re.IGNORECASE)
+        # Context clauses precede both generic formals and the owning unit.
+        context = content[: pkg_match.start()]
+        generic = re.search(r"\bgeneric\b", context, re.IGNORECASE)
+        if generic:
+            context = context[: generic.start()]
+        with_clauses = re.findall(with_pattern, context, re.MULTILINE | re.IGNORECASE)
 
         imported_packages = set()
         for clause in with_clauses:

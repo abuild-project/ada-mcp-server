@@ -106,6 +106,52 @@ async def test_dependency_graph_collects_context_qualifiers(tmp_path, prefix):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("context", [False, True], ids=["no-context", "with-context"])
+async def test_dependency_graph_ignores_aspects_after_unit(tmp_path, context):
+    """A multiline aspect specification is not a context import clause."""
+    source = tmp_path / "stop.ads"
+    source.write_text(
+        ("with Ada.Text_IO;\n" if context else "") + "procedure Stop\n  with Inline, No_Return;\n"
+    )
+    before = source.read_bytes()
+    assert await handle_dependency_graph(str(source)) == {
+        "dependencies": (
+            [{"package": "Stop", "file": str(source), "depends_on": ["Ada.Text_IO"]}]
+            if context
+            else []
+        ),
+        "package_count": 1,
+    }
+    assert source.read_bytes() == before
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("context", [False, True], ids=["no-context", "qualified-context"])
+async def test_dependency_graph_ignores_generic_formal_aspects(tmp_path, context):
+    """A formal subprogram aspect is not an import of its owning generic unit."""
+    source = tmp_path / "owner.ads"
+    imports = ["Ada.Text_IO", "Combined_Dep", "Limited_Dep", "Private_Dep"]
+    source.write_text(
+        (
+            "with Ada.Text_IO;\nlimited with Limited_Dep;\nprivate with Private_Dep;\n"
+            "limited private with Combined_Dep;\n"
+            if context
+            else ""
+        )
+        + "generic\n  with procedure Stop\n    with No_Return;\n"
+        "package Owner is end Owner;\n"
+    )
+    before = source.read_bytes()
+    assert await handle_dependency_graph(str(source)) == {
+        "dependencies": (
+            [{"package": "Owner", "file": str(source), "depends_on": imports}] if context else []
+        ),
+        "package_count": 1,
+    }
+    assert source.read_bytes() == before
+
+
+@pytest.mark.asyncio
 async def test_call_hierarchy_synchronizes_cold_queried_source(tmp_path, mock_als_client):
     """Opening the queried file must precede native hierarchy preparation."""
     source = tmp_path / "actual.adb"

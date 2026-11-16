@@ -23,3 +23,13 @@ evidence. The tester validates an immutable candidate in a fresh worktree
 through the complete canonical chain; independent review precedes PR
 delivery. Record later head validation in PR comments. No developer external
 writes, merge or release.
+
+## 2026-11-16: Context-only import scan
+
+Collect imports before the selected unit. Cover Stop's multiline aspects
+with focused regressions and the existing compiled STDIO fixture.
+
+## 2026-11-16: Generic formal boundary
+
+End context imports before generic or the selected unit. Retain both
+aspect regressions and compile their shared fixture.
