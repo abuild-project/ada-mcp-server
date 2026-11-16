@@ -11,9 +11,8 @@ existing unqualified convention for separate procedure and package bodies.
 The separate parent does not become part of the public owner name. Whole
 keywords, generic with/access exclusions, comment/string masking, ordinary
 import scope, path handling, package-count semantics and response shape
-remain unchanged.
-This is a bounded lexical correction; it adds no general task-type or
-protected-unit parsing and does not expand the support matrix.
+remain unchanged. This is a bounded lexical correction; it adds no general
+task-type or protected-unit parsing and does not expand the support matrix.
 
 Two regressions cover a task body alone and a task body before an inner
 procedure, including comments and line breaks. Separate procedure/package
@@ -32,12 +31,29 @@ intact, including the three unaccepted native signature blockers.
 
 At base `839325351058d37d2e9f59c90ef999b3b4989b1e`, the valid task
 fixture compiles with the project's GNAT 14 image while the original handler
-returns the inner procedure as owner. Reused-image checks are development
-evidence: 36 focused unit tests, Ruff/format, strict Mypy and documentation
-checks pass, along with all 22 STDIO integration assertions, including
-the exact task dependency result, real compilation and unchanged inputs.
-Complete exact-source container validation and independent review remain
-required. No SDK/ALS pin, version, client policy or support-scope change is
-included.
+returns the inner procedure as owner. The body-only counterexample is
+omitted entirely. Both original failures are retained as regression evidence.
+
+At implementation revision `60daa8f80fddbf12b1d50d4b9097c1bb16a4223a`,
+a fresh detached worktree passed the complete exact-source AMD64 Trixie/
+GNAT 14/pinned-ALS build/check chain: 1,293 unit tests passed, with one
+integration case deselected and no skips. Quality, strict typing,
+distributions/Twine, documentation, completed-check provenance and actual
+ALS/MCP/E2E checks passed. All 22 STDIO integration assertions passed,
+including the exact Worker/Ada.Text_IO reply and GNAT compilation using
+the same owned fixture paths. The parent ALI was absent before compilation
+and its resulting hash was retained; the three input hashes matched the
+committed bytes and remained unchanged.
+
+Independent checks of both original counterexamples passed through the
+handler and real STDIO for file and directory queries, with successful
+GNAT 14 parent compilation and unchanged inputs. Separate procedure/package
+owners remained unqualified. The public dependency query is lexical;
+the separate compiler check establishes Ada validity. Neither establishes
+general parser coverage or arbitrary write confinement. The real native
+chain retained 27 reading and 53 additional-tool calls, with exactly the
+three unchanged positional signature blockers unaccepted and
+semantic_acceptance=false. No SDK/ALS pin, version, client policy or
+support-scope change is included.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>
