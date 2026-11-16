@@ -13,4 +13,5 @@
 - [Pydantic hash lock update](pip-main-pydantic-2.14.3.md)
 - [RC2 prerelease preparation](release-0.2.0-rc.2.md)
 - [RC3 prerelease and public notification check](release-0.2.0-rc.3.md)
+- [Rename application result](rename-application-result.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)

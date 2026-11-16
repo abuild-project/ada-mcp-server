@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Reject unsupported rename application (`preview=false`) explicitly instead
+  of reporting that proposed changes were applied.
 - Preserve legal bare code-action command identifiers and native rename
   preview replacement text without applying edits.
 - Ignore Ada comments and quoted strings when identifying units in bounded
