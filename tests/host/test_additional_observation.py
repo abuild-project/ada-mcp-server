@@ -1,14 +1,12 @@
-"""Guard exploratory evidence boundaries without claiming live ALS semantics."""
+"""Guard shared fixture evidence, native tracing and its retained CLI."""
 
 import asyncio
 import copy
 import json
-import shutil
+import sys
 from pathlib import Path
-from types import SimpleNamespace
 
 import additional_support as support
-import mcp_client
 import observe_additional as observation
 import pytest
 
@@ -130,178 +128,37 @@ def test_native_trace_delegates_initialize_and_preserves_exception(tmp_path, mon
         support.observed_server(trace)
 
 
-@pytest.fixture
-def runner(tmp_path, monkeypatch):
-    original = tmp_path / "original-fixture"
-    shutil.copytree(support.FIXTURE, original)
-    monkeypatch.setattr(support, "FIXTURE", original)
-    control = SimpleNamespace(
-        output=tmp_path / "run",
-        original=original,
-        on_call=None,
-        calls=[],
-        close_count=0,
-        cleanup_count=0,
-        identity_change={},
-        close_error=None,
-    )
-    identity = {"mcp_pid": 701, "mcp_start_ticks": 71, "als_pid": 702, "als_start_ticks": 72}
+def test_trace_cli_rejects_retired_output_before_dispatch_or_write(tmp_path, monkeypatch, capsys):
+    output = tmp_path / "retired-output"
 
-    class ExploratorySession:
-        def __init__(self, command, timeout, log_dir):
-            self.root = Path(log_dir).parent / "fixture"
-            self.timeout = timeout
-            Path(log_dir).mkdir()
-            (Path(log_dir) / "server-stderr.log").write_text("mock process evidence\n")
+    def forbidden(*_args, **_kwargs):
+        pytest.fail("retired --output must fail before dispatch or filesystem writes")
 
-        def initialize(self):
-            return {"mock_initialize": True}
-
-        def tools(self):
-            return [{"name": "mock catalog"}]
-
-        def request(self, method, params):
-            assert method == "tools/call"
-            tool, arguments = params["name"], params["arguments"]
-            control.calls.append(copy.deepcopy(params))
-            if control.on_call is not None:
-                control.on_call(self.root, tool, arguments)
-            payload = (
-                {"complete": True, "project_file": str(self.root / "additional.gpr")}
-                if tool == "ada_project_info"
-                else {"error": "deliberately unaccepted mock capability"}
-            )
-            return {"content": [{"type": "text", "text": json.dumps(payload)}]}
-
-        def close(self):
-            control.close_count += 1
-            if control.close_error:
-                raise RuntimeError(control.close_error)
-            return 0
-
-    def process(*_args):
-        return {**identity, **control.identity_change}
-
-    def cleanup(_identity):
-        control.cleanup_count += 1
-        return {"observed_child_exited": True}
-
-    monkeypatch.setattr(mcp_client, "Session", ExploratorySession)
-    monkeypatch.setattr(observation, "process_state", process)
-    monkeypatch.setattr(observation, "require_child_exit", cleanup)
-    return control
+    monkeypatch.setattr(sys, "argv", ["observe_additional.py", "--output", str(output)])
+    with monkeypatch.context() as guarded:
+        guarded.setattr(support, "observed_server", forbidden)
+        guarded.setattr(Path, "mkdir", forbidden)
+        guarded.setattr(Path, "open", forbidden)
+        with pytest.raises(SystemExit) as caught:
+            observation.main()
+    assert caught.value.code == 2
+    captured = capsys.readouterr()
+    assert captured.out == "" and "error:" in captured.err
+    assert list(tmp_path.iterdir()) == []
 
 
-def test_full_observation_keeps_semantic_failures_unaccepted(runner):
-    report = observation.run_observation(runner.output)
-    assert report["status"] == "observed" and report["semantic_acceptance"] is False
-    assert len(report["calls"]) > 40 and all(row["inputs_unchanged"] for row in report["calls"])
-    assert all(row["semantic_error"] for row in report["calls"][1:])
-    assert report["original_fixture_unchanged"] is True
-    assert "ADA_PROJECT_ROOT=" + str(runner.output / "fixture") in report["argv"]
-    assert runner.close_count == runner.cleanup_count == 1
-    labels = [row["label"] for row in report["calls"]]
-    assert labels[1] == "cold-main-calls"
-    assert labels.index("changed-cold-main-calls") + 1 == labels.index("changed-warm-source")
-    assert [row["label"] for row in report["states"]] == [
-        "initial",
-        "warm-semantic-change",
-        "restored-for-build",
-        "deliberate-compiler-error",
-    ]
-    assert (
-        report["states"][0]["files"]["src/main.adb"] == report["states"][2]["files"]["src/main.adb"]
-    )
-    assert len(report["client_denials"]) == 4
-    assert json.loads((runner.output / "summary.json").read_text()) == report
+def test_trace_cli_dispatches_without_nonprotocol_stdout(tmp_path, monkeypatch, capsys):
+    trace = tmp_path / "native.jsonl"
+    calls = []
+    protocol = '{"jsonrpc":"2.0","id":1,"result":{}}\n'
 
+    def serve(path):
+        calls.append(path)
+        sys.stdout.write(protocol)
 
-def test_exploratory_template_and_restore_writes_use_the_shared_batch_guard(runner, monkeypatch):
-    guarded = support.mutate_owned
-    batches = []
-
-    def record(root, changes):
-        batches.append(len(changes))
-        guarded(root, changes)
-
-    monkeypatch.setattr(support, "mutate_owned", record)
-    observation.run_observation(runner.output)
-    assert batches == [3, 3, 1]
-
-
-@pytest.mark.parametrize(
-    "name",
-    ["src/main.adb", "additional.gpr", "manifest/alire.toml", "states/main-after.adb", "stray.o"],
-)
-def test_full_observation_rejects_and_preserves_unexpected_changes(runner, name):
-    def mutate(root, tool, _arguments):
-        if tool == "ada_call_hierarchy":
-            (root / name).write_text("unexpected change\n")
-
-    runner.on_call = mutate
-    with pytest.raises(RuntimeError, match="outside its allowed owned build outputs"):
-        observation.run_observation(runner.output)
-    report = json.loads((runner.output / "summary.json").read_text())
-    row = report["calls"][-1]
-    assert row["tool"] == "ada_call_hierarchy" and row["changed_files"] == [name]
-    assert "raw_result" in row and row["file_sha256_before"] != row["file_sha256_after"]
-    assert runner.close_count == runner.cleanup_count == 1
-
-
-def test_full_observation_allows_only_owned_compiler_products(runner):
-    def generate(root, tool, _arguments):
-        if tool == "ada_build":
-            for name in ("obj/b__main.adb", "bin/main"):
-                path = root / name
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text("mock compiler output\n")
-
-    runner.on_call = generate
-    report = observation.run_observation(runner.output)
-    assert set(report["successful_build_files"]) == {"obj/b__main.adb", "bin/main"}
-    assert report["calls"][-2]["inputs_unchanged"] is True
-
-
-@pytest.mark.parametrize("field", ["mcp_pid", "mcp_start_ticks", "als_pid", "als_start_ticks"])
-def test_full_observation_records_changed_process_birth_before_failure(runner, field):
-    def change_birth(_root, tool, _arguments):
-        if tool == "ada_call_hierarchy":
-            runner.identity_change[field] = 999
-
-    runner.on_call = change_birth
-    with pytest.raises(RuntimeError, match="process births changed"):
-        observation.run_observation(runner.output)
-    report = json.loads((runner.output / "summary.json").read_text())
-    assert report["calls"][-1]["process"][field] == 999
-    assert runner.close_count == runner.cleanup_count == 1
-
-
-def test_full_observation_rejects_original_fixture_change(runner):
-    def change_original(_root, tool, _arguments):
-        if tool == "ada_build":
-            (runner.original / "additional.gpr").write_text("changed original\n")
-
-    runner.on_call = change_original
-    with pytest.raises(RuntimeError, match="original additional fixture changed"):
-        observation.run_observation(runner.output)
-    report = json.loads((runner.output / "summary.json").read_text())
-    assert report["original_fixture_unchanged"] is False
-    assert runner.close_count == runner.cleanup_count == 1
-
-
-def test_full_observation_keeps_eof_failure(runner):
-    runner.close_error = "mock EOF failure"
-    with pytest.raises(RuntimeError, match="mock EOF failure"):
-        observation.run_observation(runner.output)
-    report = json.loads((runner.output / "summary.json").read_text())
-    assert report["eof_error"] == "RuntimeError: mock EOF failure"
-    assert runner.close_count == runner.cleanup_count == 1
-
-
-def test_existing_output_is_never_replaced(runner):
-    runner.output.mkdir()
-    marker = runner.output / "previous-evidence"
-    marker.write_text("retain\n")
-    with pytest.raises(FileExistsError):
-        observation.run_observation(runner.output)
-    assert marker.read_text() == "retain\n" and runner.close_count == 0
+    monkeypatch.setattr(sys, "argv", ["observe_additional.py", "--serve-trace", str(trace)])
+    monkeypatch.setattr(support, "observed_server", serve)
+    observation.main()
+    captured = capsys.readouterr()
+    assert calls == [trace]
+    assert captured.out == protocol and captured.err == ""

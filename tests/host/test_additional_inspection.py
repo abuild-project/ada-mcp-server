@@ -4,15 +4,12 @@ import json
 import os
 
 import additional_support as support
-import observe_additional as observation
 import pytest
 import real_additional as real
 
-from tests.host import test_additional_observation as observation_tests
 from tests.host import test_additional_runner as runner_tests
 
 strict_runner = runner_tests.runner
-exploratory_runner = observation_tests.runner
 
 
 def make_unreadable(root, name="hidden"):
@@ -62,27 +59,6 @@ def test_strict_runner_keeps_real_scan_failure_unaccepted(strict_runner):
     assert last["accepted"] is False and last["raw_result"]
     assert last["file_inspection_error"].startswith("PermissionError:")
     assert strict_runner.close_count == strict_runner.cleanup_count == 1
-
-
-def test_exploratory_runner_propagates_real_scan_failure(exploratory_runner):
-    blocked = None
-
-    def mutate(root, tool, _arguments):
-        nonlocal blocked
-        if tool == "ada_call_hierarchy" and blocked is None:
-            blocked = make_unreadable(root)
-
-    exploratory_runner.on_call = mutate
-    try:
-        with pytest.raises(RuntimeError, match="PermissionError"):
-            observation.run_observation(exploratory_runner.output)
-    finally:
-        if blocked is not None:
-            blocked.chmod(0o700)
-    report = json.loads((exploratory_runner.output / "summary.json").read_text())
-    assert report["calls"][-1]["raw_result"]
-    assert report["calls"][-1]["file_inspection_error"].startswith("PermissionError:")
-    assert exploratory_runner.close_count == exploratory_runner.cleanup_count == 1
 
 
 def test_unreadable_regular_file_error_was_already_propagated(tmp_path):

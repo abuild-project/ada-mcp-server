@@ -111,11 +111,14 @@ One private control context holds the session, total deadline, process identity
 and per-call evidence guards. scripts/additional_support.py supplies shared
 owned-fixture inspection/hashing, batch mutations, MCP decoding and native
 tracing. scripts/additional_native.py and scripts/additional_oracles.py retain
-the native and semantic checks. scripts/observe_additional.py keeps the
---serve-trace child entry used by the required control and its optional
-exploratory --output runner. The exploratory runner's boundary tests run in
-CI; its observations remain semantically unaccepted and its native exploration
-is not an additional CI requirement.
+the native and semantic checks. scripts/observe_additional.py retains only
+the --serve-trace child entry used by the required control, dispatching directly
+to the shared tracer with protocol-only stdout. The optional exploratory
+--output runner is retired. Shared fixture, mutation, decoder and native-trace
+guards and the strict control's negative tests remain in CI; the CLI tests
+require retired-option rejection before dispatch or writes and unchanged trace
+dispatch. See the [retirement plan](plans/retire-exploration.md) for test-case
+accounting and the superseded optional-retention decision.
 
 For fast development only, a local venv may run a targeted check:
 
