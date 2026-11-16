@@ -105,6 +105,18 @@ selection checks. New coordinates, candidate conversion defects and every
 unrelated mismatch fail. This bounded test basis does not promote the
 additional tools beyond the [support limits](support.md) or fix ALS itself.
 
+The additional-tool harness keeps strict orchestration and its ordered query,
+preview, source-change, manifest and build phases in scripts/real_additional.py.
+One private control context holds the session, total deadline, process identity
+and per-call evidence guards. scripts/additional_support.py supplies shared
+owned-fixture inspection/hashing, batch mutations, MCP decoding and native
+tracing. scripts/additional_native.py and scripts/additional_oracles.py retain
+the native and semantic checks. scripts/observe_additional.py keeps the
+--serve-trace child entry used by the required control and its optional
+exploratory --output runner. The exploratory runner's boundary tests run in
+CI; its observations remain semantically unaccepted and its native exploration
+is not an additional CI requirement.
+
 For fast development only, a local venv may run a targeted check:
 
 ```sh
