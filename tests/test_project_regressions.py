@@ -58,8 +58,16 @@ async def test_dependency_graph_ignores_comment_and_literal_declarations(tmp_pat
         "procedure Worker is\n   procedure Inner is begin null; end Inner;\n"
         "begin Inner; end Worker;\n",
         "package body Worker is\n   procedure Inner is begin null; end Inner;\nend Worker;\n",
+        "protected -- function False_Owner is\nbody Worker is\n"
+        "   procedure Inner is begin null; end Inner;\nend Worker;\n",
     ],
-    ids=["task-only", "task-before-inner", "separate-procedure", "separate-package"],
+    ids=[
+        "task-only",
+        "task-before-inner",
+        "separate-procedure",
+        "separate-package",
+        "protected-before-operation",
+    ],
 )
 async def test_dependency_graph_separate_body_owns_its_context(tmp_path, body):
     """Subunit imports belong to its declared name, without parent qualification."""
@@ -68,6 +76,30 @@ async def test_dependency_graph_separate_body_owns_its_context(tmp_path, body):
     before = source.read_bytes()
     assert await handle_dependency_graph(str(source)) == {
         "dependencies": [{"package": "Worker", "file": str(source), "depends_on": ["Visible"]}],
+        "package_count": 1,
+    }
+    assert source.read_bytes() == before
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "prefix",
+    ["", "limited ", "private ", "LiMiTeD -- private with Hidden;\nPrIvAtE "],
+    ids=["ordinary", "limited", "private", "limited-private-masked"],
+)
+async def test_dependency_graph_collects_context_qualifiers(tmp_path, prefix):
+    """Context qualifiers keep the same sorted import list and source spelling."""
+    source = tmp_path / "owner.ads"
+    source.write_text(
+        "-- limited private with Hidden;\n"
+        + prefix
+        + "with Visible, Other;\npackage Owner is end Owner;\n"
+    )
+    before = source.read_bytes()
+    assert await handle_dependency_graph(str(source)) == {
+        "dependencies": [
+            {"package": "Owner", "file": str(source), "depends_on": ["Other", "Visible"]}
+        ],
         "package_count": 1,
     }
     assert source.read_bytes() == before

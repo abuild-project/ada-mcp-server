@@ -243,10 +243,10 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     # Regex patterns for parsing
     pkg_pattern = (
         r"\b(?:(?P<introducer>with|access(?:\s+protected)?)\s+)?"
-        r"(?:(?:package|procedure|function)\b\s+(?:body\s+)?|task\s+body\b\s+)"
+        r"(?:(?:package|procedure|function)\b\s+(?:body\s+)?|(?:task|protected)\s+body\b\s+)"
         r"(?P<unit>\w+(?:\.\w+)*)"
     )
-    with_pattern = r"^\s*with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
+    with_pattern = r"^\s*(?:limited\s+)?(?:private\s+)?with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
 
     for ada_file in ada_files:
         content = _mask_ada_noncode(ada_file.read_text())
