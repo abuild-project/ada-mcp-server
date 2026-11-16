@@ -3,6 +3,7 @@
 import json
 import os
 
+import additional_support as support
 import observe_additional as observation
 import pytest
 import real_additional as real
@@ -29,14 +30,14 @@ def test_unreadable_new_directory_is_not_an_unchanged_snapshot(tmp_path, name):
     root = tmp_path / "owned"
     root.mkdir()
     (root / "source.adb").write_text("procedure Source is begin null; end Source;\n")
-    before = observation.file_hashes(root)
+    before = support.file_hashes(root)
     blocked = make_unreadable(root, name)
     try:
         with pytest.raises(PermissionError):
             with os.scandir(blocked) as entries:
                 list(entries)
         with pytest.raises(PermissionError):
-            observation.require_changes(before, observation.file_hashes(root), allow_build=False)
+            support.require_changes(before, support.file_hashes(root), allow_build=False)
     finally:
         blocked.chmod(0o700)
 
@@ -91,7 +92,7 @@ def test_unreadable_regular_file_error_was_already_propagated(tmp_path):
     path.chmod(0)
     try:
         with pytest.raises(PermissionError):
-            observation.file_hashes(tmp_path)
+            support.file_hashes(tmp_path)
     finally:
         path.chmod(0o600)
 
@@ -104,7 +105,7 @@ def test_unreadable_root_cannot_be_an_empty_inventory(tmp_path):
     root.chmod(0)
     try:
         with pytest.raises(PermissionError):
-            observation.file_hashes(root)
+            support.file_hashes(root)
     finally:
         root.chmod(0o700)
 
@@ -117,7 +118,7 @@ def test_owned_writer_aborts_before_write_if_any_subtree_is_unreadable(tmp_path)
     blocked = make_unreadable(root)
     try:
         with pytest.raises(PermissionError):
-            observation.mutate_owned(root, {target: b"changed\n"})
+            support.mutate_owned(root, {target: b"changed\n"})
         assert target.read_bytes() == b"retain\n"
     finally:
         blocked.chmod(0o700)

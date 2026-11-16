@@ -4,14 +4,14 @@ import copy
 import shutil
 
 import additional_oracles as oracle
+import additional_support as support
 import pytest
-import real_additional as real
 
 
 @pytest.fixture
 def root(tmp_path):
     target = tmp_path / "fixture"
-    shutil.copytree(real.FIXTURE, target)
+    shutil.copytree(support.FIXTURE, target)
     return target
 
 

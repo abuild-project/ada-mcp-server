@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
+import additional_support as support
 import mcp_client
 import pytest
 import real_additional as real
@@ -69,8 +70,8 @@ def actions(location):
 @pytest.fixture
 def runner(tmp_path, monkeypatch):
     original = tmp_path / "original-fixture"
-    shutil.copytree(real.FIXTURE, original)
-    monkeypatch.setattr(real, "FIXTURE", original)
+    shutil.copytree(support.FIXTURE, original)
+    monkeypatch.setattr(support, "FIXTURE", original)
     control = SimpleNamespace(
         output=tmp_path / "run",
         original=original,

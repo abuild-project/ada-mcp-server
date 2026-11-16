@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
+import additional_support as support
 import mcp_client
 import observe_additional as observation
 import pytest
@@ -24,13 +25,13 @@ def test_input_hashes_include_templates_and_manifest_but_not_generated_sources(t
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(name)
-    assert set(observation.input_hashes(tmp_path)) == {
+    assert set(support.input_hashes(tmp_path)) == {
         "src/main.adb",
         "additional.gpr",
         "manifest/alire.toml",
         "states/after.adb",
     }
-    assert set(observation.file_hashes(tmp_path)) == {
+    assert set(support.file_hashes(tmp_path)) == {
         "src/main.adb",
         "additional.gpr",
         "manifest/alire.toml",
@@ -48,23 +49,23 @@ def test_build_boundary_rejects_changes_outside_owned_outputs(name, operation):
     before = {} if operation == "add" else {name: "old"}
     after = {} if operation == "delete" else {name: "new"}
     with pytest.raises(AssertionError, match="outside its allowed owned build outputs"):
-        observation.require_changes(before, after, allow_build=True)
+        support.require_changes(before, after, allow_build=True)
 
 
 @pytest.mark.parametrize("name", ["obj/main.o", "obj/b__main.adb", "bin/main"])
 def test_only_build_calls_allow_owned_generated_changes(name):
-    assert observation.require_changes({}, {name: "new"}, allow_build=True) == [name]
+    assert support.require_changes({}, {name: "new"}, allow_build=True) == [name]
     with pytest.raises(AssertionError, match="outside its allowed owned build outputs"):
-        observation.require_changes({}, {name: "new"}, allow_build=False)
+        support.require_changes({}, {name: "new"}, allow_build=False)
 
 
 @pytest.mark.parametrize(
     "payload", [{"found": False}, {"error": "method not found"}, {"actions": []}]
 )
 def test_decode_preserves_empty_and_error_observations(payload):
-    assert observation.decode_result({"structuredContent": payload}) == payload
+    assert support.decode_result({"structuredContent": payload}) == payload
     assert (
-        observation.decode_result({"content": [{"type": "text", "text": json.dumps(payload)}]})
+        support.decode_result({"content": [{"type": "text", "text": json.dumps(payload)}]})
         == payload
     )
 
@@ -74,7 +75,7 @@ def test_decode_preserves_empty_and_error_observations(payload):
 )
 def test_decode_rejects_missing_payload(raw):
     with pytest.raises(ValueError, match="no JSON object payload"):
-        observation.decode_result(raw)
+        support.decode_result(raw)
 
 
 def test_native_trace_delegates_initialize_and_preserves_exception(tmp_path, monkeypatch):
@@ -105,7 +106,7 @@ def test_native_trace_delegates_initialize_and_preserves_exception(tmp_path, mon
     monkeypatch.setattr(ALSClient, "send_request", native)
     monkeypatch.setattr(entry, "main", lambda: asyncio.run(protocol()))
     trace = tmp_path / "native.jsonl"
-    observation.observed_server(trace)
+    support.observed_server(trace)
     rows = [json.loads(line) for line in trace.read_text().splitlines()]
     assert calls == [
         ("initialize", {"capabilities": {"unchanged": True}}),
@@ -126,14 +127,14 @@ def test_native_trace_delegates_initialize_and_preserves_exception(tmp_path, mon
         },
     ]
     with pytest.raises(FileExistsError):
-        observation.observed_server(trace)
+        support.observed_server(trace)
 
 
 @pytest.fixture
 def runner(tmp_path, monkeypatch):
     original = tmp_path / "original-fixture"
-    shutil.copytree(observation.FIXTURE, original)
-    monkeypatch.setattr(observation, "FIXTURE", original)
+    shutil.copytree(support.FIXTURE, original)
+    monkeypatch.setattr(support, "FIXTURE", original)
     control = SimpleNamespace(
         output=tmp_path / "run",
         original=original,
@@ -216,14 +217,14 @@ def test_full_observation_keeps_semantic_failures_unaccepted(runner):
 
 
 def test_exploratory_template_and_restore_writes_use_the_shared_batch_guard(runner, monkeypatch):
-    guarded = observation.mutate_owned
+    guarded = support.mutate_owned
     batches = []
 
     def record(root, changes):
         batches.append(len(changes))
         guarded(root, changes)
 
-    monkeypatch.setattr(observation, "mutate_owned", record)
+    monkeypatch.setattr(support, "mutate_owned", record)
     observation.run_observation(runner.output)
     assert batches == [3, 3, 1]
 

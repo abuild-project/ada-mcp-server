@@ -4,7 +4,7 @@ import asyncio
 import json
 from pathlib import Path
 
-import observe_additional as observation
+import additional_support as support
 import pytest
 import real_additional as real
 from additional_native import native_pairs
@@ -46,7 +46,7 @@ def test_inspection_rejects_every_symlink(tmp_path, kind):
         (owned / "obj").symlink_to(external, target_is_directory=True)
         inspected = owned
     with pytest.raises(AssertionError, match="symlink"):
-        observation.file_hashes(inspected)
+        support.file_hashes(inspected)
 
 
 def test_same_byte_link_substitution_cannot_evade_change_guard(tmp_path):
@@ -54,13 +54,13 @@ def test_same_byte_link_substitution_cannot_evade_change_guard(tmp_path):
     root.mkdir()
     path = root / "main.adb"
     path.write_text("same bytes\n")
-    before = observation.file_hashes(root)
+    before = support.file_hashes(root)
     external = tmp_path / "external.adb"
     external.write_bytes(path.read_bytes())
     path.unlink()
     path.symlink_to(external)
     with pytest.raises(AssertionError, match="symlink"):
-        observation.require_changes(before, observation.file_hashes(root), allow_build=False)
+        support.require_changes(before, support.file_hashes(root), allow_build=False)
 
 
 def test_owned_mutation_never_follows_same_byte_external_link(runner, tmp_path):
@@ -165,7 +165,7 @@ def test_mutation_checks_entire_batch_before_first_write(tmp_path):
     external.write_bytes(b"second\n")
     second.symlink_to(external)
     with pytest.raises(AssertionError, match="symlink"):
-        observation.mutate_owned(root, {first: b"changed first\n", second: b"changed second\n"})
+        support.mutate_owned(root, {first: b"changed first\n", second: b"changed second\n"})
     assert first.read_bytes() == b"first\n" and external.read_bytes() == b"second\n"
 
 

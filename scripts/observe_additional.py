@@ -5,154 +5,31 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import shutil
-import stat
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
+import additional_support as support
 from real_diagnostics import process_state
 from real_reading import require_child_exit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tooling"))
 JSON = dict[str, Any]
-FIXTURE = Path(__file__).resolve().parent.parent / "tests/fixtures/additional_project"
-GENERATED = {"obj", "bin"}
-
-
-def file_hashes(root: Path) -> dict[str, str]:
-    """Hash regular fixture files, rejecting links and special entries before reads."""
-    require_no_symlink_ancestors(root)
-    if not stat.S_ISDIR(root.lstat().st_mode):
-        raise AssertionError("fixture inspection requires an existing directory")
-    hashes: dict[str, str] = {}
-
-    def inspect_directory(directory: Path) -> None:
-        # Unlike rglob, scandir propagates an unreadable directory's scan error.
-        with os.scandir(directory) as entries:
-            children = sorted(entries, key=lambda entry: entry.name)
-        for entry in children:
-            path = Path(entry.path)
-            mode = entry.stat(follow_symlinks=False).st_mode
-            if stat.S_ISLNK(mode):
-                raise AssertionError(f"fixture inspection rejects symlink: {path}")
-            if stat.S_ISREG(mode):
-                hashes[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
-            elif stat.S_ISDIR(mode):
-                inspect_directory(path)
-            else:
-                raise AssertionError(f"fixture inspection rejects a nonregular entry: {path}")
-
-    inspect_directory(root)
-    return hashes
-
-
-def require_no_symlink_ancestors(path: Path) -> None:
-    """Reject even dangling links in a requested path or any of its ancestors."""
-    if any(parent.is_symlink() for parent in (path, *path.parents)):
-        raise AssertionError(f"owned fixture path rejects symlink: {path}")
-
-
-def mutate_owned(root: Path, changes: dict[Path, bytes]) -> None:
-    """Validate the entire existing-file batch before writing any fresh owned source."""
-    file_hashes(root)
-    for path in changes:
-        if not path.is_relative_to(root) or path.is_relative_to(FIXTURE) or ".." in path.parts:
-            raise AssertionError("source mutation must stay in the fresh owned fixture")
-        require_no_symlink_ancestors(path)
-        if not path.is_file() or not path.resolve().is_relative_to(root.resolve()):
-            raise AssertionError("source mutation requires an existing owned regular file")
-    for path, text in changes.items():
-        path.write_bytes(text)
-
-
-def input_hashes(root: Path) -> dict[str, str]:
-    """Include Ada/GPR/TOML/templates while excluding only owned obj/bin."""
-    return {
-        name: digest
-        for name, digest in file_hashes(root).items()
-        if Path(name).parts[0] not in GENERATED
-    }
-
-
-def require_changes(before: JSON, after: JSON, allow_build: bool) -> list[str]:
-    """Permit build products only below the explicitly owned output paths."""
-    changed = sorted(
-        name for name in before.keys() | after.keys() if before.get(name) != after.get(name)
-    )
-    if any(not allow_build or Path(name).parts[0] not in GENERATED for name in changed):
-        raise AssertionError("a tool changed files outside its allowed owned build outputs")
-    return changed
-
-
-def decode_result(result: JSON) -> JSON:
-    """Preserve semantic errors as observations instead of accepting positives."""
-    payload = result.get("structuredContent")
-    if isinstance(payload, dict):
-        return payload
-    for item in result.get("content", []):
-        if item.get("type") == "text":
-            try:
-                parsed = json.loads(item["text"])
-            except ValueError:
-                continue
-            if isinstance(parsed, dict):
-                return parsed
-    raise ValueError("MCP tool response has no JSON object payload")
-
-
-def observed_server(trace: Path) -> None:
-    """Trace native requests in a test-only entry point around real dispatch."""
-    from ada_mcp.__main__ import main as server_main
-    from ada_mcp.als.client import ALSClient, LSPError
-
-    original = ALSClient.send_request
-    serial = 0
-    with trace.open("x") as stream:
-
-        def write(value: JSON) -> None:
-            stream.write(json.dumps(value) + "\n")
-            stream.flush()
-
-        async def traced_request(client: ALSClient, method: str, params: JSON | None = None) -> Any:
-            nonlocal serial
-            serial += 1
-            ident = serial
-            write({"event": "request", "id": ident, "method": method, "params": params})
-            try:
-                result = await original(client, method, params)
-            except BaseException as error:
-                observation: JSON = {
-                    "event": "error",
-                    "id": ident,
-                    "method": method,
-                    "type": type(error).__name__,
-                    "message": str(error),
-                }
-                if isinstance(error, LSPError):
-                    observation.update(code=error.code, data=error.data)
-                write(observation)
-                raise
-            write({"event": "result", "id": ident, "method": method, "result": result})
-            return result
-
-        setattr(ALSClient, "send_request", traced_request)
-        server_main()
 
 
 def run_observation(output: Path) -> JSON:
     """Retain one bounded exploratory run and fail on harness boundary errors."""
     from mcp_client import Session, validate_calls
 
-    require_no_symlink_ancestors(output)
+    support.require_no_symlink_ancestors(output)
     output.mkdir(parents=True, exist_ok=False)
     root = output / "fixture"
-    original = file_hashes(FIXTURE)
-    shutil.copytree(FIXTURE, root, symlinks=True)
+    original = support.file_hashes(support.FIXTURE)
+    shutil.copytree(support.FIXTURE, root, symlinks=True)
     main, spec, body = (root / "src" / name for name in ("main.adb", "probe.ads", "probe.adb"))
     initial_sources = {
         str(path.relative_to(root)): path.read_bytes() for path in (main, spec, body)
@@ -193,20 +70,20 @@ def run_observation(output: Path) -> JSON:
         if remaining <= 0:
             raise TimeoutError("additional observation exceeded its total request budget")
         session.timeout = min(90, remaining)
-        before = file_hashes(root)
+        before = support.file_hashes(root)
         record: JSON = {
             "label": label,
             "tool": tool,
             "arguments": arguments,
             "file_sha256_before": before,
-            "input_sha256_before": input_hashes(root),
+            "input_sha256_before": support.input_hashes(root),
             "allow_owned_build_outputs": allow_build,
         }
         report["calls"].append(record)
         try:
             raw = session.request("tools/call", {"name": tool, "arguments": arguments})
             record["raw_result"] = raw
-            result = decode_result(raw)
+            result = support.decode_result(raw)
             record["result"] = result
             record["semantic_error"] = bool(raw.get("isError") or result.get("error"))
         except Exception as error:
@@ -214,19 +91,19 @@ def run_observation(output: Path) -> JSON:
             raise
         finally:
             try:
-                after = file_hashes(root)
+                after = support.file_hashes(root)
             except Exception as error:
                 record["file_inspection_error"] = type(error).__name__ + ": " + str(error)
                 raise
             record["file_sha256_after"] = after
-            record["input_sha256_after"] = input_hashes(root)
+            record["input_sha256_after"] = support.input_hashes(root)
             record["inputs_unchanged"] = (
                 record["input_sha256_before"] == record["input_sha256_after"]
             )
             record["changed_files"] = sorted(
                 name for name in before.keys() | after.keys() if before.get(name) != after.get(name)
             )
-        require_changes(before, after, allow_build)
+        support.require_changes(before, after, allow_build)
         if identity is not None:
             observed = process_state(session, output / "mcp/server-stderr.log")
             record["process"] = observed
@@ -235,7 +112,7 @@ def run_observation(output: Path) -> JSON:
         return result
 
     def state(label: str) -> None:
-        inputs = input_hashes(root)
+        inputs = support.input_hashes(root)
         report["states"].append(
             {
                 "label": label,
@@ -345,7 +222,7 @@ def run_observation(output: Path) -> JSON:
         call("semantic-spec", "ada_get_spec", {"file": str(body), "line": 2, "column": 14})
         call("sibling-spec", "ada_get_spec", {"file": str(body)})
         call("missing-spec", "ada_get_spec", {"file": str(root / "formatting/orphan.adb")})
-        mutate_owned(
+        support.mutate_owned(
             root,
             {
                 source: (root / "states" / (source.stem + "-after" + source.suffix)).read_bytes()
@@ -394,7 +271,9 @@ def run_observation(output: Path) -> JSON:
             {"file": str(body), "line": 4, "column": 14},
         )
         call("changed-dependencies", "ada_dependency_graph", {"file": str(root / "src")})
-        mutate_owned(root, {root / name: content for name, content in initial_sources.items()})
+        support.mutate_owned(
+            root, {root / name: content for name, content in initial_sources.items()}
+        )
         state("restored-for-build")
         for directory in ("manifest", "malformed", "formatting"):
             call("manifest-" + directory, "ada_alire_info", {"project_dir": str(root / directory)})
@@ -433,10 +312,10 @@ def run_observation(output: Path) -> JSON:
         )
         report["successful_build_files"] = {
             name: digest
-            for name, digest in file_hashes(root).items()
-            if Path(name).parts[0] in GENERATED
+            for name, digest in support.file_hashes(root).items()
+            if Path(name).parts[0] in support.GENERATED
         }
-        mutate_owned(root, {main: (root / "states/main-error.adb").read_bytes()})
+        support.mutate_owned(root, {main: (root / "states/main-error.adb").read_bytes()})
         state("deliberate-compiler-error")
         call(
             "compiler-error",
@@ -463,7 +342,7 @@ def run_observation(output: Path) -> JSON:
                 report["cleanup_error"] = type(error).__name__ + ": " + str(error)
                 problem = problem or report["cleanup_error"]
         try:
-            report["original_fixture_unchanged"] = file_hashes(FIXTURE) == original
+            report["original_fixture_unchanged"] = support.file_hashes(support.FIXTURE) == original
         except Exception as error:
             report["original_fixture_unchanged"] = False
             report["original_fixture_inspection_error"] = type(error).__name__ + ": " + str(error)
@@ -485,7 +364,7 @@ def main() -> None:
     mode.add_argument("--serve-trace", type=Path)
     options = parser.parse_args()
     if options.serve_trace is not None:
-        observed_server(options.serve_trace)
+        support.observed_server(options.serve_trace)
     else:
         print(json.dumps(run_observation(options.output.absolute()), indent=2))
 

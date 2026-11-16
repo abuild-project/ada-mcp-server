@@ -14,8 +14,8 @@ ruff format --check src tests tooling scripts
 mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
     scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py \
     scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py \
-    scripts/observe_additional.py scripts/additional_oracles.py scripts/additional_native.py \
-    scripts/real_additional.py
+    scripts/additional_support.py scripts/observe_additional.py scripts/additional_oracles.py \
+    scripts/additional_native.py scripts/real_additional.py
 python -m pytest tests -m 'not integration' -q --tb=short \
     --cov=ada_mcp --cov=tooling --cov-report=term-missing \
     --cov-report="xml:$output/coverage.xml" --cov-report="html:$output/htmlcov"
