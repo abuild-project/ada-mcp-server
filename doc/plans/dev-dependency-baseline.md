@@ -13,3 +13,10 @@ metadata, built wheel/sdist requirements and unchanged runtime payloads.
 Use existing focused documentation/packaging checks without an unlocked
 extra install or version matrix. Add one concise changelog entry and
 record; final canonical acceptance remains separate.
+
+## 2026-11-17: Extend alignment to Mypy
+
+Extend the earlier two-tool scope to Mypy 2.4.1, matching strict CI's
+locked baseline. Keep the other four dev floors and all runtime/input/lock
+constraints unchanged; verify Python compatibility and published artifact
+metadata within this topic.
