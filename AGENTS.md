@@ -85,13 +85,13 @@ installed-version evidence requirement.
   applies to release and dependency updates. Use the commit subject/body
   conventions above for the merge message; do not rewrite published topic
   commits to obtain a single-commit PR.
-- Merge commits that integrate main resolve conflicts only; put any
-  correction in a separate commit.
+- Merge commits that integrate main resolve conflicts only. Put corrections,
+  including fixes needed for the combined state, in a separate following commit.
 - Add doc/change-records/<topic>.md and its sorted index entry. Derive the topic
   from the branch by dropping the first prefix and replacing other slashes
-  with hyphens. The PR description is the record verbatim; post later head
-  validation as a PR comment. End the record with the same accurate coauthor
-  attribution. Keep ticket identifiers out of these texts.
+  with hyphens. The PR description is the record verbatim. End the record with
+  the same accurate coauthor attribution. Keep ticket identifiers out of these
+  texts.
 - Post each head's validation as a new short comment; never rewrite
   an earlier validation comment.
 - Write records around the final problem, behavior, scope, validation at an
