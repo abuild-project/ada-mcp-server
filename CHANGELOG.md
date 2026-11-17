@@ -6,6 +6,11 @@
   files outside their directories. Shared imports use the most recent matching
   explicit selection unless an explicitly selected lexical ancestor applies.
   Reselecting a project reevaluates changed source membership.
+- Default new bootstrap bindings to GHCR with the hash-locked release archive
+  as a fallback for pull failure or timeout. Preserve immutable runtime pins,
+  explicit source overrides and existing binding sources; `--transport archive`
+  selects archive-only provisioning. Use platform-native image cache defaults
+  and explain the archive override for versions outside the registry format.
 - Give successful bootstrap installations a local
   `ada-mcp-server:v<project-version>` alias, while preserving immutable runtime
   pins. Report conflicting or unavailable aliases without overwriting them or

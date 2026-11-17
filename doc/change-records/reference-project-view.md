@@ -30,8 +30,8 @@ and checks a nonmember's separate project with positive and negative symbol
 queries. It retains raw
 protocol, compiler output and known fixture-input hashes.
 
-Development checks on the topic source based on published main
-`cd21c0a39b109dae1e3008b3aed73a6e5bc2fe18` passed Ruff, formatting, strict
+Development checks through topic revision
+`e5ceadee68024fe8433aae336f0631370c3279ff` passed Ruff, formatting, strict
 typing, targeted unit tests and documentation validation in the verified
 baseline Trixie runtime. The source-mounted native control passed the initial
 three-reference and refreshed four-reference queries with unchanged original

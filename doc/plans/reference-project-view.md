@@ -86,3 +86,13 @@ project-view information and mains. Align its command guard, native projection
 and mocked trace with that sequence. Reject missing or reordered reloads;
 retain the existing forbidden-action controls and positional-signature limits.
 Keep the runtime selection implementation unchanged.
+
+## 2026-11-17 — Published registry baseline alignment
+
+Merge published main `180ecbcf8f279bf00e75a3f926ef2fb430670320` normally,
+preserving both histories and the accepted registry provisioning behavior.
+Retain both changelog entries, the sorted record index and the independent
+installer and project-selection setup guidance. Check the combined registry,
+alias and verified-helper controls, then validate the exact merged candidate
+through the complete managed CI chain. The topic scope and correction budget
+continue unchanged.

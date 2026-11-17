@@ -159,6 +159,52 @@ def validate_registry(reference: str) -> None:
     )
 
 
+def default_registry(manifest: JSON) -> str:
+    """Locate release bytes by version while retaining the trusted config lock."""
+    version = manifest.get("project_version")
+    require(
+        isinstance(version, str) and re.fullmatch(r"\d+\.\d+\.\d+(?:-rc\.\d+)?", version),
+        "registry downloads require X.Y.Z or X.Y.Z-rc.N; "
+        "use --transport archive for other versions",
+    )
+    assert isinstance(version, str)
+    return "ghcr.io/abuild-project/ada-mcp-server:v" + version
+
+
+def default_image_cache() -> Path:
+    """Choose the user's native cache root without creating or migrating state."""
+    if sys.platform == "darwin":
+        root = Path.home() / "Library/Caches"
+    else:
+        xdg_cache = os.environ.get("XDG_CACHE_HOME", "")
+        root = (
+            Path(xdg_cache)
+            if xdg_cache and Path(xdg_cache).is_absolute()
+            else Path.home() / ".cache"
+        )
+    return root / "ada-mcp/images"
+
+
+def archive_download(cache: str, manifest: JSON) -> JSON:
+    """Describe the hash-locked archive in the explicitly selected fallback cache."""
+    distribution = manifest["available_archive"]
+    filename = distribution["filename"]
+    require(
+        isinstance(filename, str)
+        and Path(filename).name == filename
+        and filename not in ["", ".", ".."],
+        "invalid image archive name",
+    )
+    directory = absolute_path(cache, "image cache directory")
+    return {
+        "kind": "download",
+        "path": str(directory / filename),
+        "url": distribution["download_url"],
+        "sha256": distribution["sha256"],
+        "bytes": distribution["bytes"],
+    }
+
+
 def validate_binding(binding: JSON, manifest: JSON) -> JSON:
     """Validate one host binding; existing GPR files remain the project contract."""
     require(
@@ -242,6 +288,13 @@ def validate_binding(binding: JSON, manifest: JSON) -> JSON:
         elif source.get("kind") == "registry":
             require(set(source) == {"kind", "reference"}, "invalid registry source fields")
             validate_registry(source["reference"])
+        elif source.get("kind") == "registry-fallback":
+            require(
+                set(source) == {"kind", "reference", "cache"}
+                and source["reference"] == default_registry(manifest),
+                "default registry source differs from runtime release",
+            )
+            archive_download(source["cache"], manifest)
         else:
             raise RuntimeError("unknown image source kind")
     return binding
@@ -575,7 +628,38 @@ def provision_image(
         "pinned image unavailable without a source; supply an archive or registry digest",
     )
     docker, environment = docker_binding(binding)
-    if source["kind"] in ["archive", "download"]:
+    if source["kind"] == "registry-fallback":
+        require(manifest is not None, "default registry requires the runtime manifest")
+        assert manifest is not None
+        transport = report["image_transport"] = {
+            "preferred": "registry",
+            "reference": source["reference"],
+            "used": "registry",
+        }
+        try:
+            pulled = command_run(
+                docker + ["image", "pull", "--platform", "linux/amd64", source["reference"]],
+                environment,
+                report,
+                timeout,
+                check=False,
+            )
+            unavailable = pulled.returncode != 0
+        except subprocess.TimeoutExpired:
+            unavailable = True
+        if unavailable:
+            transport.update(used="archive", reason="registry-pull-unavailable")
+            fallback = dict(binding, image_source=archive_download(source["cache"], manifest))
+            provision_image(fallback, report, timeout, manifest)
+            binding["image_identity"] = fallback["image_identity"]
+            return
+        # Successful transport is not identity acceptance. Inspection, export
+        # or config/source/version failures below never trigger a fallback.
+        state = inspect_image(docker, environment, source["reference"], report, timeout)
+        require(state is not None, "pulled release image is unavailable")
+        assert state is not None
+        candidates = [state["Id"]]
+    elif source["kind"] in ["archive", "download"]:
         if source["kind"] == "download":
             report["download"] = load_helper("acquire")["download_file"](
                 source["url"], Path(source["path"]), source["sha256"], source["bytes"]
@@ -876,24 +960,22 @@ def new_binding(options: argparse.Namespace, manifest: JSON) -> JSON:
             "path": str(absolute_path(options.archive, "archive path")),
             "sha256": options.archive_sha256,
         }
-    elif options.image_cache:
-        distribution = manifest["available_archive"]
-        filename = distribution["filename"]
-        require(
-            Path(filename).name == filename and filename not in ["", ".", ".."],
-            "invalid image archive name",
-        )
-        cache = absolute_path(options.image_cache, "image cache directory")
-        source = {
-            "kind": "download",
-            "path": str(cache / filename),
-            "url": distribution["download_url"],
-            "sha256": distribution["sha256"],
-            "bytes": distribution["bytes"],
-        }
     elif options.registry:
+        require(options.transport != "archive", "registry conflicts with archive transport")
         validate_registry(options.registry)
         source = {"kind": "registry", "reference": options.registry}
+    else:
+        cache = options.image_cache or str(default_image_cache())
+        archive = archive_download(cache, manifest)
+        source = (
+            archive
+            if options.transport == "archive"
+            else {
+                "kind": "registry-fallback",
+                "reference": default_registry(manifest),
+                "cache": cache,
+            }
+        )
     return validate_binding(
         {
             "version": 2,
@@ -971,7 +1053,14 @@ def main() -> int:
     sources.add_argument("--archive")
     sources.add_argument("--registry")
     sources.add_argument(
-        "--image-cache", help="explicit cache directory for the locked release image archive"
+        "--image-cache",
+        help="fallback archive cache (default: macOS ~/Library/Caches/ada-mcp/images; "
+        "otherwise absolute XDG_CACHE_HOME or ~/.cache, under ada-mcp/images)",
+    )
+    setup.add_argument(
+        "--transport",
+        choices=["auto", "archive"],
+        help="default: GHCR with archive fallback; archive explicitly selects archive-only setup",
     )
     setup.add_argument("--archive-sha256")
     check = modes.add_parser("doctor", help="check the actual host binding and MCP runtime")
@@ -1061,6 +1150,7 @@ def main() -> int:
                                 "archive_sha256",
                                 "registry",
                                 "image_cache",
+                                "transport",
                             ]
                         ),
                         "binding immutable; use it without overrides or choose a new file",
@@ -1068,10 +1158,13 @@ def main() -> int:
                     binding = read_binding(path, manifest)
                 else:
                     binding = new_binding(options, manifest)
-                # An explicitly supplied source for a new binding exercises its
-                # real import/pull path even when the daemon already caches the ID.
+                # Explicit archive/registry selection exercises its transport,
+                # while the default can reuse an already locked local target.
                 original_target = target_id(binding)
-                if not exists and binding["image_source"] is not None:
+                explicit_source = (
+                    options.archive or options.registry or options.transport == "archive"
+                )
+                if not exists and explicit_source:
                     provision_image(binding, report, options.command_timeout, manifest)
                 elif not image_present(binding, report, options.command_timeout):
                     provision_image(binding, report, options.command_timeout, manifest)
