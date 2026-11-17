@@ -13,3 +13,12 @@ guidelines and all tester, reviewer, CI and installed-version evidence
 requirements. This policy change follows the existing plan requirement.
 Use existing documentation checks with an explicit DEV snapshot; add no
 tests, dependency, CI code, pin, runtime or changelog change.
+
+## 2026-11-17: Superseding eligibility decision
+
+The initial eligibility wording above is historical and superseded by the
+[AGENTS rule](../../AGENTS.md#dependency-update-plans). The maintainer selected
+update-level and dependency-role boundaries, with roles defined by direct
+input-file pins. Required lock alignment inherits that eligibility. Keep
+the normative categories only in AGENTS and link from development; retain
+all record, CI, review and version-evidence duties.

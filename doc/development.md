@@ -10,9 +10,9 @@ bootstrap acceptance covered all changes since imported revision
 `961f532bcc633189e8618852732be289752cbcd7`, including the independent import
 README on main; later release work uses that accepted bootstrap as its base.
 
-Only routine dependency patch updates and lock-only alignment to approved
-input pins may omit a separate plan. Every other change needs a dated topic
-plan. A short record with durable rationale is always required; a few
+Plan eligibility is defined by the
+[dependency-update plan rule](../AGENTS.md#dependency-update-plans).
+A short record with durable rationale is always required; a few
 sentences suffice for those routine cases. Keep operational counters and
 attempt logs outside tracked source. The same tester/reviewer roles,
 complete CI and actual installed-version evidence requirements apply.

@@ -12,10 +12,6 @@ regardless of vendor.
   origins in doc/licensing.md; generated checksums are not license grants.
 - Use `codex/<topic>` for Codex branches. Other authors may choose their own
   single-segment prefix. Continue an existing topic and its correction counters.
-- Only routine dependency patch updates and lock-only alignment to approved
-  input pins may omit a separate plan. Every other change needs a dated topic
-  plan. This exception changes no tester/reviewer, CI or actual
-  installed-version evidence requirement.
 - Obtain maintainer decisions for changes to compatibility, licensing, support
   scope or public contracts. Routine implementation choices within an agreed
   plan or authorized plan-free update need no extra permission.
@@ -27,6 +23,18 @@ regardless of vendor.
   semantic results. Keep project views, paths and scenario values explicit.
 - Host bindings and global client/Docker configuration must not be silently
   overwritten. Downloads need immutable version/hash metadata before execution.
+
+## Dependency update plans
+
+Pins in requirements/runtime.in are runtime dependencies. Other direct
+requirements/development.in pins are development dependencies;
+development.in includes runtime.in.
+
+Dependabot patch or minor updates of development dependencies, runtime patch
+updates, and the lock alignment they require may omit a separate plan.
+Major updates, runtime minor updates and every other change need a dated
+topic plan. This exception changes no tester/reviewer, CI or actual
+installed-version evidence requirement.
 
 ## Validation and roles
 
