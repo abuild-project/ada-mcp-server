@@ -63,9 +63,9 @@ def test_bootstrap_assigns_version_tag_and_keeps_binding_target(
     monkeypatch.setattr(sys, "argv", arguments)
     assert setup.main() == 0
     result = json.loads(capsys.readouterr().out)
-    assert images["ada-mcp-server:0.3.0-rc.1"] == candidate["image_id"]
+    assert images["ada-mcp-server:v0.3.0-rc.1"] == candidate["image_id"]
     assert events.index(("doctor",)) < events.index(
-        ("tag", candidate["image_id"], "ada-mcp-server:0.3.0-rc.1")
+        ("tag", candidate["image_id"], "ada-mcp-server:v0.3.0-rc.1")
     )
     assert any(event[0] == "provision" for event in events) is cold
     assert result["image_tag"]["status"] == "created"
@@ -82,7 +82,7 @@ def test_version_alias_observes_docker_identity_without_overwriting(
 ):
     candidate = binding(tmp_path)
     target = candidate["image_id"]
-    tag = "ada-mcp-server:0.3.0+build.2".replace("+", "_")
+    tag = "ada-mcp-server:v0.3.0+build.2".replace("+", "_")
     state = tmp_path / "state.json"
     state.write_text(json.dumps({tag: target} if preexisting == "same" else {}))
     if preexisting == "different":
@@ -116,8 +116,12 @@ else:
     report = {}
     if preexisting in {"different", "unknown"}:
         before = state.read_bytes()
-        with pytest.raises(RuntimeError, match="different target|unknown"):
-            setup.tag_image(candidate, {"project_version": "0.3.0+build.2"}, report, 10)
+        setup.tag_image(candidate, {"project_version": "0.3.0+build.2"}, report, 10)
+        assert report["image_tag"]["status"] == (
+            "conflict" if preexisting == "different" else "error"
+        )
+        if preexisting == "different":
+            assert report["image_tag"]["observed_target"] == "sha256:" + "c" * 64
         assert state.read_bytes() == before
         assert not any("tag" in c["argv"] for c in report.get("commands", []))
     else:
@@ -165,16 +169,77 @@ def test_tag_uses_verified_oci_store_target_and_checks_the_result(tmp_path, monk
 
     monkeypatch.setattr(setup, "command_run", command)
     report = {}
-    with pytest.raises(RuntimeError, match="does not identify pinned target"):
-        setup.tag_image(candidate, {"project_version": "0.3.0"}, report, 10)
-    assert commands == [["docker", "image", "tag", target, "ada-mcp-server:0.3.0"]]
-    assert report["image_tag"]["status"] == "checking"
+    setup.tag_image(candidate, {"project_version": "0.3.0"}, report, 10)
+    assert commands == [["docker", "image", "tag", target, "ada-mcp-server:v0.3.0"]]
+    assert report["image_tag"]["status"] == "error"
+    assert "does not identify pinned target" in report["image_tag"]["error"]
 
 
-@pytest.mark.parametrize("version", [None, True, "../escape", "v" * 129])
+@pytest.mark.parametrize("version", [None, True, "", "../escape", "v" * 129])
 def test_invalid_tag_version_never_reaches_docker(tmp_path, monkeypatch, version):
     monkeypatch.setattr(
         setup, "docker_binding", lambda *args: pytest.fail("Docker prepared for invalid tag")
     )
-    with pytest.raises(RuntimeError, match="version"):
-        setup.tag_image(binding(tmp_path), {"project_version": version}, {}, 10)
+    report = {}
+    setup.tag_image(binding(tmp_path), {"project_version": version}, report, 10)
+    assert report["image_tag"]["status"] == "error"
+    assert "version" in report["image_tag"]["error"]
+
+
+@pytest.mark.parametrize("issue", ["conflict", "unknown", "tag-failed", "timeout"])
+def test_optional_alias_outcome_does_not_block_binding_publication(
+    tmp_path, monkeypatch, capsys, issue
+):
+    candidate = binding(tmp_path)
+    path = tmp_path / "binding.json"
+    manifest = {
+        "image_id": candidate["image_id"],
+        "image_identity": candidate["image_identity"],
+        "project_version": "0.3.0-rc.1",
+    }
+    events = []
+
+    def inspect(docker, environment, reference, report, timeout):
+        events.append(("inspect", reference))
+        if reference == candidate["image_id"]:
+            return dict(Id=reference, Os="linux", Architecture="amd64")
+        if issue == "unknown":
+            raise RuntimeError("Docker state unknown")
+        if issue == "conflict":
+            return dict(Id="sha256:" + "c" * 64)
+        return None
+
+    def command(*args, **kwargs):
+        events.append(("tag",))
+        if issue == "timeout":
+            raise subprocess.TimeoutExpired(args[0], 1)
+        raise RuntimeError("tag command failed")
+
+    monkeypatch.setattr(setup, "verified_manifest", lambda: manifest)
+    monkeypatch.setattr(setup, "inspect_image", inspect)
+    monkeypatch.setattr(setup, "command_run", command)
+    monkeypatch.setattr(setup, "doctor", lambda *args: events.append(("doctor",)))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "setup",
+            "bootstrap",
+            "--binding",
+            str(path),
+            "--root",
+            str(tmp_path),
+            "--uid",
+            "1000",
+            "--gid",
+            "1000",
+        ],
+    )
+    assert setup.main() == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result["image_tag"]["status"] == ("conflict" if issue == "conflict" else "error")
+    assert result["binding_created"] is True and result["status"] == "passed"
+    assert setup.target_id(json.loads(path.read_text())) == candidate["image_id"]
+    assert events[1] == ("doctor",)
+    if issue in {"conflict", "unknown"}:
+        assert ("tag",) not in events

@@ -3,9 +3,9 @@
 ## Unreleased
 
 - Give successful bootstrap installations a local
-  `ada-mcp-server:<project-version>` alias, while preserving immutable runtime
-  pins and refusing to overwrite a differently assigned version tag.
-
+  `ada-mcp-server:v<project-version>` alias, while preserving immutable runtime
+  pins. Report conflicting or unavailable aliases without overwriting them or
+  blocking the verified installation.
 - Raise optional development minimums to Ruff 0.17.5, pytest-asyncio 1.5.0
   and Mypy 2.4.1.
 - Attribute separate protected-body imports to their declared owner and include

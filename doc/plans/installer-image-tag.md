@@ -36,3 +36,13 @@ topic rather than extending this patch. The native macOS RC3 acceptance remains
 a separate private record; neither its published runtime nor its binding is
 edited by this source change. Preserve the local test and independent-review
 evidence and its zero correction counters when committing the checked source.
+
+## 2026-11-17: Optional naming and consistent version prefixes
+
+Treat the image name as optional convenience after successful Doctor. Report
+an observed conflicting alias as `conflict` without replacing it or blocking
+the verified binding; retain tag/inspect failures as `error` advisories too.
+Use `ada-mcp-server:v<project-version>` to match GHCR's existing `v` prefix.
+Keep build-metadata mapping, immutable execution pins and explicit race limits.
+Apply the review corrections in one bundled PR correction round, with the
+same tester/reviewer, current-head validation comment and Copilot review.
