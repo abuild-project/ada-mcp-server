@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Raise optional development minimums to Ruff 0.17.5 and pytest-asyncio 1.5.0.
 - Attribute separate protected-body imports to their declared owner and include
   limited/private context imports in dependency graphs, excluding aspect
   specifications in generic formal parts or after the unit declaration.
