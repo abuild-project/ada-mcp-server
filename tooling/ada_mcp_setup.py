@@ -164,10 +164,25 @@ def default_registry(manifest: JSON) -> str:
     version = manifest.get("project_version")
     require(
         isinstance(version, str) and re.fullmatch(r"\d+\.\d+\.\d+(?:-rc\.\d+)?", version),
-        "invalid registry release version",
+        "registry downloads require X.Y.Z or X.Y.Z-rc.N; "
+        "use --transport archive for other versions",
     )
     assert isinstance(version, str)
     return "ghcr.io/abuild-project/ada-mcp-server:v" + version
+
+
+def default_image_cache() -> Path:
+    """Choose the user's native cache root without creating or migrating state."""
+    if sys.platform == "darwin":
+        root = Path.home() / "Library/Caches"
+    else:
+        xdg_cache = os.environ.get("XDG_CACHE_HOME", "")
+        root = (
+            Path(xdg_cache)
+            if xdg_cache and Path(xdg_cache).is_absolute()
+            else Path.home() / ".cache"
+        )
+    return root / "ada-mcp/images"
 
 
 def archive_download(cache: str, manifest: JSON) -> JSON:
@@ -719,6 +734,38 @@ def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
     return arguments
 
 
+def tag_image(binding: JSON, manifest: JSON, report: JSON, timeout: float) -> None:
+    """Report a best-effort version alias; naming never blocks verified setup."""
+    evidence = report["image_tag"] = {"status": "checking"}
+    try:
+        version = manifest.get("project_version")
+        require(isinstance(version, str) and version, "image tag requires a project version")
+        assert isinstance(version, str)
+        tag = "v" + version.replace("+", "_")
+        require(
+            re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", tag), "invalid image version tag"
+        )
+        reference = "ada-mcp-server:" + tag
+        target = target_id(binding)
+        evidence.update(reference=reference, target=target)
+        docker, environment = docker_binding(binding)
+        state = inspect_image(docker, environment, reference, report, timeout)
+        if state is not None:
+            evidence.update(
+                status="present" if state["Id"] == target else "conflict",
+                observed_target=state["Id"],
+            )
+            return
+        command_run(docker + ["image", "tag", target, reference], environment, report, timeout)
+        state = inspect_image(docker, environment, reference, report, timeout)
+        require(
+            state is not None and state["Id"] == target, "image tag does not identify pinned target"
+        )
+        evidence["status"] = "created"
+    except Exception as error:
+        evidence.update(status="error", error=type(error).__name__ + ": " + str(error))
+
+
 def update_arguments(options: argparse.Namespace) -> list[str]:
     """Keep notice settings explicit without changing the immutable binding schema."""
     arguments = []
@@ -918,7 +965,7 @@ def new_binding(options: argparse.Namespace, manifest: JSON) -> JSON:
         validate_registry(options.registry)
         source = {"kind": "registry", "reference": options.registry}
     else:
-        cache = options.image_cache or str(Path.home() / ".cache/ada-mcp/images")
+        cache = options.image_cache or str(default_image_cache())
         archive = archive_download(cache, manifest)
         source = (
             archive
@@ -1007,7 +1054,8 @@ def main() -> int:
     sources.add_argument("--registry")
     sources.add_argument(
         "--image-cache",
-        help="cache for the locked fallback archive (default: ~/.cache/ada-mcp/images)",
+        help="fallback archive cache (default: macOS ~/Library/Caches/ada-mcp/images; "
+        "otherwise absolute XDG_CACHE_HOME or ~/.cache, under ada-mcp/images)",
     )
     setup.add_argument(
         "--transport",
@@ -1125,6 +1173,7 @@ def main() -> int:
                     "restored store uses another target; choose a new explicit host binding",
                 )
                 doctor(binding, manifest, report, output, options.timeout, options.command_timeout)
+                tag_image(binding, manifest, report, options.command_timeout)
                 if not exists:
                     write_new(path, json.dumps(binding, indent=2) + "\n")
                 report["binding_created"] = not exists

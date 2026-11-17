@@ -5,8 +5,12 @@
 - Default new bootstrap bindings to GHCR with the hash-locked release archive
   as a fallback for pull failure or timeout. Preserve immutable runtime pins,
   explicit source overrides and existing binding sources; `--transport archive`
-  selects archive-only provisioning.
-
+  selects archive-only provisioning. Use platform-native image cache defaults
+  and explain the archive override for versions outside the registry format.
+- Give successful bootstrap installations a local
+  `ada-mcp-server:v<project-version>` alias, while preserving immutable runtime
+  pins. Report conflicting or unavailable aliases without overwriting them or
+  blocking the verified installation.
 - Raise optional development minimums to Ruff 0.17.5, pytest-asyncio 1.5.0
   and Mypy 2.4.1.
 - Attribute separate protected-body imports to their declared owner and include

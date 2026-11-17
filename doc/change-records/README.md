@@ -2,6 +2,7 @@
 
 - [Additional-tool harness maintenance](harness-maintenance.md)
 - [AnyIO hash lock update](pip-main-anyio-4.16.0.md)
+- [Automatic local image tags](installer-image-tag.md)
 - [Bootstrap distribution](bootstrap-distribution.md)
 - [Bounded additional-tool regressions](additional-tool-regressions.md)
 - [Bounded reading-tool regressions](reading-regression-baseline.md)

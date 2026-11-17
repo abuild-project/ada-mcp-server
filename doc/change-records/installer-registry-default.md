@@ -7,6 +7,13 @@ if the pull fails or times out. `--image-cache` selects its cache and
 `--transport archive` explicitly requests archive-only provisioning. Explicit
 local archives and digest-pinned registry references retain their own routes.
 
+Without an explicit cache path, macOS uses its user Library/Caches directory;
+Linux honors an absolute XDG_CACHE_HOME and otherwise uses ~/.cache, with
+ada-mcp/images beneath each cache root. Empty/relative XDG values are ignored.
+The resolved absolute path is saved in the binding, and existing cache paths
+are never migrated. Registry version errors explain the supported stable/RC
+forms and the archive override; acquisition/publication formats are unchanged.
+
 The version tag locates data rather than granting execution trust. Successful
 pulls still require the locked canonical config digest, platform, source and
 version before execution; inspection/export/identity failures never fall back.
@@ -17,17 +24,18 @@ No installed runtime or published release archive is changed by this patch.
 
 The existing daily GitHub Release advisory and consented update workflow are
 unchanged. A Docker tag refresh alone does not retarget a running pinned MCP
-installation or update its host helpers. The image-tagging topic is separate.
+installation or update its host helpers. The accepted optional image aliases
+from main remain in place, including nonblocking conflict/error reporting.
 
-All 1,013 host tests and nine supplemental compatibility controls pass with
-the locked dependencies, as do Ruff, strict Mypy, requirements and docs checks.
-Default-source sensitivity rejects the base's archive selection. Separate
-testing and independent review assess the same immutable candidate against
-`a3f16279c08dffbe87c6f09ea77e88ed9d6df04b`. Source-helper checks on macOS verify
+Controls cover default/explicit sources, fallback and identity boundaries,
+cache-platform rules, actionable version errors and the combined alias/binding
+behavior. Sensitivity checks reject the prior defaults and diagnostics. Separate
+testing and independent review assess the exact combined immutable candidate.
+Current-head host, complete Trixie and generated-artifact validation are
+recorded in the PR validation comment. Source-helper checks on macOS verify
 an actual anonymous GHCR pull and a real archive load after an injected pull
-failure, preserving the installed binding. They do not establish a new
-generated-release bootstrap or expand documented Mac support. Hosted Trixie
-and artifact acceptance at the current head belong in the PR validation comment.
+failure, preserving the installed binding. Those earlier source-helper checks
+remain development evidence and do not expand documented Mac support.
 No third-party code or licensing material is imported.
 
-Co-Authored-By: Codex (GPT-6) <noreply@openai.com>
+Co-Authored-By: Codex (GPT-6) <codex@openai.com>

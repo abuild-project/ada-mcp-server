@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import ada_mcp_setup as setup
@@ -148,6 +149,7 @@ def test_warm_default_can_reuse_locked_target_without_a_pull(tmp_path, monkeypat
     monkeypatch.setattr(setup, "verified_manifest", lambda: manifest)
     monkeypatch.setattr(setup, "image_present", lambda *args: True)
     monkeypatch.setattr(setup, "doctor", lambda *args: None)
+    monkeypatch.setattr(setup, "tag_image", lambda *args: None)
     monkeypatch.setattr(setup, "provision_image", lambda *args: pytest.fail("unnecessary pull"))
     monkeypatch.setattr(
         sys,
@@ -179,3 +181,117 @@ def test_default_source_rejects_other_registry_or_relative_cache(tmp_path, field
     candidate["image_source"][field] = value
     with pytest.raises(RuntimeError):
         setup.validate_binding(candidate, manifest)
+
+
+@pytest.mark.parametrize(
+    "platform,xdg,expected",
+    [
+        ("darwin", None, "Library/Caches/ada-mcp/images"),
+        ("darwin", "/ignored-xdg", "Library/Caches/ada-mcp/images"),
+        ("linux", None, ".cache/ada-mcp/images"),
+        ("linux", "", ".cache/ada-mcp/images"),
+        ("linux", "relative/cache", ".cache/ada-mcp/images"),
+        ("linux", "/absolute-cache", "/absolute-cache/ada-mcp/images"),
+    ],
+)
+def test_native_cache_default_is_absolute_and_has_no_filesystem_effect(
+    tmp_path, monkeypatch, platform, xdg, expected
+):
+    home = tmp_path / "home"
+    monkeypatch.setattr(setup.Path, "home", lambda: home)
+    monkeypatch.setattr(setup.sys, "platform", platform)
+    if xdg is None:
+        monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+    else:
+        monkeypatch.setenv("XDG_CACHE_HOME", xdg)
+    expected_path = Path(expected) if expected.startswith("/") else home / expected
+    assert setup.default_image_cache() == expected_path
+    assert expected_path.is_absolute()
+    assert not home.exists()
+
+
+def test_explicit_cache_overrides_platform_default(tmp_path, monkeypatch):
+    _, manifest, archive, _ = source_case(tmp_path)
+    options = SimpleNamespace(
+        root=[str(tmp_path)],
+        archive=None,
+        archive_sha256=None,
+        registry=None,
+        image_cache=str(archive.parent),
+        transport=None,
+        image_id=None,
+        docker_host=None,
+        docker_context=None,
+        uid=1000,
+        gid=1000,
+    )
+    monkeypatch.setattr(setup, "default_image_cache", lambda: pytest.fail("default cache used"))
+    created = setup.new_binding(options, manifest)
+    assert created["image_source"]["cache"] == str(archive.parent)
+
+
+@pytest.mark.parametrize("version", ["0.3.0+abc", "0.3.0-beta.1"])
+def test_other_version_formats_explain_explicit_archive_selection(tmp_path, version):
+    _, manifest, archive, _ = source_case(tmp_path)
+    manifest["project_version"] = version
+    options = SimpleNamespace(
+        root=[str(tmp_path)],
+        archive=None,
+        archive_sha256=None,
+        registry=None,
+        image_cache=str(archive.parent),
+        transport=None,
+        image_id=None,
+        docker_host=None,
+        docker_context=None,
+        uid=1000,
+        gid=1000,
+    )
+    with pytest.raises(RuntimeError, match=r"require X.Y.Z or X.Y.Z-rc.N; use --transport archive"):
+        setup.new_binding(options, manifest)
+    options.transport = "archive"
+    assert setup.new_binding(options, manifest)["image_source"]["kind"] == "download"
+
+
+def test_registry_binding_survives_optional_alias_conflict(tmp_path, monkeypatch, capsys):
+    candidate, manifest, archive, target = source_case(tmp_path)
+    path = tmp_path / "combined-binding.json"
+    events = []
+    monkeypatch.setattr(setup, "verified_manifest", lambda: manifest)
+    monkeypatch.setattr(setup, "image_present", lambda *args: True)
+    monkeypatch.setattr(setup, "doctor", lambda *args: events.append("doctor"))
+    monkeypatch.setattr(setup, "provision_image", lambda *args: pytest.fail("unnecessary pull"))
+
+    def conflicting_alias(docker, environment, reference, report, timeout):
+        assert events == ["doctor"]
+        assert reference == "ada-mcp-server:v" + project_version()
+        return dict(Id="sha256:" + "f" * 64)
+
+    monkeypatch.setattr(setup, "inspect_image", conflicting_alias)
+    monkeypatch.setattr(
+        setup, "command_run", lambda *args, **kwargs: pytest.fail("tag overwritten")
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "setup",
+            "bootstrap",
+            "--binding",
+            str(path),
+            "--root",
+            str(tmp_path),
+            "--uid",
+            "1000",
+            "--gid",
+            "1000",
+            "--image-cache",
+            str(archive.parent),
+        ],
+    )
+    assert setup.main() == 0
+    report = json.loads(capsys.readouterr().out)
+    saved = json.loads(path.read_text())
+    assert report["status"] == "passed" and report["image_tag"]["status"] == "conflict"
+    assert saved["image_source"] == candidate["image_source"]
+    assert setup.target_id(saved) == target

@@ -75,14 +75,35 @@ execution, setup verifies their canonical config digest, platform, source and
 version against the authenticated runtime lock. A successful pull followed by
 an inspection/export/identity failure stops setup without an archive fallback.
 
-If the pull fails or times out, setup uses the locked archive in `--image-cache`
-(default `~/.cache/ada-mcp/images`), downloading it only when needed. A cached
+If the pull fails or times out, setup uses the locked archive in `--image-cache`,
+downloading it only when needed. Without that option, macOS uses
+`~/Library/Caches/ada-mcp/images`; Linux uses `$XDG_CACHE_HOME/ada-mcp/images`
+when `XDG_CACHE_HOME` is absolute, otherwise `~/.cache/ada-mcp/images`.
+Empty or relative XDG values are ignored. The resolved absolute cache path
+is retained in the binding. Existing bindings retain their paths and sources;
+the defaults do not create directories until the cache is needed. A cached
 archive is accepted only if its hash and size match; HTTPS downloads refuse
 downgrade redirects and replacement. `--transport archive` explicitly selects
 archive-only setup. The report retains the attempted commands and actual
 transport/fallback. Warm default setup can reuse the already pinned target.
 Existing bindings keep their recorded sources; no automatic migration occurs.
 Previously published tooling retains its original transport behavior.
+
+The automatic GHCR locator accepts the coordinated release forms `X.Y.Z` and
+`X.Y.Z-rc.N`. Other version strings produce an actionable error suggesting
+`--transport archive`. That override bypasses only the registry locator's
+version check; archive integrity and acquisition/publication rules are unchanged.
+
+Bootstrap also creates the local alias `ada-mcp-server:v<project-version>`
+after Doctor succeeds, including when the image or binding already exists.
+SemVer build metadata's `+` becomes `_` in this Docker tag. An alias already
+pointing to that same target is reused. A different target is reported as
+`image_tag.status: "conflict"` and left unchanged; unavailable or failed tag
+operations are reported as `"error"`. These optional naming outcomes do not
+block the verified installation or binding publication. The report records
+the alias and its immutable target. Bindings and launchers continue using the
+verified digest, and Doctor/query do not create tags. This applies to new tooling;
+previously published release archives remain unchanged.
 
 An explicit local `--archive FILE --archive-sha256 HASH` or full
 `--registry registry.example.org/team/ada-mcp@sha256:DIGEST` is also supported.

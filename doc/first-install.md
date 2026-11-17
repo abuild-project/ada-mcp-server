@@ -323,7 +323,11 @@ Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
 be new. Unreleased tooling tries GHCR first and uses the hash-locked image
 archive only if the pull fails or times out. `--image-cache` sets that fallback
-cache; add `--transport archive` for archive-only setup. A successful pull with
+cache; omitting it uses the platform's user cache directory described in the
+[host guide](setup.md#create-one-explicit-host-binding). Add `--transport archive`
+for archive-only setup, also named in the error for unsupported registry version
+formats. This does not extend acquisition or publication version support.
+A successful pull with
 an identity failure stops rather than falling back. Published RC3 and earlier
 tooling keep their original behavior; their explicit `--registry` option
 accepts a verified immutable registry digest as described in the host guide.

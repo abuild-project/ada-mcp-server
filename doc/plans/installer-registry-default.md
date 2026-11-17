@@ -28,3 +28,25 @@ counters at zero for this topic and preserve failed evidence. Follow the
 required local workflow and then create a dedicated PR. Hosted repository
 checks remain separate from the completed native RC3 acceptance; no release,
 merge, force-push or plugin publication is authorized.
+
+## 2026-11-17: Combined installer validation
+
+Integrate main at `cd21c0a39b109dae1e3008b3aed73a6e5bc2fe18`, retaining the
+accepted optional v-prefixed image aliases. Resolve the CHANGELOG conflict
+without dropping either feature and update combined-test fixtures with the
+archive metadata now needed by default bindings. Isolate transport-only tests
+from the alias helper and exercise their interaction with a conflicting alias.
+
+Keep GHCR as the explicitly approved default. Use
+`~/Library/Caches/ada-mcp/images` on macOS; on Linux use an absolute
+`XDG_CACHE_HOME`, otherwise `~/.cache`, with `ada-mcp/images` beneath it.
+Explicit --image-cache wins, and existing binding paths are never migrated.
+For versions outside the existing coordinated registry formats, improve the
+error to name supported forms and --transport archive without broadening
+acquisition or release-promotion syntax.
+
+Perform this as the first bundled PR correction, retaining the assigned
+developer/tester/reviewer roles. Validate the exact combined commit through
+the complete supported Trixie chain and generated-artifact acceptance, then
+update this PR by normal push, current-head CI, Copilot review and a validation
+comment. A PR merge or release still requires separate authorization.
