@@ -527,6 +527,86 @@ async def run_integration_tests() -> bool:
                     "Known task fixture inputs unchanged", task_input_hashes() == before_task
                 )
 
+        print("\n[9c] Checking protected bodies and qualified context imports...")
+        with tempfile.TemporaryDirectory(prefix="ada-mcp-forms-") as temporary:
+            owned = Path(temporary) / "dependency_forms_project"
+            shutil.copytree(project_root / "tests/fixtures/dependency_forms_project", owned)
+            forms_inputs = (
+                owned / "forms.gpr",
+                owned / "src/forms.ads",
+                owned / "src/forms.adb",
+                owned / "src/forms-guard.adb",
+            )
+
+            def forms_input_hashes():
+                return {
+                    str(path.relative_to(owned)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in forms_inputs
+                }
+
+            before_forms = forms_input_hashes()
+            command = [
+                "gprbuild",
+                "-P",
+                str(owned / "forms.gpr"),
+                "-p",
+                "-c",
+                "-u",
+                "forms.adb",
+            ]
+            artifact = owned / "obj/forms.ali"
+            try:
+                test_result("Forms fixture starts without compiled ALI", not artifact.exists())
+                for name, owner, imports in (
+                    ("forms.ads", "Forms", ["Ada.Calendar", "Ada.Strings", "Ada.Text_IO"]),
+                    ("forms-guard.adb", "Guard", ["Ada.Text_IO"]),
+                ):
+                    source = owned / "src" / name
+                    result = await call_tool(client, "ada_dependency_graph", {"file": str(source)})
+                    test_result(
+                        "Exact dependency forms: " + name,
+                        result
+                        == {
+                            "dependencies": [
+                                {"package": owner, "file": str(source), "depends_on": imports}
+                            ],
+                            "package_count": 1,
+                        },
+                        json.dumps(result),
+                    )
+                compiled = await asyncio.to_thread(
+                    subprocess.run,
+                    command,
+                    cwd=owned,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    timeout=60,
+                    check=False,
+                )
+                print(
+                    json.dumps(
+                        {
+                            "command": command,
+                            "exit_code": compiled.returncode,
+                            "output": compiled.stdout.decode("utf-8", errors="replace"),
+                            "input_sha256": before_forms,
+                            "artifact_sha256": (
+                                hashlib.sha256(artifact.read_bytes()).hexdigest()
+                                if artifact.is_file()
+                                else None
+                            ),
+                        }
+                    )
+                )
+                test_result(
+                    "Forms fixture parent compiles and produces ALI",
+                    compiled.returncode == 0 and artifact.is_file(),
+                )
+            finally:
+                test_result(
+                    "Known forms fixture inputs unchanged", forms_input_hashes() == before_forms
+                )
+
     except Exception as e:
         print(f"\n    ✗ Test error: {e}")
         import traceback
