@@ -68,11 +68,31 @@ python3 /absolute/runtime/scripts/ada_mcp_setup.py bootstrap \
 ```
 
 The generated runtime manifest supplies the immutable config digest and the image
-archive's exact versioned URL, byte size and SHA256. The explicit cache path
-avoids global installation. A cached archive is accepted only if its hash and
-size match; downloads use HTTPS and refuse downgrade redirects and replacement.
-An existing local image can be used without a source, but a later cache miss
-then requires explicit source configuration.
+archive's exact versioned URL, byte size and SHA256. Unreleased tooling defaults
+to pulling `ghcr.io/abuild-project/ada-mcp-server:v<project-version>` when the
+locked local target is absent. The version tag only locates the bytes: before
+execution, setup verifies their canonical config digest, platform, source and
+version against the authenticated runtime lock. A successful pull followed by
+an inspection/export/identity failure stops setup without an archive fallback.
+
+If the pull fails or times out, setup uses the locked archive in `--image-cache`,
+downloading it only when needed. Without that option, macOS uses
+`~/Library/Caches/ada-mcp/images`; Linux uses `$XDG_CACHE_HOME/ada-mcp/images`
+when `XDG_CACHE_HOME` is absolute, otherwise `~/.cache/ada-mcp/images`.
+Empty or relative XDG values are ignored. The resolved absolute cache path
+is retained in the binding. Existing bindings retain their paths and sources;
+the defaults do not create directories until the cache is needed. A cached
+archive is accepted only if its hash and size match; HTTPS downloads refuse
+downgrade redirects and replacement. `--transport archive` explicitly selects
+archive-only setup. The report retains the attempted commands and actual
+transport/fallback. Warm default setup can reuse the already pinned target.
+Existing bindings keep their recorded sources; no automatic migration occurs.
+Previously published tooling retains its original transport behavior.
+
+The automatic GHCR locator accepts the coordinated release forms `X.Y.Z` and
+`X.Y.Z-rc.N`. Other version strings produce an actionable error suggesting
+`--transport archive`. That override bypasses only the registry locator's
+version check; archive integrity and acquisition/publication rules are unchanged.
 
 Bootstrap also creates the local alias `ada-mcp-server:v<project-version>`
 after Doctor succeeds, including when the image or binding already exists.
@@ -81,14 +101,16 @@ pointing to that same target is reused. A different target is reported as
 `image_tag.status: "conflict"` and left unchanged; unavailable or failed tag
 operations are reported as `"error"`. These optional naming outcomes do not
 block the verified installation or binding publication. The report records
-the alias and its immutable target. Bindings and launchers continue using the verified
-digest, and Doctor/query do not create tags. This applies to new tooling;
+the alias and its immutable target. Bindings and launchers continue using the
+verified digest, and Doctor/query do not create tags. This applies to new tooling;
 previously published release archives remain unchanged.
 
 An explicit local `--archive FILE --archive-sha256 HASH` or full
 `--registry registry.example.org/team/ada-mcp@sha256:DIGEST` is also supported.
-The registry string is an example, not an existing service. Registry transport
-needs separate evidence; a manifest/index digest differs from the config digest.
+These explicit source overrides do not use the automatic fallback. The example
+registry string is not an existing service. A manifest/index digest differs
+from the config digest. Runtime execution remains pinned to the verified target
+even when the default registry locator is a version tag.
 Archive import checks SHA256 and actual single-image Docker-save metadata before
 load, including config-byte identity, Linux/AMD64 and layer references. The same
 file descriptor is used for hash/metadata/load. Limits are 10,000 members,

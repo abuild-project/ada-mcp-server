@@ -26,6 +26,12 @@ def test_bootstrap_assigns_version_tag_and_keeps_binding_target(
         "image_id": candidate["image_id"],
         "image_identity": candidate["image_identity"],
         "project_version": "0.3.0-rc.1",
+        "available_archive": {
+            "filename": "fixture-image.tar",
+            "sha256": "a" * 64,
+            "bytes": 1,
+            "download_url": "https://example.invalid/fixture-image.tar",
+        },
     }
     events = []
     images = {} if cold else {candidate["image_id"]: candidate["image_id"]}
@@ -59,7 +65,16 @@ def test_bootstrap_assigns_version_tag_and_keeps_binding_target(
     monkeypatch.setattr(setup, "command_run", command)
     arguments = ["setup", "bootstrap", "--binding", str(path)]
     if not existing:
-        arguments += ["--root", str(tmp_path), "--uid", "1000", "--gid", "1000"]
+        arguments += [
+            "--root",
+            str(tmp_path),
+            "--uid",
+            "1000",
+            "--gid",
+            "1000",
+            "--image-cache",
+            str(tmp_path / "images"),
+        ]
     monkeypatch.setattr(sys, "argv", arguments)
     assert setup.main() == 0
     result = json.loads(capsys.readouterr().out)
@@ -196,6 +211,12 @@ def test_optional_alias_outcome_does_not_block_binding_publication(
         "image_id": candidate["image_id"],
         "image_identity": candidate["image_identity"],
         "project_version": "0.3.0-rc.1",
+        "available_archive": {
+            "filename": "fixture-image.tar",
+            "sha256": "a" * 64,
+            "bytes": 1,
+            "download_url": "https://example.invalid/fixture-image.tar",
+        },
     }
     events = []
 
@@ -233,6 +254,8 @@ def test_optional_alias_outcome_does_not_block_binding_publication(
             "1000",
             "--gid",
             "1000",
+            "--image-cache",
+            str(tmp_path / "images"),
         ],
     )
     assert setup.main() == 0
