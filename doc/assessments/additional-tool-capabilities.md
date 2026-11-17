@@ -8,7 +8,7 @@ requests/replies, MCP results, source states, hashes and process cleanup.
 | Tool | Bounded checks | Boundary |
 | --- | --- | --- |
 | Call hierarchy | Exact incoming/outgoing sets, native call sites, unrelated-name exclusion, leaf/comment negatives, removed and moved edge | Synchronizes the queried file; other changed open files need explicit synchronization |
-| Dependency graph | Exact ordinary with-clause edges/counts, actual generic unit ownership, changed import, missing path, comment/string/character-literal masking | Skips generic formals/access profiles; a bounded text parser without complete Ada or limited/private-with coverage |
+| Dependency graph | Ordinary/limited/private imports before generic formals or the owning unit, including limited private with; separate task/protected-body owners, aspect exclusion and lexical masking | A bounded text parser without complete Ada visibility semantics |
 | Completions | Exact controlled qualified members, signatures and insertions, limit and comment cases, renamed members | Native completeness is distinct from the tool's requested result limit |
 | Signature help | Exact declaration/formal order, named association selection, changed types/arity and comment case | Three native positional selections remain blocked below |
 | Code actions | Known named-parameter proposal and exact summary/native command arguments, trigger removal and comment cases | Discovery only; summary API omits native edits/command arguments and executes none |

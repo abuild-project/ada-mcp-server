@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Attribute separate protected-body imports to their declared owner and include
+  limited/private context imports in dependency graphs, excluding aspect
+  specifications in generic formal parts or after the unit declaration.
 - Attribute a separate task body's ordinary context imports to its declared
   task name, instead of an inner declaration or an omitted unit.
 - Return integer zero for a malformed selected native parameter index and
