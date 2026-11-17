@@ -74,6 +74,15 @@ size match; downloads use HTTPS and refuse downgrade redirects and replacement.
 An existing local image can be used without a source, but a later cache miss
 then requires explicit source configuration.
 
+Bootstrap also creates the local alias `ada-mcp-server:<project-version>`
+after Doctor succeeds, including when the image or binding already exists.
+SemVer build metadata's `+` becomes `_` in this Docker tag. An alias already
+pointing to that same target is reused; a different or unknown target fails
+setup without replacing the alias. The setup report records the alias and
+its immutable target. Bindings and launchers continue using the verified
+digest, and Doctor/query do not create tags. This applies to new tooling;
+previously published release archives remain unchanged.
+
 An explicit local `--archive FILE --archive-sha256 HASH` or full
 `--registry registry.example.org/team/ada-mcp@sha256:DIGEST` is also supported.
 The registry string is an example, not an existing service. Registry transport

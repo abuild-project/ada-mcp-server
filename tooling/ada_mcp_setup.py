@@ -650,6 +650,36 @@ def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
     return arguments
 
 
+def tag_image(binding: JSON, manifest: JSON, report: JSON, timeout: float) -> None:
+    """Publish a versioned local alias without replacing a different image."""
+    version = manifest.get("project_version")
+    require(isinstance(version, str), "image tag requires a project version")
+    assert isinstance(version, str)
+    tag = version.replace("+", "_")
+    require(re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", tag), "invalid image version tag")
+    reference = "ada-mcp-server:" + tag
+    target = target_id(binding)
+    docker, environment = docker_binding(binding)
+    evidence = report["image_tag"] = {
+        "reference": reference,
+        "target": target,
+        "status": "checking",
+    }
+    state = inspect_image(docker, environment, reference, report, timeout)
+    if state is not None:
+        require(
+            state["Id"] == target, "image tag points to a different target; nothing overwritten"
+        )
+        evidence["status"] = "present"
+        return
+    command_run(docker + ["image", "tag", target, reference], environment, report, timeout)
+    state = inspect_image(docker, environment, reference, report, timeout)
+    require(
+        state is not None and state["Id"] == target, "image tag does not identify pinned target"
+    )
+    evidence["status"] = "created"
+
+
 def update_arguments(options: argparse.Namespace) -> list[str]:
     """Keep notice settings explicit without changing the immutable binding schema."""
     arguments = []
@@ -1048,6 +1078,7 @@ def main() -> int:
                     "restored store uses another target; choose a new explicit host binding",
                 )
                 doctor(binding, manifest, report, output, options.timeout, options.command_timeout)
+                tag_image(binding, manifest, report, options.command_timeout)
                 if not exists:
                     write_new(path, json.dumps(binding, indent=2) + "\n")
                 report["binding_created"] = not exists
