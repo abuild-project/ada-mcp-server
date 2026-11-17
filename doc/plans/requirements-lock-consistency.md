@@ -22,3 +22,9 @@ AGENTS shortening work separate. This internal CI change has no changelog
 entry. Only the assigned developer edits; focused checks precede immutable
 canonical testing and independent review. Keep later head validation in PR
 comments, and stop before merge or release.
+
+## 2026-11-17: Clarify native defect scope
+
+Distinguish the broader Inside-before-count defect from three CI samples.
+Add only confirmed literal-position observations on the two tested ALS
+releases; retain all acceptance bounds.

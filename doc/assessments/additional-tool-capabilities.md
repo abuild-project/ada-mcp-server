@@ -38,8 +38,20 @@ initialize negotiation and signature requests. MCP sent the correct
 public-minus-one LSP coordinates. The native reply already contained the
 wrong index. The pinned ALS source at
 [commit 4a2d3d5](https://github.com/AdaCore/ada_language_server/blob/4a2d3d5e67bb52160d9fc17fbc52d3293274469a/source/ada/lsp-ada_completions-generic_assoc.adb#L837)
-counts unnamed actuals then decrements a positive cursor position. This
-explains the observed discrepancy; no upstream implementation is imported.
+exits the unnamed-actual counter loop on `Inside` before counting that
+actual, then decrements a positive count. This source path can return the
+preceding parameter for positions inside a non-first positional actual.
+The three samples above do not exhaust the defect; no upstream
+implementation is imported.
+
+Native follow-up checks on ALS 2026.3.202607051 and 2027.0.202610121
+confirmed both `activeParameter` fields return 0 instead of 1 for
+`Combine (1, 23)` at zero-based LSP 5:25, between `2` and `3`. At 5:26,
+after `23`, both return the correct 1. The `Combine (1, 2)` control returned
+1/0/1 at 5:23/24/25 on both releases. At the evidenced adjacent outside
+positions, both actuals are counted, so the count of 2 is decremented to
+the correct 1. These observations cover the shown literal positions and
+add no CI exceptions.
 
 The strict runner fails these results. CI's explicit assessment option
 recognizes only these three label/state/path/cursor combinations and their
