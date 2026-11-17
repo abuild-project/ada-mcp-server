@@ -1,8 +1,9 @@
 # Ada MCP agent guide
 
-Read README.md, doc/development.md, doc/licensing.md and the active topic plan
-before editing. SECURITY.md covers vulnerability reporting. Preserve unrelated
-work. This guide applies to every agent and contributor, regardless of vendor.
+Read README.md, doc/development.md, doc/licensing.md and, when required, the
+active topic plan before editing. SECURITY.md covers vulnerability reporting.
+Preserve unrelated work. This guide applies to every agent and contributor,
+regardless of vendor.
 
 ## Scope and implementation
 
@@ -11,9 +12,13 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   origins in doc/licensing.md; generated checksums are not license grants.
 - Use `codex/<topic>` for Codex branches. Other authors may choose their own
   single-segment prefix. Continue an existing topic and its correction counters.
+- Only routine dependency patch updates and lock-only alignment to approved
+  input pins may omit a separate plan. Every other change needs a dated topic
+  plan. This exception changes no tester/reviewer, CI or actual
+  installed-version evidence requirement.
 - Obtain maintainer decisions for changes to compatibility, licensing, support
   scope or public contracts. Routine implementation choices within an agreed
-  plan need no extra permission.
+  plan or authorized plan-free update need no extra permission.
 - Follow the existing Python style: annotated public functions, Ruff formatting,
   100-character lines and strict Mypy. Dynamic protocol objects may use explicit
   `Any` at their serialization boundary. Add concise behavioral docstrings.
@@ -53,7 +58,9 @@ work. This guide applies to every agent and contributor, regardless of vendor.
   A specific maintainer-authorized exception records its limited file/action
   scope in the dated plan and retains counters/evidence; it opens no new round.
 - Keep operational logs/counters outside tracked source or under ignored
-  build/. Durable decisions belong in an append-only dated plan section.
+  build/. Durable decisions belong in an append-only dated plan section when
+  required; plan-free routine updates keep their durable rationale in the
+  required short change record.
   Both test and independent-review evidence must cover the final candidate.
 
 ## History, records and external actions
@@ -78,10 +85,10 @@ work. This guide applies to every agent and contributor, regardless of vendor.
 - Write records around the final problem, behavior, scope, validation at an
   identified revision and remaining limits. Size records to the change: a
   few-line fix needs about 100–250 words. For substantial changes, use
-  300–700 words as guidance. Link detailed mechanics in
-  assessments/development docs; place durable history in the dated plan and
-  operational attempts in logs. Omit chronological test counts and review-round
-  narratives.
+  300–700 words as guidance. For plan-free routine updates, a few sentences
+  suffice. Link detailed mechanics in assessments/development docs; place
+  durable history in the dated plan when required and operational attempts
+  in logs. Omit chronological test counts and review-round narratives.
 - Mention standing blockers or unrelated controls only when the change touches
   them. State each evidence boundary once.
 - Update CHANGELOG.md for user/integrator changes, not internal agent-process

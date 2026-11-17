@@ -1,13 +1,21 @@
 # Development and validation
 
-Read AGENTS.md and the active plan before editing. Use topic branches and the
-coordinator/developer/tester/independent-reviewer workflow described there.
+Read AGENTS.md and, when required, the active plan before editing. Use topic
+branches and the coordinator/developer/tester/independent-reviewer workflow
+described there.
 The developer makes modest targeted checks; the tester runs the complete chain
 from a fresh detached worktree of the immutable candidate. Review the complete
 topic against its accepted base, including any newly imported changes. The
 bootstrap acceptance covered all changes since imported revision
 `961f532bcc633189e8618852732be289752cbcd7`, including the independent import
 README on main; later release work uses that accepted bootstrap as its base.
+
+Only routine dependency patch updates and lock-only alignment to approved
+input pins may omit a separate plan. Every other change needs a dated topic
+plan. A short record with durable rationale is always required; a few
+sentences suffice for those routine cases. Keep operational counters and
+attempt logs outside tracked source. The same tester/reviewer roles,
+complete CI and actual installed-version evidence requirements apply.
 
 ## Reproducible check environment
 
@@ -241,9 +249,10 @@ remain separate from the installed production server's imports.
 
 ## Release and hosted review
 
-Prepare coherent unpublished commits before the first submission. The change
-record supplies the final PR description. Hosted CI must test the same head;
-read all Copilot feedback and preserve the separate PR correction counter.
+Prepare coherent unpublished commits before the first submission. The PR
+description is the change record verbatim; post later head validation in a
+short PR comment. Hosted CI must test the same head; read all Copilot feedback
+and preserve the separate PR correction counter.
 Stop at the checked PR until merge/release permission is supplied.
 
 Every PR is merged with a merge commit, including release and dependency PRs.
