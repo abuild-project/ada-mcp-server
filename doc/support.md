@@ -37,7 +37,9 @@ for review or compiler CI.
 The [additional-tool regression assessment](assessments/additional-tool-capabilities.md)
 adds bounded internal evidence without expanding this support matrix. Three
 positional active-parameter results from the pinned ALS remain incorrect and
-explicitly unaccepted; named-argument checks do not hide them. Native rename
+explicitly unaccepted; named-argument checks do not hide them. See the
+[upstream report](https://github.com/AdaCore/ada_language_server/issues/1310).
+Native rename
 application is unsupported: `preview=false` returns an explicit failure with
 no changes and `applied=false` before rename synchronization or native rename
 requests. The shared server connection may already be initialized. The shipped

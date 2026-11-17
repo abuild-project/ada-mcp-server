@@ -20,6 +20,7 @@
 - [RC2 prerelease preparation](release-0.2.0-rc.2.md)
 - [RC3 prerelease and public notification check](release-0.2.0-rc.3.md)
 - [Rename application result](rename-application-result.md)
+- [Requirements input and lock consistency](requirements-lock-consistency.md)
 - [Retire optional additional-tool exploration](retire-exploration.md)
 - [Review follow-up evidence](review-followups.md)
 - [Ruff hash lock update](pip-main-ruff-0.17.5.md)

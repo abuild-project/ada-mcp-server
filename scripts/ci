@@ -3,6 +3,7 @@
 set -euo pipefail
 export ADA_MCP_UPDATE_CHANNEL=off
 output="${1:?Usage: scripts/ci OUTPUT_DIRECTORY}"
+python scripts/check_requirements.py
 mkdir -p "$output"
 python -c 'import platform; assert platform.machine() == "x86_64"'
 python -c 'assert "VERSION_CODENAME=trixie" in open("/etc/os-release").read()'
@@ -12,7 +13,8 @@ gprbuild --version > "$output/gprbuild-version.txt"
 ruff check src tests tooling scripts
 ruff format --check src tests tooling scripts
 mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
-    scripts/check_docs.py scripts/host_acceptance.py scripts/promote.py scripts/real_diagnostics.py \
+    scripts/check_docs.py scripts/check_requirements.py scripts/host_acceptance.py \
+    scripts/promote.py scripts/real_diagnostics.py \
     scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py \
     scripts/additional_support.py scripts/observe_additional.py scripts/additional_oracles.py \
     scripts/additional_native.py scripts/real_additional.py
