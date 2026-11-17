@@ -21,6 +21,7 @@
 - [Rename application result](rename-application-result.md)
 - [Retire optional additional-tool exploration](retire-exploration.md)
 - [Review follow-up evidence](review-followups.md)
+- [Ruff hash lock update](pip-main-ruff-0.17.5.md)
 - [Separate task-body dependency owners](separate-task-bodies.md)
 - [Signature selection result contract](signature-selection-contract.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)
