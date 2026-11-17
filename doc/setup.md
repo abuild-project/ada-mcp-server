@@ -183,7 +183,8 @@ evaluated source membership. If several selected views include that file, the
 most recently explicitly selected matching view wins. Reselect its GPR to
 refresh that choice and the evaluated source list. After project or source
 membership changes, repeat `ada_project_info` to refresh this snapshot. Files
-outside those lists continue through normal project discovery.
+outside those lists continue through normal project discovery. Successful
+reselection reevaluates source membership in the existing ALS process.
 
 Doctor checks the actual locked image, numeric identity, read-only mounts,
 private HOME, network/capability isolation, MCP catalog and confirmed EOF

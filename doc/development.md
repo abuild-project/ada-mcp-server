@@ -68,13 +68,15 @@ identities fail, and process start ticks guard against PID reuse.
 An always-empty diagnostic corruption fails its negative control. Host
 compilers and mocked ALS tests are not integration evidence.
 
-The imported-view control compiles a library and an importing CLI, then
-requires the same exact three references from the call and declaration
-anchors before and after explicit reselection. Procfs identities require the
-same MCP/ALS births through those queries. Positive and negative workspace
-queries exercise an unlisted source's separate project. The retained protocol,
-compiler output and known Ada/GPR input hashes identify the bounded fixture;
-generated compiler outputs are excluded from that input inventory.
+The imported-view control compiles a library and an importing CLI, requiring
+the same exact three references from the initial call and declaration anchors.
+It adds and compiles one imported caller, reselects the CLI project and requires
+four references from both the new call and original declaration. Procfs
+identities require the same MCP/ALS births through those queries. Positive and
+negative workspace queries exercise an unlisted source's separate project.
+The retained protocol, compiler output and known Ada/GPR input hashes identify
+the bounded fixture; the explicit addition has its own hash, and generated
+compiler outputs are excluded from the input inventory.
 
 The required reading probe uses a fresh owned Ada/GPR fixture for exact
 definition, implementation and object-type targets, document hierarchy,

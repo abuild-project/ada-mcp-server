@@ -8,9 +8,10 @@ library specification and body. The installed baseline
 two ALS instances; querying the declaration through the CLI instance returned
 all three references and located the cause in wrapper routing.
 
-Successful explicit project selection now retains exact evaluated source files
-from the root and imported projects. File queries preserve the deepest
-explicitly selected lexical ancestor, including nested overrides. Outside
+Explicit project selection reloads ALS's project tree and waits for fresh
+indexing before retaining exact source files from the root and imported
+projects. File queries preserve the deepest explicitly selected lexical
+ancestor, including nested overrides. Outside
 those roots, the most recently successfully selected view containing the exact
 file wins. Explicit reselection refreshes both membership and order; ordinary
 file use and pool eviction preserve them. Runtime sources and files absent
@@ -20,19 +21,22 @@ retain the selected GPR, ordered project paths and scenario values.
 Focused controls cover evaluated membership, unlisted and runtime sources,
 overlapping imports, reselection, lexical priority, rejected views and eviction
 with exact context. The required STDIO regression compiles an owned library
-and importer, requires identical reference sets from both anchors before and
-after reselection, observes stable MCP/ALS births, and checks a nonmember's
-separate project with positive and negative symbol queries. It retains raw
+and importer, requires three references from both initial anchors, adds and
+compiles one imported caller, then requires four references from the new call
+and original declaration after reselection. It observes stable MCP/ALS births
+and checks a nonmember's separate project with positive and negative symbol
+queries. It retains raw
 protocol, compiler output and known fixture-input hashes.
 
 Development checks on the topic source based on published main
 `cd21c0a39b109dae1e3008b3aed73a6e5bc2fe18` passed Ruff, formatting, strict
-typing, 86 targeted tests and documentation validation in the verified baseline
-Trixie runtime. The source-mounted native control passed all three reference
-queries and the nonmember checks; running it against the preserved original
-baseline rejects the two-reference declaration result. These development
-checks supplement the complete committed-source Trixie build/check, artifact
-and numeric-identity controls required for acceptance.
+typing, targeted unit tests and documentation validation in the verified
+baseline Trixie runtime. The source-mounted native control passed the initial
+three-reference and refreshed four-reference queries with unchanged original
+inputs and a separately hashed addition. It rejects both the original
+anchor-dependent scope defect and the published topic's stale-reselection
+behavior. Development checks supplement the complete committed-source Trixie
+build/check, artifact and numeric-identity controls required for acceptance.
 Immutable-head results and source/image provenance belong in the PR validation
 comments. See `doc/setup.md` and `doc/plans/reference-project-view.md` for
 the approved policy.

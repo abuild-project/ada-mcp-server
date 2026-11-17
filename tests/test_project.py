@@ -36,6 +36,8 @@ def mock_als_client():
     client.send_request = AsyncMock()
     client.is_new_project_source = MagicMock(return_value=False)
     client.is_known_project_source = MagicMock(return_value=False)
+    client.indexing_generation = AsyncMock(return_value=0)
+    client.wait_for_indexing = AsyncMock(return_value=True)
     return client
 
 
@@ -56,6 +58,7 @@ class TestProjectInfo:
         imported = tmp_path / "library/src/shared.ads"
         runtime = tmp_path / "runtime/system.ads"
         mock_als_client.send_request.side_effect = [
+            None,
             {
                 "tree": {"root-project": {"id": "sample"}},
                 "projects": [
@@ -109,6 +112,7 @@ class TestProjectInfo:
             "executable-directory": str(project_root / "bin/debug"),
         }
         mock_als_client.send_request.side_effect = [
+            None,
             {
                 "tree": {"root-project": {"id": "sample"}},
                 "projects": [{"project": root_project}],
@@ -135,6 +139,10 @@ class TestProjectInfo:
         assert mock_als_client.send_request.await_args_list == [
             call(
                 "workspace/executeCommand",
+                {"command": "als-reload-project", "arguments": []},
+            ),
+            call(
+                "workspace/executeCommand",
                 {
                     "command": "als-project-view-information",
                     "arguments": [],
@@ -145,6 +153,31 @@ class TestProjectInfo:
                 {"command": "als-mains", "arguments": []},
             ),
         ]
+        mock_als_client.wait_for_indexing.assert_awaited_once_with(after_generation=0)
+        assert [item[0] for item in mock_als_client.mock_calls] == [
+            "indexing_generation",
+            "send_request",
+            "wait_for_indexing",
+            "send_request",
+            "send_request",
+        ]
+
+    @pytest.mark.asyncio
+    async def test_project_info_rejects_incomplete_reload(self, sample_gpr_path, mock_als_client):
+        """Do not read or publish refreshed membership before reload indexing completes."""
+        previous = frozenset({sample_gpr_path.parent / "src/main.adb"})
+        mock_als_client.project_view_sources = previous
+        mock_als_client.send_request.return_value = None
+        mock_als_client.wait_for_indexing.return_value = False
+        with pytest.raises(RuntimeError, match="did not finish reloading"):
+            await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert mock_als_client.send_request.await_args_list == [
+            call(
+                "workspace/executeCommand",
+                {"command": "als-reload-project", "arguments": []},
+            )
+        ]
+        assert mock_als_client.project_view_sources == previous
 
     @pytest.mark.asyncio
     async def test_project_info_rejects_wrong_loaded_project(

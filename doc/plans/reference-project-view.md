@@ -66,3 +66,14 @@ Local disk capacity permits source-mounted development checks in the verified
 baseline runtime. The complete committed-source `docker/build`, `docker/check`,
 artifact and identity chain runs in the existing managed GitHub CI environment;
 source-mounted checks do not replace its acceptance evidence.
+
+## 2026-11-17 — Refresh evaluated membership
+
+Reproduction confirmed that reading ALS's cached project tree after an added
+imported source did not refresh membership. Explicit selection must first
+await the existing `als-reload-project` fence and its fresh indexing generation
+before reading the evaluated view. Preserve the MCP and ALS process births.
+Extend the existing compiling control with one owned added caller, requiring
+the expanded four-location reference set after reselection. Retain hashes of
+the original inputs and the explicit addition separately. Publish the
+correction as an appended commit, preserving the already published topic.

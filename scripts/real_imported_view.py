@@ -56,13 +56,13 @@ def run_control(output: Path) -> JSON:
         report["calls"].append({"tool": tool, "arguments": arguments, "result": result})
         return result
 
-    try:
-        compiler = ["gprbuild", "-p", "-P", str(project)]
+    def compile_sources(name: str, compiler: list[str]) -> None:
+        """Retain the compiler's actual command and output for an owned source state."""
         environment = dict(os.environ, GPR_PROJECT_PATH=str(root))
         compiled = subprocess.run(
             compiler, env=environment, capture_output=True, text=True, timeout=60, check=False
         )
-        report["compile"] = {
+        report[name] = {
             "argv": compiler,
             "GPR_PROJECT_PATH": str(root),
             "exit_code": compiled.returncode,
@@ -71,6 +71,9 @@ def run_control(output: Path) -> JSON:
         }
         if compiled.returncode:
             raise AssertionError("the importing Ada fixture did not compile")
+
+    try:
+        compile_sources("compile", ["gprbuild", "-p", "-P", str(project)])
         session = Session(command, timeout=90, log_dir=output / "mcp")
         report["initialize"] = session.initialize()
         selection = {
@@ -98,15 +101,36 @@ def run_control(output: Path) -> JSON:
                 expected,
                 "Reference_View_Probe_Increment",
             )
-        call("ada_project_info", selection)
-        require_references(
-            call(
-                "ada_find_references",
-                {"file": str(spec), "line": 2, "column": 14, "include_declaration": True},
-            ),
-            expected,
-            "Reference_View_Probe_Increment",
+        added = root / "src/late.adb"
+        added.write_text(
+            "with Shared;\nprocedure Late is\nbegin\n"
+            "   Shared.Reference_View_Probe_Increment;\nend Late;\n"
         )
+        report["added_input_sha256"] = {
+            "src/late.adb": hashlib.sha256(added.read_bytes()).hexdigest()
+        }
+        compile_sources(
+            "added_compile",
+            ["gprbuild", "-p", "-P", str(root / "library.gpr"), "-c", "-u", "late.adb"],
+        )
+        refreshed = call("ada_project_info", selection)
+        if refreshed.get("complete") is not True or refreshed.get("project_file") != str(project):
+            raise AssertionError("reselection must reevaluate the explicit CLI fixture project")
+        expected.add((str(added), 4, 11))
+        for source, line, column in ((added, 4, 11), (spec, 2, 14)):
+            require_references(
+                call(
+                    "ada_find_references",
+                    {
+                        "file": str(source),
+                        "line": line,
+                        "column": column,
+                        "include_declaration": True,
+                    },
+                ),
+                expected,
+                "Reference_View_Probe_Increment",
+            )
         report["final_importer_process"] = process_state(session, output / "mcp/server-stderr.log")
         if report["final_importer_process"] != identity:
             raise AssertionError("both anchors must use the same MCP and CLI ALS births")
@@ -130,7 +154,10 @@ def run_control(output: Path) -> JSON:
                 raise AssertionError("the nonmember's positive symbol must identify its source")
         after = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in inputs}
         report["input_sha256_after"] = after
-        if after != inputs:
+        report["added_input_sha256_after"] = {
+            "src/late.adb": hashlib.sha256(added.read_bytes()).hexdigest()
+        }
+        if after != inputs or report["added_input_sha256_after"] != report["added_input_sha256"]:
             raise AssertionError("compilation or read queries changed a fixture input")
     except Exception as error:
         problem = type(error).__name__ + ": " + str(error)
