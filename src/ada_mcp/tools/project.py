@@ -243,10 +243,10 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
     # Regex patterns for parsing
     pkg_pattern = (
         r"\b(?:(?P<introducer>with|access(?:\s+protected)?)\s+)?"
-        r"(?:(?:package|procedure|function)\b\s+(?:body\s+)?|task\s+body\b\s+)"
+        r"(?:(?:package|procedure|function)\b\s+(?:body\s+)?|(?:task|protected)\s+body\b\s+)"
         r"(?P<unit>\w+(?:\.\w+)*)"
     )
-    with_pattern = r"^\s*with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
+    with_pattern = r"^\s*(?:limited\s+)?(?:private\s+)?with\s+([\w.]+(?:\s*,\s*[\w.]+)*)\s*;"
 
     for ada_file in ada_files:
         content = _mask_ada_noncode(ada_file.read_text())
@@ -268,8 +268,12 @@ async def handle_dependency_graph(file: str) -> dict[str, Any]:
         package_name = pkg_match.group("unit")
         seen_packages.add(package_name)
 
-        # Find all 'with' clauses
-        with_clauses = re.findall(with_pattern, content, re.MULTILINE | re.IGNORECASE)
+        # Context clauses precede both generic formals and the owning unit.
+        context = content[: pkg_match.start()]
+        generic = re.search(r"\bgeneric\b", context, re.IGNORECASE)
+        if generic:
+            context = context[: generic.start()]
+        with_clauses = re.findall(with_pattern, context, re.MULTILINE | re.IGNORECASE)
 
         imported_packages = set()
         for clause in with_clauses:
