@@ -23,6 +23,7 @@
 - [Requirements input and lock consistency](requirements-lock-consistency.md)
 - [Retire optional additional-tool exploration](retire-exploration.md)
 - [Review follow-up evidence](review-followups.md)
+- [Routine update documentation](routine-update-docs.md)
 - [Ruff hash lock update](pip-main-ruff-0.17.5.md)
 - [Separate task-body dependency owners](separate-task-bodies.md)
 - [Signature selection result contract](signature-selection-contract.md)
