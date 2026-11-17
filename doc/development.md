@@ -109,10 +109,24 @@ outputs. Native requests/results, MCP envelopes, complete source states,
 process births and cleanup survive failure. Actions and rename previews
 never execute edits; formatting is reconstructed in memory before an explicit
 write to the fresh owned fixture for the already-formatted check.
-Its project-selection trace requires exactly `als-reload-project` with empty
-arguments and a null result, followed by `als-project-view-information` and
-`als-mains`. Missing or reordered reloads fail; action execution remains
-forbidden.
+Its cold project-selection trace requires initialize, then exactly
+`als-project-view-information` and `als-mains`. A reused client's selection
+requires `als-reload-project` with empty arguments and a null result before
+those metadata commands. Redundant cold reloads and missing/reordered warm
+reloads fail; action execution remains forbidden.
+
+Fresh explicit startup is a one-shot client state, independent of source-list
+contents. Cache hits invalidate it. Project metadata does not wait for semantic
+indexing: `complete` describes the evaluated GPR view, while the Boolean
+`indexing_complete` snapshots observed progress with the same 0.1-second
+quiescence interval as the existing semantic wait. Warm readiness additionally
+requires an indexing begin newer than the captured reload generation; merely
+ending an older active index is insufficient. False includes pending and
+unconfirmed states, including a view with no observed progress. Deterministic
+progress controls check that pending metadata keeps its client and can later
+become ready, without changing semantic query guards. The
+[larger-project Mac timing check](assessments/project-selection-timing.md)
+remains pending before release.
 
 Three pinned-ALS positional signature cases remain unaccepted. The default
 control fails their incorrect active indices. CI explicitly assesses only

@@ -1,47 +1,40 @@
 # Imported-source project views
 
-File queries anchored to an imported library could lose an explicitly selected
-CLI project when the library sources were outside the CLI directory. The call
-anchor then returned three references, while the declaration returned only the
-library specification and body. The installed baseline
-`a3f16279c08dffbe87c6f09ea77e88ed9d6df04b` reproduced this difference using
-two ALS instances; querying the declaration through the CLI instance returned
-all three references and located the cause in wrapper routing.
+Queries anchored to an imported library could lose the explicitly selected
+CLI project and omit callers outside the library. Selection now retains the
+exact evaluated membership of the root and imported projects. File queries
+preserve the deepest explicitly selected lexical ancestor, including nested
+views. Outside those roots, canonical file identity selects the most recent
+matching explicit view, including equivalent absolute paths and file symlinks.
+Ordered search paths, scenario values and membership survive pool eviction.
 
-Explicit project selection reloads ALS's project tree and waits for fresh
-indexing before retaining exact source files from the root and imported
-projects. File queries preserve the deepest explicitly selected lexical
-ancestor, including nested overrides. Outside
-those roots, the most recently successfully selected view containing the
-canonical source path wins, including equivalent absolute paths with `..` or
-file symlinks. Explicit reselection refreshes membership and order;
-ordinary file use and pool eviction preserve them. Runtime sources and files absent
-from those evaluated lists remain outside this fallback. Recreated clients
-retain the selected GPR, ordered project paths and scenario values.
+A new ALS client configured for the exact explicit GPR/context supplies its
+initial view without a redundant reload. Reused clients refresh through the
+native reload fence before metadata is evaluated. Freshness is one-shot state,
+independent of whether a valid view contains sources. Successful reselection
+refreshes membership and selection order; ordinary file use does not.
 
-Focused controls cover evaluated membership and canonical file aliases,
-overlapping imports, reselection, lexical priority, rejected views and eviction
-with exact context. The additional-tool trace requires the ordered reload,
-project-view and mains exchanges while retaining action-execution rejection.
-The required STDIO regression compiles an owned library
-and importer, requires three references from both initial anchors, adds and
-compiles one imported caller, then requires four references from the new call
-and original declaration after reselection. It observes stable MCP/ALS births
-and checks a nonmember's separate project with positive and negative symbol
-queries. It retains raw
-protocol, compiler output and known fixture-input hashes.
+`complete=true` describes valid evaluated project metadata and membership.
+The separate Boolean `indexing_complete` conservatively confirms observed,
+quiescent indexing, with a new indexing begin required for a warm refresh.
+False includes pending and unconfirmed states. Slow indexing preserves the
+valid selection and live client; it no longer imposes a separate index timeout
+on project selection. Real load, reload and wrong-view errors still fail.
+Semantic queries retain their own completeness guards.
 
-Development checks on topic source based on published revision
-`9539b55ad7143e58ba72baefd715862e4d8d305b` passed Ruff, formatting, strict
-typing, targeted unit tests and documentation validation in the verified
-baseline Trixie runtime. The source-mounted native control passed the initial
-three-reference and refreshed four-reference queries with unchanged original
-inputs and a separately hashed addition. It rejects both the original
-anchor-dependent scope defect and the published topic's stale-reselection
-behavior. Development checks supplement the complete committed-source Trixie
-build/check, artifact and numeric-identity controls required for acceptance.
-Immutable-head results and source/image provenance belong in the PR validation
-comments. See `doc/setup.md` and `doc/plans/reference-project-view.md` for
-the approved policy.
+Focused controls cover fresh/warm and empty views, pending-to-ready progress,
+client retention, load errors, aliases, selection context and native command
+ordering. The compiling STDIO control requires three references from initial
+anchors, adds an imported caller and requires four after reselection, with
+stable process births and preserved input hashes. It honors semantic readiness
+separately. Additional-tool traces distinguish exact cold and warm setup while
+retaining forbidden-action and existing signature controls.
+
+Negative API controls compare against `ced1076fb1e87df0bc73f4702d31160aa0c8cfde`.
+Source-mounted development checks supplement the required complete exact-head
+Trixie build/check, artifacts and numeric-identity validation; each immutable
+head's evidence is recorded in a new PR comment. Larger-project Mac timing
+remains pending before release under `doc/assessments/project-selection-timing.md`.
+See `doc/setup.md` and `doc/plans/reference-project-view.md` for the contract.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>

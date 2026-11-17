@@ -25,6 +25,14 @@ uses the container's Python 3.13; host setup records its actual Python version.
 | EOF/exit/container removal | exact-name inspect receipts in host acceptance | Unknown state fails; no broad cleanup |
 | Versioned package/skill/image correspondence | scripts/artifacts.py and metadata/version tests; published RC1 public asset/hash verification | Later releases need their own publication and consumer checks |
 
+For `ada_project_info`, `complete=true` means that the requested GPR metadata
+and source membership were evaluated successfully. The separate Boolean
+`indexing_complete` confirms observed, quiescent indexing; false means pending
+or not yet confirmed. Pending indexing does not invalidate a valid selected
+client. Semantic queries retain their own completeness checks. Larger-project
+Mac selection latency remains pending under the
+[before-release measurement](assessments/project-selection-timing.md).
+
 The server advertises 19 tools. The read-only client policy permits 16 tools
 and explicit rename preview, but the catalog alone does not prove correctness
 or support for all those functions. References, implementations, call hierarchy,

@@ -1,12 +1,14 @@
 """Keep imported-source selection separate from lexical roots and pool lifetime."""
 
+import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import pytest_asyncio
 
-from ada_mcp.server import ALSPool
+from ada_mcp.als.client import ALSClient
+from ada_mcp.server import ALSPool, call_tool
 
 
 @pytest_asyncio.fixture
@@ -123,3 +125,64 @@ async def test_rejected_selected_view_drops_imported_membership(views):
     assert await views.pool.get_client(str(views.source)) is views.clients[1]
     assert views.start.await_args.args == (views.library,)
     assert views.start.await_args.kwargs["gpr_file"] is None
+
+
+@pytest.mark.asyncio
+async def test_pending_index_publishes_selection_and_later_readiness_without_discard(tmp_path):
+    project = tmp_path / "pending.gpr"
+    project.write_text("project Pending is end Pending;\n")
+    source = tmp_path / "shared.ads"
+    source.write_text("package Shared is end Shared;\n")
+    process = MagicMock()
+    process.returncode = None
+    client = ALSClient(process)
+    client.send_request = AsyncMock(
+        side_effect=[
+            {
+                "tree": {"root-project": {"id": "pending"}},
+                "projects": [
+                    {
+                        "project": {"id": "pending", "file-name": str(project)},
+                        "sources": [{"file-name": str(source)}],
+                    }
+                ],
+            },
+            [],
+        ]
+    )
+    client.wait_for_indexing = AsyncMock(
+        side_effect=AssertionError("selection must not await indexing")
+    )
+    await client._handle_progress(
+        {"token": "slow", "value": {"kind": "begin", "title": "Indexing"}}
+    )
+    pool = ALSPool()
+    with (
+        patch("ada_mcp.server._als_pool", pool),
+        patch(
+            "ada_mcp.server.start_als_with_monitoring",
+            new_callable=AsyncMock,
+            return_value=(client, MagicMock()),
+        ) as start,
+        patch("ada_mcp.server.shutdown_als", new_callable=AsyncMock) as shutdown,
+    ):
+        try:
+            response = await call_tool(
+                "ada_project_info",
+                {"gpr_file": str(project), "project_paths": [], "scenario_variables": {}},
+            )
+            result = json.loads(response[0].text)
+            assert result["complete"] is True and result["indexing_complete"] is False
+            assert await pool.get_client(str(source)) is client
+            assert len(pool._instances) == 1 and client.is_running
+            shutdown.assert_not_awaited()
+            client.wait_for_indexing.assert_not_awaited()
+            await client._handle_progress({"token": "slow", "value": {"kind": "end"}})
+            assert client._indexing_quiet_since is not None
+            client._indexing_quiet_since -= 1.0
+            assert await client.is_indexing_complete() is True
+            assert await pool.get_client(str(source)) is client
+            assert start.await_count == 1
+            shutdown.assert_not_awaited()
+        finally:
+            await pool.shutdown_all()

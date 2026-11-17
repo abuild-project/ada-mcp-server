@@ -421,11 +421,13 @@ def test_action_oracle_rejects_wrong_discovery_metadata(kind):
         "exec_dir",
         "main_units",
         "complete",
+        "indexing_complete",
     ],
 )
 def test_project_oracle_rejects_missing_wrong_or_extra_view_fields(root, field):
     result = {
         "complete": True,
+        "indexing_complete": True,
         "project_file": str(root / "additional.gpr"),
         "project_name": "Additional",
         "source_dirs": [str(root / "src"), str(root / "formatting")],

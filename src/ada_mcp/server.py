@@ -208,6 +208,7 @@ class ALSPool:
             if project_key in self._instances:
                 instance = self._instances[project_key]
                 if instance.client.is_running:
+                    instance.client.project_selection_fresh = False
                     instance.last_used = time.time()
                     logger.debug(
                         "Reusing ALS for project root %s and GPR %s",
@@ -237,6 +238,7 @@ class ALSPool:
                     project_context=project_context,
                     on_restart=self._create_restart_callback(project_key),
                 )
+                client.project_selection_fresh = requested_project is not None
 
                 instance = ALSInstance(
                     client=client,

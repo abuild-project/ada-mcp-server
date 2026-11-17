@@ -179,11 +179,6 @@ def runner(tmp_path, monkeypatch):
                 self.initialize_native()
                 self.emit(
                     "workspace/executeCommand",
-                    None,
-                    {"command": "als-reload-project", "arguments": []},
-                )
-                self.emit(
-                    "workspace/executeCommand",
                     {
                         "tree": {"root-project": {"id": "fixture-root"}},
                         "projects": [
@@ -211,6 +206,7 @@ def runner(tmp_path, monkeypatch):
                 )
                 return {
                     "complete": True,
+                    "indexing_complete": True,
                     "project_file": str(self.root / "additional.gpr"),
                     "project_name": "Additional",
                     "object_dir": str(self.root / "obj") + "/",
@@ -730,30 +726,42 @@ def test_provisional_runner_keeps_positional_discrepancies_unaccepted(runner):
     assert runner.close_count == runner.cleanup_count == 1
 
 
-@pytest.mark.parametrize("alteration", ["missing", "reordered"])
-def test_project_selection_requires_reload_before_view_and_mains(runner, alteration):
-    def alter_trace(root, tool, _arguments, _result):
-        if tool != "ada_project_info":
-            return
-        trace = root.parent / "native-requests.jsonl"
-        events = [json.loads(line) for line in trace.read_text().splitlines()]
-        identifier = next(
-            row["id"]
-            for row in events
-            if row.get("params", {}).get("command") == "als-reload-project"
-        )
-        reload = [row for row in events if row["id"] == identifier]
-        events = [row for row in events if row["id"] != identifier]
-        if alteration == "reordered":
-            # Keep correlated pairs intact, but put reload after the view.
-            events[4:4] = reload
-        trace.write_text("".join(json.dumps(row) + "\n" for row in events))
+@pytest.mark.parametrize("alteration", ["cold-reload", "warm-missing", "warm-reordered"])
+def test_project_selection_distinguishes_exact_cold_and_warm_requests(runner, alteration):
+    row = real.run_control(runner.output, True)["calls"][0]
+    cold = row["native_events"]
+    reload = [
+        {
+            "event": "request",
+            "id": 999,
+            "method": "workspace/executeCommand",
+            "params": {"command": "als-reload-project", "arguments": []},
+        },
+        {"event": "result", "id": 999, "method": "workspace/executeCommand", "result": None},
+    ]
+    warm = reload + cold[2:]
 
-    runner.on_call = alter_trace
-    with pytest.raises(RuntimeError, match="native project requests"):
-        real.run_control(runner.output, True)
-    row = report(runner)["calls"][-1]
-    assert row["accepted"] is False and "native project requests" in row["oracle_error"]
+    def check(events):
+        real.require_call_native(
+            events,
+            "ada_project_info",
+            row["arguments"],
+            row["result"],
+            Path(row["arguments"]["gpr_file"]).parent,
+            real.require_native_signature,
+        )
+
+    check(cold)
+    check(warm)
+    invalid = (
+        cold[:2] + reload + cold[2:]
+        if alteration == "cold-reload"
+        else warm[2:]
+        if alteration == "warm-missing"
+        else warm[2:4] + warm[:2] + warm[4:]
+    )
+    with pytest.raises(AssertionError, match="native project requests"):
+        check(invalid)
 
 
 def test_strict_default_fails_native_wrong_positional_selection(runner):

@@ -37,7 +37,10 @@ def mock_als_client():
     client.is_new_project_source = MagicMock(return_value=False)
     client.is_known_project_source = MagicMock(return_value=False)
     client.indexing_generation = AsyncMock(return_value=0)
+    client.prepare_project_reload = AsyncMock(return_value=0)
     client.wait_for_indexing = AsyncMock(return_value=True)
+    client.is_indexing_complete = AsyncMock(return_value=True)
+    client.project_selection_fresh = False
     return client
 
 
@@ -153,31 +156,45 @@ class TestProjectInfo:
                 {"command": "als-mains", "arguments": []},
             ),
         ]
-        mock_als_client.wait_for_indexing.assert_awaited_once_with(after_generation=0)
+        mock_als_client.wait_for_indexing.assert_not_awaited()
+        mock_als_client.is_indexing_complete.assert_awaited_once_with(after_generation=0)
         assert [item[0] for item in mock_als_client.mock_calls] == [
-            "indexing_generation",
-            "send_request",
-            "wait_for_indexing",
+            "prepare_project_reload",
             "send_request",
             "send_request",
+            "send_request",
+            "is_indexing_complete",
         ]
 
     @pytest.mark.asyncio
-    async def test_project_info_rejects_incomplete_reload(self, sample_gpr_path, mock_als_client):
-        """Do not read or publish refreshed membership before reload indexing completes."""
-        previous = frozenset({sample_gpr_path.parent / "src/main.adb"})
-        mock_als_client.project_view_sources = previous
-        mock_als_client.send_request.return_value = None
-        mock_als_client.wait_for_indexing.return_value = False
-        with pytest.raises(RuntimeError, match="did not finish reloading"):
-            await handle_project_info(mock_als_client, str(sample_gpr_path))
-        assert mock_als_client.send_request.await_args_list == [
-            call(
-                "workspace/executeCommand",
-                {"command": "als-reload-project", "arguments": []},
-            )
+    async def test_fresh_empty_view_skips_reload_but_reselection_refreshes(
+        self, sample_gpr_path, mock_als_client
+    ):
+        """Freshness is one-shot acquisition state, independent of source membership."""
+        view = {
+            "tree": {"root-project": {"id": "sample"}},
+            "projects": [
+                {"project": {"id": "sample", "file-name": str(sample_gpr_path.resolve())}}
+            ],
+        }
+        mock_als_client.project_selection_fresh = True
+        mock_als_client.is_indexing_complete.return_value = False
+        mock_als_client.wait_for_indexing.side_effect = AssertionError("must not wait for indexing")
+        mock_als_client.send_request.side_effect = [view, [], None, view, []]
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert result["complete"] is True and result["indexing_complete"] is False
+        assert mock_als_client.project_view_sources == frozenset()
+        assert mock_als_client.project_selection_fresh is False
+        mock_als_client.indexing_generation.assert_not_awaited()
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list] == [
+            "als-project-view-information",
+            "als-mains",
         ]
-        assert mock_als_client.project_view_sources == previous
+        await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list][
+            2:
+        ] == ["als-reload-project", "als-project-view-information", "als-mains"]
+        mock_als_client.wait_for_indexing.assert_not_awaited()
 
     @pytest.mark.asyncio
     async def test_project_info_rejects_wrong_loaded_project(

@@ -105,3 +105,32 @@ keep lexical ancestor selection, project-root keys and context precedence
 unchanged. Cover canonical, parent-component and file-symlink arguments in the
 existing pool control, and use a parent-component path for the existing native
 declaration query. Retain the same fixture, source hashes and process checks.
+
+## 2026-11-17 — Authorized startup and readiness exception
+
+The maintainer authorized “Ok machen” for the bounded scope:
+
+> Targeted cold-start/index-timeout correction, focused tests and record cleanup.
+
+Local corrections remain 0/3 and PR corrections remain 3/3; this exception
+opens no new round or reset. Main's policy is integrated by the separate
+conflict-resolution-only merge `fa584fdf7eeea867c75f02d9ed74310389e3861a`.
+Put the following substantive correction in its own appended commit.
+
+Skip a redundant reload only for a genuinely new client configured for the
+exact explicit GPR/context. Consume that one-shot state independently of
+membership, including empty views; reuse and file-tool acquisitions do not
+grant freshness. Validate evaluated metadata and publish its membership
+without a semantic-index timeout. Report the conservative Boolean
+`indexing_complete` separately: readiness needs observed completed progress,
+quiescence and a new indexing begin for a warm reload. Pending or unconfirmed
+indexing must preserve the valid selected client. Keep real project/load
+failures and the existing semantic completeness guards effective.
+
+Use focused cold/warm, empty-view, delayed-progress, error and existing
+alias/context controls, plus the required real imported-source and additional
+probes. The full exact-head Trixie/artifact/identity chain and independent
+reviews remain required. Prepare the bounded larger-project Mac measurement
+in `doc/assessments/project-selection-timing.md`; actual Mac timing remains
+pending before release. This does not authorize SDK changes, global timeout
+redesign, unrelated matrices, history rewriting, merging or publication.

@@ -209,6 +209,13 @@ membership changes, repeat `ada_project_info` to refresh this snapshot. Files
 outside those lists continue through normal project discovery. Successful
 reselection reevaluates source membership in the existing ALS process.
 
+`ada_project_info.complete=true` confirms the requested evaluated project
+metadata and membership. Its separate Boolean `indexing_complete` is a
+conservative readiness snapshot: false means indexing is pending or has not
+yet been confirmed. The valid selection and ALS process remain available.
+Semantic queries still apply their own completeness checks; a successful
+project selection alone does not establish complete semantic results.
+
 Doctor checks the actual locked image, numeric identity, read-only mounts,
 private HOME, network/capability isolation, MCP catalog and confirmed EOF
 cleanup. Direct host Docker calls have `--command-timeout`; MCP requests and

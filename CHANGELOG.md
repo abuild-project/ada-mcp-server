@@ -6,7 +6,9 @@
   files outside their directories, including equivalent absolute paths.
   Shared imports use the most recent matching explicit selection unless an
   explicitly selected lexical ancestor applies. Reselecting a project
-  reevaluates changed source membership.
+  reevaluates changed source membership. Fresh startup avoids a redundant
+  reload, and valid metadata remains available while indexing is pending,
+  reported separately by the Boolean `indexing_complete` snapshot.
 - Default new bootstrap bindings to GHCR with the hash-locked release archive
   as a fallback for pull failure or timeout. Preserve immutable runtime pins,
   explicit source overrides and existing binding sources; `--transport archive`

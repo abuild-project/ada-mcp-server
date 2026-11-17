@@ -63,11 +63,13 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
     if not requested_project.is_file():
         raise FileNotFoundError(f"GPR project file does not exist: {requested_project}")
 
+    fresh = als_client.project_selection_fresh
+    als_client.project_selection_fresh = False
+    generation = None
     try:
-        generation = await als_client.indexing_generation()
-        await _execute_als_command(als_client, "als-reload-project")
-        if not await als_client.wait_for_indexing(after_generation=generation):
-            raise RuntimeError("Ada Language Server did not finish reloading the requested project")
+        if not fresh:
+            generation = await als_client.prepare_project_reload()
+            await _execute_als_command(als_client, "als-reload-project")
         project_info = await _execute_als_command(
             als_client,
             "als-project-view-information",
@@ -123,6 +125,7 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
         "exec_dir": root_project.get("executable-directory"),
         "main_units": [Path(main).name for main in mains or []],
         "complete": True,
+        "indexing_complete": await als_client.is_indexing_complete(after_generation=generation),
     }
 
 

@@ -274,22 +274,26 @@ def require_call_native(
     expected: list[tuple[str, JSON]] = []
     projected: JSON
     if tool == "ada_project_info":
-        if not pairs or pairs[0][0] != "initialize":
-            raise AssertionError("native cold project selection requires its initialize exchange")
-        require_equal(pairs[0][1]["rootUri"], root.as_uri(), "native project root")
-        require_equal(
-            pairs[0][1]["initializationOptions"],
-            {"projectFile": str(root / "additional.gpr")},
-            "native project selection",
-        )
-        pairs = pairs[1:]
+        cold = bool(pairs and pairs[0][0] == "initialize")
+        if cold:
+            require_equal(pairs[0][1]["rootUri"], root.as_uri(), "native project root")
+            require_equal(
+                pairs[0][1]["initializationOptions"],
+                {"projectFile": str(root / "additional.gpr")},
+                "native project selection",
+            )
+            pairs = pairs[1:]
+        commands: tuple[str, ...] = ("als-project-view-information", "als-mains")
+        if not cold:
+            commands = ("als-reload-project", *commands)
         expected = [
             ("workspace/executeCommand", {"command": command, "arguments": []})
-            for command in ("als-reload-project", "als-project-view-information", "als-mains")
+            for command in commands
         ]
         require_equal([(m, p) for m, p, _ in pairs], expected, "native project requests")
-        require_equal(pairs[0][2], None, "native project reload result")
-        view, mains = pairs[1][2], pairs[2][2]
+        if not cold:
+            require_equal(pairs[0][2], None, "native project reload result")
+        view, mains = pairs[-2][2], pairs[-1][2]
         selected = [
             entry["project"]
             for entry in view["projects"]
@@ -300,6 +304,7 @@ def require_call_native(
         project = selected[0]
         projected = {
             "complete": True,
+            "indexing_complete": result.get("indexing_complete"),
             "project_file": project["file-name"],
             "project_name": project["name"],
             "source_dirs": project["source-directories"],
@@ -307,6 +312,8 @@ def require_call_native(
             "exec_dir": project["executable-directory"],
             "main_units": [Path(main).name for main in mains or []],
         }
+        if type(result.get("indexing_complete")) is not bool:
+            raise AssertionError("project indexing_complete must be a Boolean snapshot")
     else:
         file = Path(arguments["file"])
         document = {"textDocument": {"uri": file.as_uri()}}

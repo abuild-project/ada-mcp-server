@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from real_diagnostics import process_state
-from real_reading import require_child_exit, require_references, source_hashes
+from real_reading import require_child_exit, require_references, require_workspace, source_hashes
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tooling"))
 FIXTURE = Path(__file__).resolve().parent.parent / "tests/fixtures/reference_project"
@@ -72,6 +72,22 @@ def run_control(output: Path) -> JSON:
         if compiled.returncode:
             raise AssertionError("the importing Ada fixture did not compile")
 
+    def require_semantic_readiness() -> None:
+        require_workspace(
+            call(
+                "ada_workspace_symbols",
+                {
+                    "file": str(spec),
+                    "query": "Reference_View_Probe_Increment",
+                    "limit": 50,
+                },
+            ),
+            {
+                ("Reference_View_Probe_Increment", "function", str(spec), 2, 14),
+                ("Reference_View_Probe_Increment", "function", str(body), 2, 14),
+            },
+        )
+
     try:
         compile_sources("compile", ["gprbuild", "-p", "-P", str(project)])
         session = Session(command, timeout=90, log_dir=output / "mcp")
@@ -82,10 +98,15 @@ def run_control(output: Path) -> JSON:
             "scenario_variables": {},
         }
         info = call("ada_project_info", selection)
-        if info.get("complete") is not True or info.get("project_file") != str(project):
+        if (
+            info.get("complete") is not True
+            or info.get("project_file") != str(project)
+            or type(info.get("indexing_complete")) is not bool
+        ):
             raise AssertionError("the explicit CLI fixture project must load completely")
         identity = process_state(session, output / "mcp/server-stderr.log")
         report["initial_process"] = identity
+        require_semantic_readiness()
         expected = {(str(main), 4, 11), (str(spec), 2, 14), (str(body), 2, 14)}
         imported_alias = spec.parent / ".." / "src" / spec.name
         for source, line, column in ((main, 4, 11), (imported_alias, 2, 14)):
@@ -115,8 +136,13 @@ def run_control(output: Path) -> JSON:
             ["gprbuild", "-p", "-P", str(root / "library.gpr"), "-c", "-u", "late.adb"],
         )
         refreshed = call("ada_project_info", selection)
-        if refreshed.get("complete") is not True or refreshed.get("project_file") != str(project):
+        if (
+            refreshed.get("complete") is not True
+            or refreshed.get("project_file") != str(project)
+            or type(refreshed.get("indexing_complete")) is not bool
+        ):
             raise AssertionError("reselection must reevaluate the explicit CLI fixture project")
+        require_semantic_readiness()
         expected.add((str(added), 4, 11))
         for source, line, column in ((added, 4, 11), (spec, 2, 14)):
             require_references(

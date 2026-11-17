@@ -173,7 +173,68 @@ async def test_indexing_without_progress_is_not_complete():
     process.returncode = None
     client = ALSClient(process)
 
+    assert await client.is_indexing_complete() is False
     assert await client.wait_for_indexing(timeout=0.01) is False
+
+
+@pytest.mark.asyncio
+async def test_nonblocking_index_snapshot_requires_quiet_fresh_progress():
+    """Pending phases and their short gap cannot become a ready snapshot."""
+    process = MagicMock()
+    process.returncode = None
+    client = ALSClient(process)
+    await client._handle_progress(
+        {"token": "first", "value": {"kind": "begin", "title": "Indexing"}}
+    )
+    assert await client.is_indexing_complete() is False
+    during_old_index = await client.indexing_generation()
+    await client._handle_progress({"token": "first", "value": {"kind": "end"}})
+    assert await client.is_indexing_complete() is False
+    assert client._indexing_quiet_since is not None
+    client._indexing_quiet_since -= 1.0
+    assert await client.is_indexing_complete() is True
+    assert await client.is_indexing_complete(after_generation=during_old_index) is False
+    generation = await client.indexing_generation()
+    assert await client.is_indexing_complete(after_generation=generation) is False
+    await client._handle_progress(
+        {"token": "second", "value": {"kind": "begin", "title": "Indexing"}}
+    )
+    assert await client.is_indexing_complete() is False
+    await client._handle_progress({"token": "second", "value": {"kind": "end"}})
+    assert await client.is_indexing_complete(after_generation=generation) is False
+    assert client._indexing_quiet_since is not None
+    client._indexing_quiet_since -= 1.0
+    assert await client.is_indexing_complete(after_generation=generation) is True
+
+
+@pytest.mark.asyncio
+async def test_project_reload_does_not_reuse_old_progress_for_semantic_readiness():
+    process = MagicMock()
+    process.returncode = None
+    client = ALSClient(process)
+    await client._handle_progress({"token": "old", "value": {"kind": "begin", "title": "Indexing"}})
+    generation = await client.prepare_project_reload()
+    await client._handle_progress({"token": "old", "value": {"kind": "end"}})
+    assert client._indexing_quiet_since is not None
+    client._indexing_quiet_since -= 1.0
+    assert await client.is_indexing_complete(after_generation=generation) is False
+    assert await client.wait_for_indexing(timeout=0.001) is False
+    await client._handle_progress({"token": "new", "value": {"kind": "begin", "title": "Indexing"}})
+    await client._handle_progress({"token": "new", "value": {"kind": "end"}})
+    assert client._indexing_quiet_since is not None
+    client._indexing_quiet_since -= 1.0
+    assert await client.is_indexing_complete(after_generation=generation) is True
+    assert await client.wait_for_indexing(timeout=0.5) is True
+    waiter = asyncio.create_task(client.wait_for_indexing(timeout=0.5))
+    await asyncio.sleep(0)
+    await client.prepare_project_reload()
+    await asyncio.sleep(0.11)
+    assert not waiter.done()
+    await client._handle_progress(
+        {"token": "latest", "value": {"kind": "begin", "title": "Indexing"}}
+    )
+    await client._handle_progress({"token": "latest", "value": {"kind": "end"}})
+    assert await waiter is True
 
 
 @pytest.mark.asyncio
