@@ -152,6 +152,8 @@ def test_real_entry_paths_ignore_valid_sibling_bytecode(installed, tmp_path, com
             "1000",
             "--image-cache",
             str(installed["cache"]),
+            "--transport",
+            "archive",
         ]
     elif command == "smoke-help":
         arguments = [sys.executable, str(scripts / "mac_smoke.py"), "--help"]

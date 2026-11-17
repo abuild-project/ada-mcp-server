@@ -321,7 +321,13 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
 
 Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
-be new. Bootstrap may download/load the pinned image; it preserves the current
+be new. Unreleased tooling tries GHCR first and uses the hash-locked image
+archive only if the pull fails or times out. `--image-cache` sets that fallback
+cache; add `--transport archive` for archive-only setup. A successful pull with
+an identity failure stops rather than falling back. Published RC3 and earlier
+tooling keep their original behavior; their explicit `--registry` option
+accepts a verified immutable registry digest as described in the host guide.
+Bootstrap may download/load the pinned image; it preserves the current
 Docker selection unless you explicitly pass `--docker-host` or `--docker-context`.
 In a managed environment, use the actual supported daemon endpoint if its
 default is unavailable; do not guess or globally change Docker configuration.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Default new bootstrap bindings to GHCR with the hash-locked release archive
+  as a fallback for pull failure or timeout. Preserve immutable runtime pins,
+  explicit source overrides and existing binding sources; `--transport archive`
+  selects archive-only provisioning.
+
 - Raise optional development minimums to Ruff 0.17.5, pytest-asyncio 1.5.0
   and Mypy 2.4.1.
 - Attribute separate protected-body imports to their declared owner and include
