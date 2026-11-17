@@ -96,3 +96,12 @@ installer and project-selection setup guidance. Check the combined registry,
 alias and verified-helper controls, then validate the exact merged candidate
 through the complete managed CI chain. The topic scope and correction budget
 continue unchanged.
+
+## 2026-11-17 — Canonical imported-source identity
+
+Equivalent absolute file paths must match the same evaluated imported source.
+Canonicalize retained source-file keys and the imported fallback lookup only;
+keep lexical ancestor selection, project-root keys and context precedence
+unchanged. Cover canonical, parent-component and file-symlink arguments in the
+existing pool control, and use a parent-component path for the existing native
+declaration query. Retain the same fixture, source hashes and process checks.

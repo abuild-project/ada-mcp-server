@@ -87,7 +87,8 @@ def run_control(output: Path) -> JSON:
         identity = process_state(session, output / "mcp/server-stderr.log")
         report["initial_process"] = identity
         expected = {(str(main), 4, 11), (str(spec), 2, 14), (str(body), 2, 14)}
-        for source, line, column in ((main, 4, 11), (spec, 2, 14)):
+        imported_alias = spec.parent / ".." / "src" / spec.name
+        for source, line, column in ((main, 4, 11), (imported_alias, 2, 14)):
             require_references(
                 call(
                     "ada_find_references",

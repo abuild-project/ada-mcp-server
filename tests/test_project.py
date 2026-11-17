@@ -76,7 +76,7 @@ class TestProjectInfo:
                             "source-directories": [str(imported.parent)],
                         },
                         "sources": [
-                            {"file-name": str(imported)},
+                            {"file-name": str(imported.parent / ".." / "src" / imported.name)},
                             {"file-name": "relative.ads"},
                         ],
                     },

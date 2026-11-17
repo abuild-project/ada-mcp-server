@@ -200,8 +200,9 @@ Anchor workspace queries to an absolute `file` from the selected view. Inspect
 diagnostics are not a clean compilation or complete project check.
 
 File queries first retain the deepest explicitly selected lexical ancestor
-view. For an imported file outside all selected roots, they use its exact
-evaluated source membership. If several selected views include that file, the
+view. For an imported file outside all selected roots, they use its canonical
+evaluated source membership, including equivalent absolute paths with `..` or
+file symlinks. If several selected views include that file, the
 most recently explicitly selected matching view wins. Reselect its GPR to
 refresh that choice and the evaluated source list. After project or source
 membership changes, repeat `ada_project_info` to refresh this snapshot. Files

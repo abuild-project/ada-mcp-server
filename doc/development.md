@@ -70,6 +70,7 @@ compilers and mocked ALS tests are not integration evidence.
 
 The imported-view control compiles a library and an importing CLI, requiring
 the same exact three references from the initial call and declaration anchors.
+The declaration query uses an equivalent absolute path containing `..`.
 It adds and compiles one imported caller, reselects the CLI project and requires
 four references from both the new call and original declaration. Procfs
 identities require the same MCP/ALS births through those queries. Positive and

@@ -58,9 +58,20 @@ async def select(views, root, **context):
 
 
 @pytest.mark.asyncio
-async def test_imported_member_reuses_selected_importer_but_unlisted_file_does_not(views):
+@pytest.mark.parametrize("path_kind", ["canonical", "dotdot", "symlink"])
+async def test_imported_member_reuses_selected_importer_but_unlisted_file_does_not(
+    views, path_kind
+):
     selected = await select(views, views.cli)
-    assert await views.pool.get_client(str(views.source)) is selected
+    source = (
+        views.source
+        if path_kind == "canonical"
+        else views.source.parent / ".." / "src" / views.source.name
+    )
+    if path_kind == "symlink":
+        source = views.library.parent / "shared-alias.ads"
+        source.symlink_to(views.source)
+    assert await views.pool.get_client(str(source)) is selected
     assert await views.pool.get_client(str(views.unlisted)) is views.clients[1]
     assert views.start.call_count == 2
     assert views.start.await_args.args == (views.library,)

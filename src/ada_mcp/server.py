@@ -183,11 +183,12 @@ class ALSPool:
                 else:
                     # For an imported file outside every selected lexical
                     # root, the latest explicit matching selection wins.
+                    canonical_source = source.resolve()
                     project_root = next(
                         (
                             root
                             for root in reversed(self._selected_projects)
-                            if source in self._selected_projects[root].source_files
+                            if canonical_source in self._selected_projects[root].source_files
                         ),
                         project_root,
                     )

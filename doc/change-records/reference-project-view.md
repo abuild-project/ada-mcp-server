@@ -12,13 +12,14 @@ Explicit project selection reloads ALS's project tree and waits for fresh
 indexing before retaining exact source files from the root and imported
 projects. File queries preserve the deepest explicitly selected lexical
 ancestor, including nested overrides. Outside
-those roots, the most recently successfully selected view containing the exact
-file wins. Explicit reselection refreshes both membership and order; ordinary
-file use and pool eviction preserve them. Runtime sources and files absent
+those roots, the most recently successfully selected view containing the
+canonical source path wins, including equivalent absolute paths with `..` or
+file symlinks. Explicit reselection refreshes membership and order;
+ordinary file use and pool eviction preserve them. Runtime sources and files absent
 from those evaluated lists remain outside this fallback. Recreated clients
 retain the selected GPR, ordered project paths and scenario values.
 
-Focused controls cover evaluated membership, unlisted and runtime sources,
+Focused controls cover evaluated membership and canonical file aliases,
 overlapping imports, reselection, lexical priority, rejected views and eviction
 with exact context. The additional-tool trace requires the ordered reload,
 project-view and mains exchanges while retaining action-execution rejection.
@@ -30,8 +31,8 @@ and checks a nonmember's separate project with positive and negative symbol
 queries. It retains raw
 protocol, compiler output and known fixture-input hashes.
 
-Development checks through topic revision
-`e5ceadee68024fe8433aae336f0631370c3279ff` passed Ruff, formatting, strict
+Development checks on topic source based on published revision
+`9539b55ad7143e58ba72baefd715862e4d8d305b` passed Ruff, formatting, strict
 typing, targeted unit tests and documentation validation in the verified
 baseline Trixie runtime. The source-mounted native control passed the initial
 three-reference and refreshed four-reference queries with unchanged original
