@@ -29,6 +29,9 @@ array. The second actual must select Right, and the third must select Extra.
 | Changed Main 7:31, second actual | 1 | 0 | Blocked, unaccepted |
 | Changed Main 7:34, third actual | 2 | 1 | Blocked, unaccepted |
 
+The three cases are tracked in the
+[upstream signature report](https://github.com/AdaCore/ada_language_server/issues/1310).
+
 The initial managed observation used exact source revision
 `0950488ebbdc9710d59c5a5ed28b288d4ba00deb` and retained unchanged native
 initialize negotiation and signature requests. MCP sent the correct

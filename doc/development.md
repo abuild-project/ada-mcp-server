@@ -41,6 +41,14 @@ the chain, retain that directory and select a new absolute output:
 docker/check ada-mcp-server:candidate --output /absolute/new-check-attempt
 ```
 
+Before lint/tests, scripts/check_requirements.py compares exact pins from
+requirements/development.in and its relative -r includes with development.lock.
+It accepts this repository's pin/include lines, comments and generated SHA256
+hash continuations; unsupported relevant lines fail rather than disappear.
+Missing, conflicting or different pins fail with stderr diagnostics. Extra
+transitive lock packages are allowed. This checks input/lock agreement,
+not dependency resolution or artifact-hash validity.
+
 The chain runs Ruff/format, strict Mypy, unit tests with coverage, distributions,
 documentation/link/example validation, and real ALS protocol, parent-GPR and
 diagnostic-publication probes. The required diagnostic control changes a new
