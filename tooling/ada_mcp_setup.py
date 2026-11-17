@@ -650,6 +650,38 @@ def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
     return arguments
 
 
+def tag_image(binding: JSON, manifest: JSON, report: JSON, timeout: float) -> None:
+    """Report a best-effort version alias; naming never blocks verified setup."""
+    evidence = report["image_tag"] = {"status": "checking"}
+    try:
+        version = manifest.get("project_version")
+        require(isinstance(version, str) and version, "image tag requires a project version")
+        assert isinstance(version, str)
+        tag = "v" + version.replace("+", "_")
+        require(
+            re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", tag), "invalid image version tag"
+        )
+        reference = "ada-mcp-server:" + tag
+        target = target_id(binding)
+        evidence.update(reference=reference, target=target)
+        docker, environment = docker_binding(binding)
+        state = inspect_image(docker, environment, reference, report, timeout)
+        if state is not None:
+            evidence.update(
+                status="present" if state["Id"] == target else "conflict",
+                observed_target=state["Id"],
+            )
+            return
+        command_run(docker + ["image", "tag", target, reference], environment, report, timeout)
+        state = inspect_image(docker, environment, reference, report, timeout)
+        require(
+            state is not None and state["Id"] == target, "image tag does not identify pinned target"
+        )
+        evidence["status"] = "created"
+    except Exception as error:
+        evidence.update(status="error", error=type(error).__name__ + ": " + str(error))
+
+
 def update_arguments(options: argparse.Namespace) -> list[str]:
     """Keep notice settings explicit without changing the immutable binding schema."""
     arguments = []
@@ -1048,6 +1080,7 @@ def main() -> int:
                     "restored store uses another target; choose a new explicit host binding",
                 )
                 doctor(binding, manifest, report, output, options.timeout, options.command_timeout)
+                tag_image(binding, manifest, report, options.command_timeout)
                 if not exists:
                     write_new(path, json.dumps(binding, indent=2) + "\n")
                 report["binding_created"] = not exists
