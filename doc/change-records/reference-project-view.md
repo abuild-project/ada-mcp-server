@@ -20,7 +20,9 @@ retain the selected GPR, ordered project paths and scenario values.
 
 Focused controls cover evaluated membership, unlisted and runtime sources,
 overlapping imports, reselection, lexical priority, rejected views and eviction
-with exact context. The required STDIO regression compiles an owned library
+with exact context. The additional-tool trace requires the ordered reload,
+project-view and mains exchanges while retaining action-execution rejection.
+The required STDIO regression compiles an owned library
 and importer, requires three references from both initial anchors, adds and
 compiles one imported caller, then requires four references from the new call
 and original declaration after reselection. It observes stable MCP/ALS births

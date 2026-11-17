@@ -77,3 +77,12 @@ Extend the existing compiling control with one owned added caller, requiring
 the expanded four-location reference set after reselection. Retain hashes of
 the original inputs and the explicit addition separately. Publish the
 correction as an appended commit, preserving the already published topic.
+
+## 2026-11-17 — Native trace contract alignment
+
+The additional-tool control must require the refreshed selection's exact
+native setup sequence: reload with empty arguments and a null result, then
+project-view information and mains. Align its command guard, native projection
+and mocked trace with that sequence. Reject missing or reordered reloads;
+retain the existing forbidden-action controls and positional-signature limits.
+Keep the runtime selection implementation unchanged.

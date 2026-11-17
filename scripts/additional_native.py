@@ -285,10 +285,11 @@ def require_call_native(
         pairs = pairs[1:]
         expected = [
             ("workspace/executeCommand", {"command": command, "arguments": []})
-            for command in ("als-project-view-information", "als-mains")
+            for command in ("als-reload-project", "als-project-view-information", "als-mains")
         ]
         require_equal([(m, p) for m, p, _ in pairs], expected, "native project requests")
-        view, mains = pairs[0][2], pairs[1][2]
+        require_equal(pairs[0][2], None, "native project reload result")
+        view, mains = pairs[1][2], pairs[2][2]
         selected = [
             entry["project"]
             for entry in view["projects"]

@@ -108,6 +108,10 @@ outputs. Native requests/results, MCP envelopes, complete source states,
 process births and cleanup survive failure. Actions and rename previews
 never execute edits; formatting is reconstructed in memory before an explicit
 write to the fresh owned fixture for the already-formatted check.
+Its project-selection trace requires exactly `als-reload-project` with empty
+arguments and a null result, followed by `als-project-view-information` and
+`als-mains`. Missing or reordered reloads fail; action execution remains
+forbidden.
 
 Three pinned-ALS positional signature cases remain unaccepted. The default
 control fails their incorrect active indices. CI explicitly assesses only

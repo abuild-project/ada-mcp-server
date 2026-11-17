@@ -179,6 +179,11 @@ def runner(tmp_path, monkeypatch):
                 self.initialize_native()
                 self.emit(
                     "workspace/executeCommand",
+                    None,
+                    {"command": "als-reload-project", "arguments": []},
+                )
+                self.emit(
+                    "workspace/executeCommand",
                     {
                         "tree": {"root-project": {"id": "fixture-root"}},
                         "projects": [
@@ -723,6 +728,32 @@ def test_provisional_runner_keeps_positional_discrepancies_unaccepted(runner):
     assert labels.index("main-only-changed-calls") + 1 == labels.index("removed-call-actions")
     assert result["native_trace_complete"] is True and result["original_fixture_unchanged"] is True
     assert runner.close_count == runner.cleanup_count == 1
+
+
+@pytest.mark.parametrize("alteration", ["missing", "reordered"])
+def test_project_selection_requires_reload_before_view_and_mains(runner, alteration):
+    def alter_trace(root, tool, _arguments, _result):
+        if tool != "ada_project_info":
+            return
+        trace = root.parent / "native-requests.jsonl"
+        events = [json.loads(line) for line in trace.read_text().splitlines()]
+        identifier = next(
+            row["id"]
+            for row in events
+            if row.get("params", {}).get("command") == "als-reload-project"
+        )
+        reload = [row for row in events if row["id"] == identifier]
+        events = [row for row in events if row["id"] != identifier]
+        if alteration == "reordered":
+            # Keep correlated pairs intact, but put reload after the view.
+            events[4:4] = reload
+        trace.write_text("".join(json.dumps(row) + "\n" for row in events))
+
+    runner.on_call = alter_trace
+    with pytest.raises(RuntimeError, match="native project requests"):
+        real.run_control(runner.output, True)
+    row = report(runner)["calls"][-1]
+    assert row["accepted"] is False and "native project requests" in row["oracle_error"]
 
 
 def test_strict_default_fails_native_wrong_positional_selection(runner):
