@@ -75,9 +75,8 @@ async def test_generic_fixture_file_and_directory_owners():
     assert {path: path.read_bytes() for path in before} == before
 
 
-@pytest.mark.asyncio
-async def test_generated_formals_do_not_rescan_growing_prefixes(tmp_path, monkeypatch):
-    """Bound regex input for one generated generic, without a timing threshold."""
+async def _assert_generated_formals_budget(tmp_path, monkeypatch, dependency_graph):
+    """Bound observed regex input and reject unmeasured callable APIs."""
     source_text = (
         "with Ada.Text_IO;\ngeneric\n"
         + "".join(f"   with function Formal_{index} return Boolean;\n" for index in range(128))
@@ -90,19 +89,45 @@ async def test_generated_formals_do_not_rescan_growing_prefixes(tmp_path, monkey
     class MeasuredRegex:
         def __getattr__(self, name):
             operation = getattr(re, name)
-            if name not in {"finditer", "search", "findall"}:
+            text_positions = {"finditer": 1, "search": 1, "findall": 1, "sub": 2}
+            if name not in text_positions:
+                assert not callable(operation), f"Unmeasured regex operation: {name}"
                 return operation
 
-            def measured(pattern, text, *args, **kwargs):
+            def measured(*args, **kwargs):
+                position = text_positions[name]
+                text = args[position] if len(args) > position else kwargs["string"]
                 inspected_lengths.append(len(text))
-                return operation(pattern, text, *args, **kwargs)
+                return operation(*args, **kwargs)
 
             return measured
 
     monkeypatch.setattr(project_tools, "re", MeasuredRegex())
-    assert await handle_dependency_graph(str(source)) == {
+    assert await dependency_graph(str(source)) == {
         "dependencies": [{"package": "Owner", "file": str(source), "depends_on": ["Ada.Text_IO"]}],
         "package_count": 1,
     }
     assert source.read_text() == source_text
+    assert inspected_lengths, "No regex input was measured"
     assert sum(inspected_lengths) <= 4 * len(source_text), inspected_lengths
+
+
+@pytest.mark.asyncio
+async def test_generated_formals_do_not_rescan_growing_prefixes(tmp_path, monkeypatch):
+    """Bound one generated generic without a timing threshold."""
+    await _assert_generated_formals_budget(tmp_path, monkeypatch, handle_dependency_graph)
+
+
+@pytest.mark.asyncio
+async def test_generated_formals_budget_rejects_compiled_prefix_bypass(tmp_path, monkeypatch):
+    """The guard must reject prefix work hidden in a compiled-pattern helper."""
+
+    async def repeated_prefix_graph(file):
+        text = Path(file).read_text()
+        prefix_pattern = project_tools.re.compile(r"\bwith\s*$", project_tools.re.IGNORECASE)
+        for match in re.finditer(r"\bfunction\b", text):
+            prefix_pattern.search(text[: match.start()])
+        return await handle_dependency_graph(file)
+
+    with pytest.raises(AssertionError, match="Unmeasured regex operation: compile"):
+        await _assert_generated_formals_budget(tmp_path, monkeypatch, repeated_prefix_graph)

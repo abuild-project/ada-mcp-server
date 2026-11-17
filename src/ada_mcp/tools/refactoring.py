@@ -255,6 +255,8 @@ async def handle_signature_help(
 
     selected = result["signatures"][selected_index]
     raw_active_parameter = selected.get("activeParameter", result.get("activeParameter", 0))
+    # Null is malformed because we do not advertise noActiveParameterSupport.
+    # Revisit null handling before enabling that LSP 3.18 capability.
     malformed_parameter = (
         type(raw_active_parameter) is not int or not 0 <= raw_active_parameter <= 2_147_483_647
     )

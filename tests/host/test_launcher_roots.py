@@ -77,6 +77,36 @@ def test_physical_unicode_and_space_paths_keep_same_path_readonly_mount(tmp_path
     assert "type=bind,src=" + str(root) + ",dst=" + str(root) + ",readonly" in calls[-1]
 
 
+def test_default_identity_uses_distinct_caller_uid_and_gid(tmp_path, docker_stub):
+    """The mocked default launch uses each id result without CLI overrides."""
+    capture, environment = docker_stub
+    identity = tmp_path / "bin/id"
+    identity.write_text(
+        "#!/bin/sh\n"
+        'case "$1" in\n'
+        "  -u) printf '1234\\n' ;;\n"
+        "  -g) printf '5678\\n' ;;\n"
+        "  *) exit 2 ;;\n"
+        "esac\n"
+    )
+    identity.chmod(0o755)
+    root = tmp_path / "physical"
+    root.mkdir()
+    subprocess.run(
+        [str(ROOT / "tooling/ada-mcp-launch"), "--image", "fixture", "--root", str(root)],
+        env=environment,
+        check=True,
+    )
+    command = json.loads(capture.read_text().splitlines()[-1])
+    assert command[0] == "run"
+    assert command.count("--user") == 1
+    assert command[command.index("--user") + 1] == "1234:5678"
+    assert [command[index + 1] for index, value in enumerate(command) if value == "--tmpfs"] == [
+        "/tmp:rw,nosuid,nodev,noexec",
+        "/home/ada-mcp:rw,nosuid,nodev,uid=1234,gid=5678,mode=0700",
+    ]
+
+
 @pytest.mark.parametrize("reserved", setup.RESERVED_RUNTIME_PATHS)
 @pytest.mark.parametrize("suffix", ["", "/synthetic-project"])
 def test_reserved_runtime_equal_or_descendant_rejected_before_docker(docker_stub, reserved, suffix):
