@@ -156,6 +156,11 @@ python3 -m venv .venv
 .venv/bin/python -m pytest tests/test_als_pool.py -q
 ```
 
+requirements/development.lock records the checked reproducible development
+baseline. The optional .[dev] extra uses lower bounds from pyproject.toml
+and may install newer allowed releases. Use the lock-based commands above
+when reproducing the checked setup.
+
 Local pytest runs as root explicitly skip the six mode-000 permission-denial
 cases in tests/host/test_additional_inspection.py. This is a development
 convenience, not permission or native acceptance. Use a real nonroot account
