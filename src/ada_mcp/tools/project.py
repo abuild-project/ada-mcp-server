@@ -102,6 +102,15 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
 
     mains = await _execute_als_command(als_client, "als-mains")
 
+    # Imported sources may lie outside the selected GPR's directory. Keep
+    # evaluated file membership, not source-directory or runtime-wide guesses.
+    als_client.project_view_sources = frozenset(
+        Path(source["file-name"])
+        for entry in project_info.get("projects", [])
+        for source in entry.get("sources", [])
+        if isinstance(source.get("file-name"), str) and Path(source["file-name"]).is_absolute()
+    )
+
     return {
         "project_file": str(loaded_project),
         "project_name": root_project.get("name"),

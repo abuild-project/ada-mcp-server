@@ -61,6 +61,8 @@ class ALSClient:
         # because an MCP tool opens them for the first time.
         self._project_root: Path | None = None
         self._known_project_sources: set[Path] = set()
+        # Exact non-runtime membership from the last validated ALS project view.
+        self.project_view_sources: frozenset[Path] = frozenset()
 
     @property
     def is_running(self) -> bool:

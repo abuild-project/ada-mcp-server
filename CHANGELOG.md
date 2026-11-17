@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retain explicitly selected GPR views for queries anchored to imported source
+  files outside their directories. Shared imports use the most recent matching
+  explicit selection unless an explicitly selected lexical ancestor applies.
 - Give successful bootstrap installations a local
   `ada-mcp-server:v<project-version>` alias, while preserving immutable runtime
   pins. Report conflicting or unavailable aliases without overwriting them or

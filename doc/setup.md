@@ -177,6 +177,14 @@ Anchor workspace queries to an absolute `file` from the selected view. Inspect
 `complete`, `truncated`, scope and source-bound coordinates. Unscoped cached
 diagnostics are not a clean compilation or complete project check.
 
+File queries first retain the deepest explicitly selected lexical ancestor
+view. For an imported file outside all selected roots, they use its exact
+evaluated source membership. If several selected views include that file, the
+most recently explicitly selected matching view wins. Reselect its GPR to
+refresh that choice and the evaluated source list. After project or source
+membership changes, repeat `ada_project_info` to refresh this snapshot. Files
+outside those lists continue through normal project discovery.
+
 Doctor checks the actual locked image, numeric identity, read-only mounts,
 private HOME, network/capability isolation, MCP catalog and confirmed EOF
 cleanup. Direct host Docker calls have `--command-timeout`; MCP requests and

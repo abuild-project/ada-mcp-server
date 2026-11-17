@@ -5,7 +5,7 @@ import json
 import logging
 import os
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -87,6 +87,7 @@ class ProjectSelection:
 
     project_file: Path
     project_context: ALSProjectContext
+    source_files: frozenset[Path] = field(default_factory=frozenset, compare=False)
 
 
 class ALSPool:
@@ -179,6 +180,17 @@ class ALSPool:
                 ]
                 if ancestors:
                     project_root = max(ancestors, key=lambda root: len(root.absolute().parts))
+                else:
+                    # For an imported file outside every selected lexical
+                    # root, the latest explicit matching selection wins.
+                    project_root = next(
+                        (
+                            root
+                            for root in reversed(self._selected_projects)
+                            if source in self._selected_projects[root].source_files
+                        ),
+                        project_root,
+                    )
             selected_project = self._selected_projects.get(project_root)
             if requested_project is not None:
                 project_file = requested_project
@@ -262,9 +274,13 @@ class ALSPool:
             project_key = self._key_for_client(client)
             if project_key is None or project_key[1] is None:
                 raise RuntimeError("explicit ALS project client is not cached")
+            # Reinsertion refreshes only successful explicit selection order;
+            # ordinary file calls and LRU eviction do not change that order.
+            self._selected_projects.pop(project_key[0], None)
             self._selected_projects[project_key[0]] = ProjectSelection(
                 project_file=project_key[1],
                 project_context=project_key[2],
+                source_files=frozenset(client.project_view_sources),
             )
 
     async def discard_client(

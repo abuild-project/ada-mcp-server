@@ -48,6 +48,48 @@ class TestProjectInfo:
     """Tests for ada_project_info tool."""
 
     @pytest.mark.asyncio
+    async def test_project_membership_uses_exact_nonruntime_sources(
+        self, sample_gpr_path, mock_als_client, tmp_path
+    ):
+        """Use ALS's sibling sources lists, never directories or runtime sources."""
+        root_source = sample_gpr_path.parent / "src/main.adb"
+        imported = tmp_path / "library/src/shared.ads"
+        runtime = tmp_path / "runtime/system.ads"
+        mock_als_client.send_request.side_effect = [
+            {
+                "tree": {"root-project": {"id": "sample"}},
+                "projects": [
+                    {
+                        "project": {
+                            "id": "sample",
+                            "file-name": str(sample_gpr_path.resolve()),
+                            "source-directories": [str(root_source.parent)],
+                        },
+                        "sources": [{"file-name": str(root_source)}],
+                    },
+                    {
+                        "project": {
+                            "id": "library",
+                            "source-directories": [str(imported.parent)],
+                        },
+                        "sources": [
+                            {"file-name": str(imported)},
+                            {"file-name": "relative.ads"},
+                        ],
+                    },
+                ],
+                "runtime-project": {"sources": [{"file-name": str(runtime)}]},
+            },
+            [],
+        ]
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert result["complete"] is True
+        assert mock_als_client.project_view_sources == frozenset({root_source, imported})
+        assert imported.parent / "unlisted.ads" not in mock_als_client.project_view_sources
+        assert runtime not in mock_als_client.project_view_sources
+        assert "source_files" not in result
+
+    @pytest.mark.asyncio
     async def test_project_info_uses_evaluated_als_view(
         self,
         sample_gpr_path,
