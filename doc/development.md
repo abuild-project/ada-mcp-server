@@ -132,7 +132,9 @@ unconfirmed states, including a view with no observed progress. Deterministic
 progress controls check that pending metadata keeps its client and can later
 become ready, without changing semantic query guards. The
 [larger-project Mac timing check](assessments/project-selection-timing.md)
-remains pending before release.
+is an optional later performance assessment. The
+[RC4 release plan](plans/release-0.2.0-rc.4.md) schedules a separate clean local
+Mac Codex/Arca installation and native-tool acceptance after publication.
 
 Three pinned-ALS positional signature cases remain unaccepted. The default
 control fails their incorrect active indices. CI explicitly assesses only

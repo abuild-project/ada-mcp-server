@@ -7,16 +7,16 @@ updates need the maintainer's authorization; a reviewed PR alone is not that
 authorization. Ordinary CI only builds/tests and uploads CI artifacts.
 The promotion workflow is manually invoked for the approved release.
 
-The coordinated `0.2.0-rc.3` candidate remains a pilot prerelease, not a stable
-support promise. Its [release notes](releases/0.2.0-rc.3.md) describe the changes
-and client/platform limits. RC1/RC2 remain immutable published fallbacks. The
-[public repository assessment](assessments/public-release.md) distinguishes
+The coordinated `0.2.0-rc.4` candidate remains a pilot prerelease, not a stable
+support promise. Its [release notes](releases/0.2.0-rc.4.md) describe the changes
+and client/platform limits. Older published releases remain immutable fallbacks.
+The [public repository assessment](assessments/public-release.md) distinguishes
 observed settings from policy and unavailable administrative evidence.
 
 ## Artifact trust and version
 
 The canonical SemVer is read from src/ada_mcp/_version.py. Python converts
-`0.2.0-rc.3` to `0.2.0rc3`; package metadata and MCP initialization report that
+`0.2.0-rc.4` to `0.2.0rc4`; package metadata and MCP initialization report that
 project version, not the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
@@ -62,7 +62,7 @@ metadata and checksums record the digest and exact tested artifact hashes.
    notes hash, command and output. Publication passes those reviewed bytes via
    a temporary notes file outside the release assets; it adds no artifact.
 2. With merge/release authority supplied, create the intended immutable tag
-   `v0.2.0-rc.3` on that same approved revision and verify the tag target.
+   `v0.2.0-rc.4` on that same approved revision and verify the tag target.
    Verify repository/GitHub Actions permissions, release protection,
    GHCR publication rights and the exact redistributed components' required
    source delivery under [licensing](licensing.md). A declared environment name
@@ -98,6 +98,15 @@ views and EOF cleanup in that test. A second worktree or cleared local binding
 in the producer task is not a fresh Cloud environment. Actual macOS and native
 Claude/OpenCode acceptance remain separate subsequent topics; they do not
 block the agreed Cloud pilot prerelease.
+
+For RC4, the maintainer chose publication before a separate clean **local**
+Mac Codex/Arca installation test. Follow the
+[dated release plan](plans/release-0.2.0-rc.4.md) for owned-state backup/removal,
+an isolated sibling checkout and actual native agent discovery/source queries.
+A test-client batch alone does not establish that acceptance. The previous
+mandatory larger-project Mac benchmark is superseded by this order; its
+[measurement procedure](assessments/project-selection-timing.md) is optional
+later performance work. MCP SDK 2 work follows the local acceptance test.
 
 Registry behavior reference:
 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry

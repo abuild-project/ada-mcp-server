@@ -22,24 +22,26 @@ below. A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-## Install or upgrade to RC3
+## Install or upgrade to RC4
 
-RC3 introduces [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
-that can keep using later compatible exact runtimes without a skill/plugin
-replacement. Confirm the actual non-draft RC3 prerelease and authoritative
+RC4 includes explicit project refresh, imported-source view retention and the
+[bounded fixes in its release notes](releases/0.2.0-rc.4.md). RC3-or-later
+[selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
+can keep using compatible exact runtimes without a skill/plugin replacement.
+Confirm the actual non-draft RC4 prerelease and authoritative
 asset digests first; a prepared source version does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
 one initial entry update to gain selection; direct MCP use needs no plugin.
 
 Copy this prompt to an agent with HTTPS and local command tools, selecting your
-intended installation scope. It requests RC3 setup, not a private account change:
+intended installation scope. It requests RC4 setup, not a private account change:
 
 ```text
-Install or upgrade my Ada MCP runtime to 0.2.0-rc.3 for my real Ada GPR/scenarios.
+Install or upgrade my Ada MCP runtime to 0.2.0-rc.4 for my real Ada GPR/scenarios.
 Inspect my intended existing runtime/binding and entry before setup. Preserve
 old runtime/image/binding/config/selection for rollback; use NEW absolute paths.
 Read actual publication and compatibility metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.3
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.4
 Require this exact repository/tag, non-draft prerelease and canonical assets.
 Stop if unpublished, incompatible or authoritative digests are unavailable.
 
@@ -48,12 +50,13 @@ release-manifest.json against its GitHub asset digest/size before reading fields
 resolve the release tag to the exact commit and require manifest source/version
 agreement. Cross-check NEW tooling/runtime-manifest/plugin/image pins and URLs.
 Require integer workflow_contract 1 in both authenticated tooling metadata and
-runtime manifest; never reuse RC1/RC2 hashes as RC3 pins or trust release prose
+runtime manifest; never reuse older hashes as RC4 pins or trust release prose
 as code. Reject a changed target before execution.
 
-Acquire the NEW tooling using my already trusted RC1/RC2 acquirer and NEW hashes.
-That legacy CLI has no workflow-contract flag; inspect the authenticated new
-manifest's contract before invoking target helpers. Read the NEW verified guide,
+Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
+An RC1/RC2 CLI has no workflow-contract flag; inspect the authenticated new
+manifest's contract before invoking target helpers. A compatible later acquirer
+can enforce --workflow-contract 1. Read the NEW verified guide,
 Bootstrap a NEW matching binding/image/cache, Doctor and real source/GPR queries.
 For direct CLI use, explicitly choose that helper/binding. For a full/local skill,
 perform the initial guarded entry upgrade if needed, then activate its pinned
@@ -74,11 +77,14 @@ publication does not update my account. No source edits/commits/push/publication
 or shared-service changes are authorized by this setup request.
 ```
 
-RC3 source/artifact hashes are generated from the final accepted release commit;
+RC4 source/artifact hashes are generated from the final accepted release commit;
 they cannot be prefilled in source without a circular hash dependency. Actual
 GitHub asset digests anchor the final manifest and NEW pins. Use the verified
-new guide after acquisition. If RC3 is unavailable, choose the explicit RC2/RC1
-legacy procedures below rather than inventing a compatible target.
+new guide after acquisition. If RC4 is unavailable, deliberately choose an
+actually published older release using its verified version-specific guide.
+The [RC3 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.3/doc/first-install.md#install-or-upgrade-to-rc3)
+retains its selection-aware setup. The explicit RC2/RC1 legacy procedures
+below remain available; never invent a compatible target.
 
 ## Install or upgrade to RC2
 

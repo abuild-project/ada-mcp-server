@@ -1,6 +1,6 @@
 # Candidate support and evidence matrix
 
-Version: pilot prerelease candidate `0.2.0-rc.3` (Python `0.2.0rc3`). The table defines
+Version: pilot prerelease candidate `0.2.0-rc.4` (Python `0.2.0rc4`). The table defines
 its acceptance scope; the exact immutable revision must pass the documented
 checks before approval. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
@@ -34,9 +34,11 @@ requests observe readiness without reloading. True reevaluates changed GPR/sourc
 membership on a reused client; a new exact client is already fresh. Use the
 advertised guarded `ada_workspace_symbols` path with a known actual source/symbol,
 honor `complete`/`truncated` and bound retries without reselecting or refreshing.
-Other tools do not all wait or provide completeness fields. Larger-project
-Mac selection latency remains pending under the
-[before-release measurement](assessments/project-selection-timing.md).
+Other tools do not all wait or provide completeness fields. Project selection
+no longer waits on the former 25-second indexing gate; the 30-second per-ALS-RPC
+timeout and 25-second guarded semantic wait remain. The
+[post-publication local Mac acceptance](plans/release-0.2.0-rc.4.md) is separate
+from the optional [larger-project timing assessment](assessments/project-selection-timing.md).
 
 The server advertises 19 tools. The read-only client policy permits 16 tools
 and explicit rename preview, but the catalog alone does not prove correctness
