@@ -108,9 +108,8 @@ declaration query. Retain the same fixture, source hashes and process checks.
 
 ## 2026-11-17 — Authorized startup and readiness exception
 
-The maintainer authorized “Ok machen” for the bounded scope:
-
-> Targeted cold-start/index-timeout correction, focused tests and record cleanup.
+The maintainer authorized a targeted cold-start and index-timeout correction,
+focused tests and change-record cleanup.
 
 Local corrections remain 0/3 and PR corrections remain 3/3; this exception
 opens no new round or reset. Main's policy is integrated by the separate
@@ -137,8 +136,8 @@ redesign, unrelated matrices, history rewriting, merging or publication.
 
 ## 2026-11-18 — Approved explicit refresh contract
 
-The maintainer requested the robust variant: “Kannst du das auf die robuste
-Variante umstellen?” and required its contract to be explained in the skill.
+The maintainer requested the explicit-refresh variant and required the skill
+to explain its usage and contract.
 This continues the bounded exception with local 0/3 and PR 3/3 retained; there
 is no new topic, round or reset.
 
