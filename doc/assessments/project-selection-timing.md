@@ -1,8 +1,35 @@
-# Larger-project Mac selection measurement
+# Local Mac acceptance and optional selection timing
 
-Status: **pending before release**. Cloud/Linux checks do not establish Mac
-startup or indexing latency. Use one real larger GPR view on the actual Mac,
-with unchanged source commit, ordered project paths and scenario values.
+Status as of **2026-11-18**: RC4 publication precedes a separate clean local
+Mac Codex/Arca functional acceptance test. The maintainer's
+[RC4 release decision](../plans/release-0.2.0-rc.4.md) supersedes the previous
+mandatory before-release larger-project benchmark. Cloud/Linux checks do not
+establish Mac startup, native client lifecycle or indexing latency.
+
+The functional test uses a fresh Arca checkout beside the abuild
+checkout, outside its directory and ancestor discovery scope, and a new local
+Codex chat opened only on Arca. First inventory and back up the maintainer's own
+Ada plugin/skill/MCP entries, runtimes and bindings, then remove those installed
+entries and active state so the chat cannot discover the build project's Ada
+MCP. Preserve unrelated configuration and rollback data outside discovery.
+Acquire the actually published RC4 normally, verify native agent tool discovery
+and actual server identity, select Arca's real GPR/scenarios, compare native
+source-query results with its source, and check disconnect/EOF cleanup. A
+separate query-client batch alone is insufficient. This is planned acceptance,
+not completed Mac support; SDK 2 work follows it.
+
+## Optional later performance comparison
+
+Project selection no longer waits for the former 25-second indexing gate, and
+default exact-view repeats no longer reload or reset readiness. A 30-second
+ALS RPC timeout and the 25-second guarded semantic wait remain. Index readiness
+is a separate conservative snapshot, not a promise of instant semantic results.
+No latency improvement is established by this structural change alone.
+
+If performance investigation is needed after functional acceptance, use one
+real larger GPR view on the actual Mac with unchanged source commit, ordered
+project paths and scenario values. The following procedure is optional and
+does not block RC4 publication.
 
 Compare accepted artifacts for baseline `ced1076fb1e87df0bc73f4702d31160aa0c8cfde`
 and the final candidate. Record each source SHA, tooling hash, immutable image
@@ -44,5 +71,5 @@ advertised explicit-refresh timings, plus time to confirmed semantic readiness,
 process births, source preservation and cleanup.
 No fixed latency improvement is claimed in advance. A still-running index may
 leave `indexing_complete=false`; this must preserve valid metadata and its live
-selected client. Wrong-view/load failures remain failures. New findings need
-maintainer assessment before release.
+selected client. Wrong-view/load failures remain failures. Report new findings
+for maintainer assessment without turning optional timings into a support claim.

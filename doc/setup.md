@@ -8,6 +8,8 @@ rules and locally generated artifact setup. The RC1 archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
 RC2-or-later notifier and the initial approved upgrade needed by RC1 installations.
+The current source candidate is `0.2.0-rc.4`; acquire it only after its actual
+publication and verification. Existing released archives retain their own guides.
 
 The candidate requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
 Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,
@@ -224,7 +226,9 @@ readiness path, honoring `complete` and `truncated`. Retry at most three times
 without reselection or refresh between attempts. Other tools do not all wait
 or report completeness. Follow the selected runtime's verified guide and
 advertised catalog: older RC3 runtimes may lack `refresh`, so an entry's
-workflow compatibility alone does not establish this capability.
+workflow compatibility alone does not establish this capability. RC4 removes
+the project-selection indexing wait and redundant default reload; the existing
+30-second ALS RPC timeout and 25-second guarded semantic wait still apply.
 
 Doctor checks the actual locked image, numeric identity, read-only mounts,
 private HOME, network/capability isolation, MCP catalog and confirmed EOF

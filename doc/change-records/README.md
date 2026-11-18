@@ -23,6 +23,7 @@
 - [pytest-asyncio hash lock update](pip-main-pytest-asyncio-1.5.0.md)
 - [RC2 prerelease preparation](release-0.2.0-rc.2.md)
 - [RC3 prerelease and public notification check](release-0.2.0-rc.3.md)
+- [RC4 prerelease preparation](release-0.2.0-rc.4.md)
 - [Registry downloads with archive fallback](installer-registry-default.md)
 - [Rename application result](rename-application-result.md)
 - [Requirements input and lock consistency](requirements-lock-consistency.md)

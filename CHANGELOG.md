@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0-rc.4 — pilot prerelease
+
 - Retain explicitly selected GPR views for queries anchored to imported source
   files outside their directories, including equivalent absolute paths.
   Shared imports use the most recent matching explicit selection unless an
