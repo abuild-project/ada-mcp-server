@@ -36,6 +36,11 @@ def mock_als_client():
     client.send_request = AsyncMock()
     client.is_new_project_source = MagicMock(return_value=False)
     client.is_known_project_source = MagicMock(return_value=False)
+    client.indexing_generation = AsyncMock(return_value=0)
+    client.prepare_project_reload = AsyncMock(return_value=0)
+    client.wait_for_indexing = AsyncMock(return_value=True)
+    client.is_indexing_complete = AsyncMock(return_value=True)
+    client.project_selection_fresh = False
     return client
 
 
@@ -46,6 +51,49 @@ def mock_als_client():
 
 class TestProjectInfo:
     """Tests for ada_project_info tool."""
+
+    @pytest.mark.asyncio
+    async def test_project_membership_uses_exact_nonruntime_sources(
+        self, sample_gpr_path, mock_als_client, tmp_path
+    ):
+        """Use ALS's sibling sources lists, never directories or runtime sources."""
+        root_source = sample_gpr_path.parent / "src/main.adb"
+        imported = tmp_path / "library/src/shared.ads"
+        runtime = tmp_path / "runtime/system.ads"
+        mock_als_client.send_request.side_effect = [
+            None,
+            {
+                "tree": {"root-project": {"id": "sample"}},
+                "projects": [
+                    {
+                        "project": {
+                            "id": "sample",
+                            "file-name": str(sample_gpr_path.resolve()),
+                            "source-directories": [str(root_source.parent)],
+                        },
+                        "sources": [{"file-name": str(root_source)}],
+                    },
+                    {
+                        "project": {
+                            "id": "library",
+                            "source-directories": [str(imported.parent)],
+                        },
+                        "sources": [
+                            {"file-name": str(imported.parent / ".." / "src" / imported.name)},
+                            {"file-name": "relative.ads"},
+                        ],
+                    },
+                ],
+                "runtime-project": {"sources": [{"file-name": str(runtime)}]},
+            },
+            [],
+        ]
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
+        assert result["complete"] is True
+        assert mock_als_client.project_view_sources == frozenset({root_source, imported})
+        assert imported.parent / "unlisted.ads" not in mock_als_client.project_view_sources
+        assert runtime not in mock_als_client.project_view_sources
+        assert "source_files" not in result
 
     @pytest.mark.asyncio
     async def test_project_info_uses_evaluated_als_view(
@@ -67,6 +115,7 @@ class TestProjectInfo:
             "executable-directory": str(project_root / "bin/debug"),
         }
         mock_als_client.send_request.side_effect = [
+            None,
             {
                 "tree": {"root-project": {"id": "sample"}},
                 "projects": [{"project": root_project}],
@@ -80,6 +129,7 @@ class TestProjectInfo:
         result = await handle_project_info(
             mock_als_client,
             str(sample_gpr_path),
+            refresh=True,
         )
 
         assert result["project_file"] == str(sample_gpr_path.resolve())
@@ -93,6 +143,10 @@ class TestProjectInfo:
         assert mock_als_client.send_request.await_args_list == [
             call(
                 "workspace/executeCommand",
+                {"command": "als-reload-project", "arguments": []},
+            ),
+            call(
+                "workspace/executeCommand",
                 {
                     "command": "als-project-view-information",
                     "arguments": [],
@@ -103,6 +157,52 @@ class TestProjectInfo:
                 {"command": "als-mains", "arguments": []},
             ),
         ]
+        mock_als_client.wait_for_indexing.assert_not_awaited()
+        mock_als_client.is_indexing_complete.assert_awaited_once_with(after_generation=0)
+        assert [item[0] for item in mock_als_client.mock_calls] == [
+            "prepare_project_reload",
+            "send_request",
+            "send_request",
+            "send_request",
+            "is_indexing_complete",
+        ]
+
+    @pytest.mark.asyncio
+    async def test_empty_view_default_repeat_observes_ready_then_explicit_refresh_reloads(
+        self, sample_gpr_path, mock_als_client
+    ):
+        """Freshness is one-shot acquisition state, independent of source membership."""
+        view = {
+            "tree": {"root-project": {"id": "sample"}},
+            "projects": [
+                {"project": {"id": "sample", "file-name": str(sample_gpr_path.resolve())}}
+            ],
+        }
+        mock_als_client.project_selection_fresh = True
+        mock_als_client.is_indexing_complete.side_effect = [False, True, False]
+        mock_als_client.wait_for_indexing.side_effect = AssertionError("must not wait for indexing")
+        mock_als_client.send_request.side_effect = [view, [], view, [], None, view, []]
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
+        assert result["complete"] is True and result["indexing_complete"] is False
+        assert mock_als_client.project_view_sources == frozenset()
+        assert mock_als_client.project_selection_fresh is False
+        mock_als_client.indexing_generation.assert_not_awaited()
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list] == [
+            "als-project-view-information",
+            "als-mains",
+        ]
+        repeated = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert repeated["complete"] is True and repeated["indexing_complete"] is True
+        mock_als_client.prepare_project_reload.assert_not_awaited()
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list][
+            2:
+        ] == ["als-project-view-information", "als-mains"]
+        refreshed = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
+        assert refreshed["complete"] is True and refreshed["indexing_complete"] is False
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list][
+            4:
+        ] == ["als-reload-project", "als-project-view-information", "als-mains"]
+        mock_als_client.wait_for_indexing.assert_not_awaited()
 
     @pytest.mark.asyncio
     async def test_project_info_rejects_wrong_loaded_project(

@@ -5,7 +5,7 @@ import json
 import logging
 import os
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -87,6 +87,7 @@ class ProjectSelection:
 
     project_file: Path
     project_context: ALSProjectContext
+    source_files: frozenset[Path] = field(default_factory=frozenset, compare=False)
 
 
 class ALSPool:
@@ -179,6 +180,18 @@ class ALSPool:
                 ]
                 if ancestors:
                     project_root = max(ancestors, key=lambda root: len(root.absolute().parts))
+                else:
+                    # For an imported file outside every selected lexical
+                    # root, the latest explicit matching selection wins.
+                    canonical_source = source.resolve()
+                    project_root = next(
+                        (
+                            root
+                            for root in reversed(self._selected_projects)
+                            if canonical_source in self._selected_projects[root].source_files
+                        ),
+                        project_root,
+                    )
             selected_project = self._selected_projects.get(project_root)
             if requested_project is not None:
                 project_file = requested_project
@@ -195,6 +208,7 @@ class ALSPool:
             if project_key in self._instances:
                 instance = self._instances[project_key]
                 if instance.client.is_running:
+                    instance.client.project_selection_fresh = False
                     instance.last_used = time.time()
                     logger.debug(
                         "Reusing ALS for project root %s and GPR %s",
@@ -224,6 +238,7 @@ class ALSPool:
                     project_context=project_context,
                     on_restart=self._create_restart_callback(project_key),
                 )
+                client.project_selection_fresh = requested_project is not None
 
                 instance = ALSInstance(
                     client=client,
@@ -262,9 +277,13 @@ class ALSPool:
             project_key = self._key_for_client(client)
             if project_key is None or project_key[1] is None:
                 raise RuntimeError("explicit ALS project client is not cached")
+            # Reinsertion refreshes only successful explicit selection order;
+            # ordinary file calls and LRU eviction do not change that order.
+            self._selected_projects.pop(project_key[0], None)
             self._selected_projects[project_key[0]] = ProjectSelection(
                 project_file=project_key[1],
                 project_context=project_key[2],
+                source_files=frozenset(client.project_view_sources),
             )
 
     async def discard_client(
@@ -633,7 +652,16 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Select an exact GPR project with an optional per-view "
                 "environment and return its evaluated structure; later file "
-                "tools reuse the validated selection"
+                "tools reuse the validated selection. refresh defaults to false: "
+                "the same GPR, ordered search paths and scenarios observe the live "
+                "view without reload or readiness reset. Set refresh=true to "
+                "reevaluate changed GPR/source membership on a reused client; "
+                "a new exact client already has a fresh view. complete describes "
+                "metadata; indexing_complete is a separate conservative snapshot. "
+                "For semantic readiness, query ada_workspace_symbols on a known "
+                "source/symbol and honor complete/truncated with bounded retries "
+                "without reselection or refresh. Other tools do not all wait or "
+                "report semantic completeness."
             ),
             inputSchema={
                 "type": "object",
@@ -656,6 +684,14 @@ async def list_tools() -> list[Tool]:
                         "description": (
                             "GPR scenario values which override configured "
                             "defaults for this project view"
+                        ),
+                    },
+                    "refresh": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": (
+                            "False observes the existing exact live view; true requests "
+                            "GPR/source reevaluation on a reused client. Strict Boolean."
                         ),
                     },
                 },
@@ -927,6 +963,20 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         )
     logger.debug(f"Tool called: {name} with args: {logged_arguments}")
 
+    refresh = arguments.get("refresh", False) if name == "ada_project_info" else False
+    if type(refresh) is not bool:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "refresh must be a Boolean",
+                        "context": {"tool": name},
+                    }
+                ),
+            )
+        ]
+
     # Extract file path from arguments for project detection
     file_path = arguments.get("file") or arguments.get("gpr_file")
     gpr_file = arguments.get("gpr_file") if name == "ada_project_info" else None
@@ -1025,6 +1075,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                 result = await handle_project_info(
                     client,
                     gpr_file=arguments["gpr_file"],
+                    refresh=refresh,
                 )
 
             case "ada_call_hierarchy":

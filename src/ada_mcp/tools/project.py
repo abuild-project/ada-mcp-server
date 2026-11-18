@@ -49,12 +49,15 @@ async def _execute_als_command(als_client: ALSClient, command: str) -> Any:
     )
 
 
-async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str, Any]:
+async def handle_project_info(
+    als_client: ALSClient, gpr_file: str, refresh: bool = False
+) -> dict[str, Any]:
     """Handle ada_project_info tool request.
 
     Args:
         als_client: Initialized ALS client for the requested project
         gpr_file: Path to the .gpr project file
+        refresh: Reevaluate a reused client's GPR tree instead of observing its live view
 
     Returns:
         Project information evaluated by ALS/GPR
@@ -63,7 +66,13 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
     if not requested_project.is_file():
         raise FileNotFoundError(f"GPR project file does not exist: {requested_project}")
 
+    fresh = als_client.project_selection_fresh
+    als_client.project_selection_fresh = False
+    generation = None
     try:
+        if refresh and not fresh:
+            generation = await als_client.prepare_project_reload()
+            await _execute_als_command(als_client, "als-reload-project")
         project_info = await _execute_als_command(
             als_client,
             "als-project-view-information",
@@ -102,6 +111,15 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
 
     mains = await _execute_als_command(als_client, "als-mains")
 
+    # Imported sources may lie outside the selected GPR's directory. Keep
+    # evaluated file membership, not source-directory or runtime-wide guesses.
+    als_client.project_view_sources = frozenset(
+        Path(source["file-name"]).resolve()
+        for entry in project_info.get("projects", [])
+        for source in entry.get("sources", [])
+        if isinstance(source.get("file-name"), str) and Path(source["file-name"]).is_absolute()
+    )
+
     return {
         "project_file": str(loaded_project),
         "project_name": root_project.get("name"),
@@ -110,6 +128,7 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
         "exec_dir": root_project.get("executable-directory"),
         "main_units": [Path(main).name for main in mains or []],
         "complete": True,
+        "indexing_complete": await als_client.is_indexing_complete(after_generation=generation),
     }
 
 

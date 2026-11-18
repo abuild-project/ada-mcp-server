@@ -68,6 +68,17 @@ identities fail, and process start ticks guard against PID reuse.
 An always-empty diagnostic corruption fails its negative control. Host
 compilers and mocked ALS tests are not integration evidence.
 
+The imported-view control compiles a library and an importing CLI, requiring
+the same exact three references from the initial call and declaration anchors.
+The declaration query uses an equivalent absolute path containing `..`.
+It adds and compiles one imported caller, reselects the CLI project and requires
+four references from both the new call and original declaration. Procfs
+identities require the same MCP/ALS births through those queries. Positive and
+negative workspace queries exercise an unlisted source's separate project.
+The retained protocol, compiler output and known Ada/GPR input hashes identify
+the bounded fixture; the explicit addition has its own hash, and generated
+compiler outputs are excluded from the input inventory.
+
 The required reading probe uses a fresh owned Ada/GPR fixture for exact
 definition, implementation and object-type targets, document hierarchy,
 workspace matches and reference sets with and without declarations. An
@@ -98,6 +109,30 @@ outputs. Native requests/results, MCP envelopes, complete source states,
 process births and cleanup survive failure. Actions and rename previews
 never execute edits; formatting is reconstructed in memory before an explicit
 write to the fresh owned fixture for the already-formatted check.
+Its cold project-selection trace requires initialize, then exactly
+`als-project-view-information` and `als-mains`. Default repeats on the same
+GPR/context use those two metadata commands without initialization or reload.
+Only explicit `refresh=true` on a reused client requires `als-reload-project`
+with empty arguments and a null result before metadata. A new exact client
+avoids that redundant reload even with true. Redundant default/cold reloads
+and missing/reordered explicit warm reloads fail; actions remain forbidden.
+
+Refresh is validated as a strict Boolean before client acquisition. Fresh
+explicit startup is one-shot state independent of source-list contents, used
+only to avoid redundant explicit refresh; cache hits clear it. Default metadata
+observations never invalidate readiness, so they can observe false become true
+on the same live client. Explicit refresh invalidates prior readiness while
+preserving progress identities and generation. Project metadata does not wait for semantic
+indexing: `complete` describes the evaluated GPR view, while the Boolean
+`indexing_complete` snapshots observed progress with the same 0.1-second
+quiescence interval as the existing semantic wait. Warm readiness additionally
+requires an indexing begin newer than the captured reload generation; merely
+ending an older active index is insufficient. False includes pending and
+unconfirmed states, including a view with no observed progress. Deterministic
+progress controls check that pending metadata keeps its client and can later
+become ready, without changing semantic query guards. The
+[larger-project Mac timing check](assessments/project-selection-timing.md)
+remains pending before release.
 
 Three pinned-ALS positional signature cases remain unaccepted. The default
 control fails their incorrect active indices. CI explicitly assesses only

@@ -415,12 +415,15 @@ class TestALSPool:
             ),
         ):
             automatic = await pool.get_client("/test/project/src/other.adb")
+            assert automatic.project_selection_fresh is False
             selected = await pool.get_client(
                 str(project_file),
                 gpr_file=project_file,
             )
+            assert selected.project_selection_fresh is True
             await pool.select_client(selected)
             reused = await pool.get_client("/test/project/src/spawn-pool.adb")
+            assert reused.project_selection_fresh is False
 
         assert automatic is clients[0]
         assert selected is clients[1]
@@ -510,6 +513,7 @@ class TestALSPool:
 
         assert reloaded is clients[2]
         reloaded_context = mock_start.await_args.kwargs["project_context"]
+        assert reloaded.project_selection_fresh is False
         assert reloaded_context.project_paths == (dependency_path.resolve(),)
         assert reloaded_context.scenario_map()["OS"] == "linux"
 

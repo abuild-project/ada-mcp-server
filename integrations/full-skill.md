@@ -40,6 +40,39 @@ deployment remain in development until directly tested. Native configuration
 generation or local skill discovery does not register tools in the running
 managed Cloud chat. Report missing resources/image access as concrete blockers.
 
+## Project selection and readiness
+
+After resolving an existing selection or acquiring a runtime, read the SELECTED
+runtime's verified SKILL.md and references/setup.md in every session before
+project queries. Inspect its actual `ada_project_info` input schema. Entry
+version and workflow contract 1 do not establish optional tool capabilities.
+
+When the selected runtime advertises Boolean `refresh`, use this contract:
+
+- Select the exact `gpr_file`, ordered `project_paths` and `scenario_variables`.
+  Repeat those same arguments to observe that live view. `refresh` is optional,
+  strictly Boolean and defaults to `false`: omission/false performs no native
+  reload or indexing-readiness reset, so repeated status queries can observe
+  pending indexing become ready in the same client.
+- Use `refresh: true` when changed GPR/source membership needs reevaluation.
+  A reused client reloads that view; a new exact client is already fresh and
+  avoids a redundant reload. Changing paths/scenarios selects the corresponding
+  exact view. Ordinary file queries retain their selected view and context.
+- `complete=true` confirms evaluated project metadata/membership.
+  `indexing_complete` is a separate conservative Boolean snapshot; false means
+  pending or not yet confirmed. Keep valid pending clients rather than
+  restarting/reloading them to poll readiness.
+- For guarded semantic readiness, call `ada_workspace_symbols` with a known
+  actual source anchor and unique project symbol. Require `complete=true`,
+  `truncated=false` and a source-bound expected result. Retry at most three
+  times without reselection or refresh between attempts; otherwise report
+  pending. Other tools do not all wait or expose a completeness field.
+
+Older runtimes such as public RC3 may not advertise `refresh`. Follow their
+verified guide and catalog, report explicit refresh unavailable when needed,
+and never send an unsupported parameter or claim fresh membership from it.
+An upgrade still follows the approved update workflow below.
+
 ## Runtime selection and entry compatibility
 
 This entry understands exactly integer workflow contract **1**, independently
@@ -62,7 +95,8 @@ with this entry, not an unverified target helper:
   command's environment or chat text is not evidence of that persistence.
 
 On `selected`, use the returned exact runtime/binding and actual project version
-for Doctor, queries and updates. Verify the actual MCP initialization version;
+for Doctor, queries and updates. Read that selected runtime's verified SKILL.md
+and references/setup.md before queries in every session. Verify the actual MCP initialization version;
 never infer it from the plugin package version. A later chat can resolve that
 pair only when its files AND locator are available there: the persisted default
 path, the supplied custom path or an explicitly retained supported host setting.

@@ -45,6 +45,7 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     assert runtime["image_id"] == config_id and config_id != target
     assert runtime["image_identity"]["target"]["digest"] == target
     assert verified["references/support.md"] == (ROOT / "doc/support.md").read_bytes()
+    assert verified["SKILL.md"] == (ROOT / "integrations/full-skill.md").read_bytes()
     assert verified["references/updating.md"] == (ROOT / "doc/updating.md").read_bytes()
     assert (
         verified["scripts/release_updates.py"] == (ROOT / "tooling/release_updates.py").read_bytes()
@@ -85,6 +86,14 @@ def test_tooling_and_light_skill_pin_exact_generated_bytes(tmp_path):
     with tarfile.open(plugin) as archive:
         skill = archive.extractfile("skills/ada-development/SKILL.md").read().decode()
         full = (ROOT / "integrations/full-skill.md").read_text()
+        project_contract = full[
+            full.index("## Project selection and readiness") : full.index(
+                "## Runtime selection and entry compatibility"
+            )
+        ]
+        assert project_contract in skill
+        assert "strictly Boolean and defaults to `false`" in project_contract
+        assert "public RC3 may not advertise `refresh`" in project_contract
         assert full[full.index("## Runtime selection and entry compatibility") :] in skill
         assert manifest["tooling"]["sha256"] in skill
         assert manifest["tooling"]["runtime_manifest_sha256"] in skill

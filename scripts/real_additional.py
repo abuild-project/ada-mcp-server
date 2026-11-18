@@ -254,13 +254,13 @@ def require_native_calls(
 
 
 def require_no_action_execution(events: list[JSON]) -> None:
-    """Allow only the two project-information commands used by this probe."""
+    """Allow only the three project-setup commands, with per-tool order checked separately."""
     for row in events:
         if (
             row.get("event") == "request"
             and row.get("method") == "workspace/executeCommand"
             and row.get("params", {}).get("command")
-            not in {"als-project-view-information", "als-mains"}
+            not in {"als-reload-project", "als-project-view-information", "als-mains"}
         ):
             raise AssertionError("additional queries must not execute action commands")
 

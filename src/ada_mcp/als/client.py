@@ -13,6 +13,7 @@ from ada_mcp.als.types import (
 )
 
 logger = logging.getLogger(__name__)
+INDEXING_QUIET_PERIOD = 0.1
 
 
 class LSPError(Exception):
@@ -53,6 +54,8 @@ class ALSClient:
         self._active_indexing_tokens: set[int | str] = set()
         self._indexing_seen = False
         self._indexing_generation = 0
+        self._indexing_last_begin_generation = 0
+        self._indexing_quiet_since: float | None = None
         self._indexing_changed = asyncio.Condition()
 
         # A source which appears below the project root after ALS starts needs
@@ -61,6 +64,10 @@ class ALSClient:
         # because an MCP tool opens them for the first time.
         self._project_root: Path | None = None
         self._known_project_sources: set[Path] = set()
+        # Exact non-runtime membership from the last validated ALS project view.
+        self.project_view_sources: frozenset[Path] = frozenset()
+        # The pool grants this one-shot only to an exact explicit startup.
+        self.project_selection_fresh = False
 
     @property
     def is_running(self) -> bool:
@@ -372,10 +379,14 @@ class ALSClient:
             if kind == "begin" and value.get("title") == "Indexing":
                 self._indexing_seen = True
                 self._active_indexing_tokens.add(token)
+                self._indexing_quiet_since = None
                 self._indexing_generation += 1
+                self._indexing_last_begin_generation = self._indexing_generation
                 self._indexing_changed.notify_all()
             elif kind == "end" and token in self._active_indexing_tokens:
                 self._active_indexing_tokens.remove(token)
+                if not self._active_indexing_tokens:
+                    self._indexing_quiet_since = asyncio.get_running_loop().time()
                 self._indexing_generation += 1
                 self._indexing_changed.notify_all()
 
@@ -427,6 +438,13 @@ class ALSClient:
         async with self._indexing_changed:
             return self._indexing_generation
 
+    async def prepare_project_reload(self) -> int:
+        """Invalidate prior readiness while preserving in-flight progress tracking."""
+        async with self._indexing_changed:
+            self._indexing_seen = False
+            self._indexing_quiet_since = None
+            return self._indexing_generation
+
     async def wait_for_indexing(
         self,
         timeout: float = 25.0,
@@ -457,15 +475,34 @@ class ALSClient:
                 # A server may start a second indexing phase immediately after
                 # ending the first. Require a short quiescent interval rather
                 # than exposing that gap as a completed workspace.
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(INDEXING_QUIET_PERIOD)
                 async with self._indexing_changed:
-                    if generation == self._indexing_generation and not self._active_indexing_tokens:
+                    if (
+                        self._indexing_seen
+                        and generation == self._indexing_generation
+                        and not self._active_indexing_tokens
+                    ):
                         return True
 
                 if loop.time() >= deadline:
                     return False
         except TimeoutError:
             return False
+
+    async def is_indexing_complete(self, after_generation: int | None = None) -> bool:
+        """Snapshot observed, quiescent indexing without waiting for it to finish."""
+        async with self._indexing_changed:
+            return (
+                self._indexing_seen
+                and not self._active_indexing_tokens
+                and self._indexing_quiet_since is not None
+                and asyncio.get_running_loop().time() - self._indexing_quiet_since
+                >= INDEXING_QUIET_PERIOD
+                and (
+                    after_generation is None
+                    or self._indexing_last_begin_generation > after_generation
+                )
+            )
 
     def _handle_log_message(self, params: dict[str, Any]) -> None:
         """Handle window/logMessage notification."""

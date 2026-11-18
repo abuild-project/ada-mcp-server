@@ -36,6 +36,10 @@ async def test_list_tools():
     assert project_info.inputSchema["properties"]["scenario_variables"]["additionalProperties"] == {
         "type": "string"
     }
+    assert project_info.inputSchema["properties"]["refresh"]["type"] == "boolean"
+    assert project_info.inputSchema["properties"]["refresh"]["default"] is False
+    assert "without reload or readiness reset" in project_info.description
+    assert "indexing_complete" in project_info.description
 
 
 @pytest.mark.asyncio
@@ -177,7 +181,7 @@ async def test_project_info_selects_validated_client():
             "ada_mcp.server.handle_project_info",
             new_callable=AsyncMock,
             return_value=complete,
-        ),
+        ) as handler,
         patch(
             "ada_mcp.server._als_pool.select_client",
             new_callable=AsyncMock,
@@ -189,6 +193,9 @@ async def test_project_info_selects_validated_client():
         )
 
     select.assert_awaited_once_with(client)
+    handler.assert_awaited_once_with(
+        client, gpr_file="/test/project/spawn_manager.gpr", refresh=False
+    )
     assert json.loads(result[0].text) == complete
 
 
@@ -206,6 +213,7 @@ async def test_project_info_forwards_project_context():
         "gpr_file": "/test/project/spawn_manager.gpr",
         "project_paths": ["/test/project/anet"],
         "scenario_variables": {"OS": "linux", "VERSION": ""},
+        "refresh": True,
     }
     with (
         patch(
@@ -217,7 +225,7 @@ async def test_project_info_forwards_project_context():
             "ada_mcp.server.handle_project_info",
             new_callable=AsyncMock,
             return_value=complete,
-        ),
+        ) as handler,
         patch(
             "ada_mcp.server._als_pool.select_client",
             new_callable=AsyncMock,
@@ -231,6 +239,32 @@ async def test_project_info_forwards_project_context():
         project_paths=arguments["project_paths"],
         scenario_variables=arguments["scenario_variables"],
     )
+    handler.assert_awaited_once_with(client, gpr_file=arguments["gpr_file"], refresh=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("invalid", ["false", None, 1])
+async def test_invalid_refresh_has_no_client_or_selection_side_effects(invalid):
+    from ada_mcp.server import call_tool
+
+    with (
+        patch("ada_mcp.server.get_als_client", new_callable=AsyncMock) as acquire,
+        patch("ada_mcp.server.handle_project_info", new_callable=AsyncMock) as handler,
+        patch("ada_mcp.server._als_pool.discard_client", new_callable=AsyncMock) as discard,
+        patch("ada_mcp.server._als_pool.select_client", new_callable=AsyncMock) as select,
+    ):
+        response = await call_tool(
+            "ada_project_info",
+            {
+                "gpr_file": "/project/view.gpr",
+                "refresh": invalid,
+            },
+        )
+    assert json.loads(response[0].text)["error"] == "refresh must be a Boolean"
+    acquire.assert_not_awaited()
+    handler.assert_not_awaited()
+    discard.assert_not_awaited()
+    select.assert_not_awaited()
 
 
 @pytest.mark.asyncio

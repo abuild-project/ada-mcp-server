@@ -113,6 +113,8 @@ def require_dependencies(result: JSON, root: Path, unit_count: int, imports: lis
 
 def require_project(result: JSON, root: Path) -> None:
     """Require the complete explicit GPR view and its owned build directories."""
+    if type(result.get("indexing_complete")) is not bool:
+        raise AssertionError("project indexing_complete must be a Boolean snapshot")
     actual = {
         **result,
         "source_dirs": sorted(result.get("source_dirs", [])),
@@ -123,6 +125,7 @@ def require_project(result: JSON, root: Path) -> None:
         actual,
         {
             "complete": True,
+            "indexing_complete": result["indexing_complete"],
             "project_file": str(root / "additional.gpr"),
             "project_name": "Additional",
             "source_dirs": sorted([str(root / "src"), str(root / "formatting")]),

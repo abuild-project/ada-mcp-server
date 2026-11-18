@@ -10,6 +10,7 @@
 - [Dependency unit and context forms](dependency-unit-forms.md)
 - [Generic unit dependency names](generic-unit-names.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
+- [Imported-source project views](reference-project-view.md)
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
 - [Merge and validation history](merge-validation-policy.md)
 - [Optional development dependency baseline](dev-dependency-baseline.md)
