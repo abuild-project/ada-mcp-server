@@ -136,20 +136,17 @@ async def test_pending_index_publishes_selection_and_later_readiness_without_dis
     process = MagicMock()
     process.returncode = None
     client = ALSClient(process)
-    client.send_request = AsyncMock(
-        side_effect=[
+    view = {
+        "tree": {"root-project": {"id": "pending"}},
+        "projects": [
             {
-                "tree": {"root-project": {"id": "pending"}},
-                "projects": [
-                    {
-                        "project": {"id": "pending", "file-name": str(project)},
-                        "sources": [{"file-name": str(source)}],
-                    }
-                ],
-            },
-            [],
-        ]
-    )
+                "project": {"id": "pending", "file-name": str(project)},
+                "sources": [{"file-name": str(source)}],
+            }
+        ],
+    }
+    client.send_request = AsyncMock(side_effect=[view, [], view, []])
+    client.prepare_project_reload = AsyncMock(wraps=client.prepare_project_reload)
     client.wait_for_indexing = AsyncMock(
         side_effect=AssertionError("selection must not await indexing")
     )
@@ -181,6 +178,20 @@ async def test_pending_index_publishes_selection_and_later_readiness_without_dis
             assert client._indexing_quiet_since is not None
             client._indexing_quiet_since -= 1.0
             assert await client.is_indexing_complete() is True
+            repeated = await call_tool(
+                "ada_project_info",
+                {"gpr_file": str(project), "project_paths": [], "scenario_variables": {}},
+            )
+            status = json.loads(repeated[0].text)
+            assert [row.args[1]["command"] for row in client.send_request.await_args_list] == [
+                "als-project-view-information",
+                "als-mains",
+                "als-project-view-information",
+                "als-mains",
+            ]
+            assert status["complete"] is True and status["indexing_complete"] is True
+            client.prepare_project_reload.assert_not_awaited()
+            client.wait_for_indexing.assert_not_awaited()
             assert await pool.get_client(str(source)) is client
             assert start.await_count == 1
             shutdown.assert_not_awaited()

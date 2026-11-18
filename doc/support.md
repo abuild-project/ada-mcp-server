@@ -29,7 +29,12 @@ For `ada_project_info`, `complete=true` means that the requested GPR metadata
 and source membership were evaluated successfully. The separate Boolean
 `indexing_complete` confirms observed, quiescent indexing; false means pending
 or not yet confirmed. Pending indexing does not invalidate a valid selected
-client. Semantic queries retain their own completeness checks. Larger-project
+client. Optional Boolean `refresh` defaults to false: repeated exact-view
+requests observe readiness without reloading. True reevaluates changed GPR/source
+membership on a reused client; a new exact client is already fresh. Use the
+advertised guarded `ada_workspace_symbols` path with a known actual source/symbol,
+honor `complete`/`truncated` and bound retries without reselecting or refreshing.
+Other tools do not all wait or provide completeness fields. Larger-project
 Mac selection latency remains pending under the
 [before-release measurement](assessments/project-selection-timing.md).
 

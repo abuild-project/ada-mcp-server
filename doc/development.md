@@ -110,13 +110,19 @@ process births and cleanup survive failure. Actions and rename previews
 never execute edits; formatting is reconstructed in memory before an explicit
 write to the fresh owned fixture for the already-formatted check.
 Its cold project-selection trace requires initialize, then exactly
-`als-project-view-information` and `als-mains`. A reused client's selection
-requires `als-reload-project` with empty arguments and a null result before
-those metadata commands. Redundant cold reloads and missing/reordered warm
-reloads fail; action execution remains forbidden.
+`als-project-view-information` and `als-mains`. Default repeats on the same
+GPR/context use those two metadata commands without initialization or reload.
+Only explicit `refresh=true` on a reused client requires `als-reload-project`
+with empty arguments and a null result before metadata. A new exact client
+avoids that redundant reload even with true. Redundant default/cold reloads
+and missing/reordered explicit warm reloads fail; actions remain forbidden.
 
-Fresh explicit startup is a one-shot client state, independent of source-list
-contents. Cache hits invalidate it. Project metadata does not wait for semantic
+Refresh is validated as a strict Boolean before client acquisition. Fresh
+explicit startup is one-shot state independent of source-list contents, used
+only to avoid redundant explicit refresh; cache hits clear it. Default metadata
+observations never invalidate readiness, so they can observe false become true
+on the same live client. Explicit refresh invalidates prior readiness while
+preserving progress identities and generation. Project metadata does not wait for semantic
 indexing: `complete` describes the evaluated GPR view, while the Boolean
 `indexing_complete` snapshots observed progress with the same 0.1-second
 quiescence interval as the existing semantic wait. Warm readiness additionally

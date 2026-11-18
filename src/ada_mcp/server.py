@@ -652,7 +652,16 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Select an exact GPR project with an optional per-view "
                 "environment and return its evaluated structure; later file "
-                "tools reuse the validated selection"
+                "tools reuse the validated selection. refresh defaults to false: "
+                "the same GPR, ordered search paths and scenarios observe the live "
+                "view without reload or readiness reset. Set refresh=true to "
+                "reevaluate changed GPR/source membership on a reused client; "
+                "a new exact client already has a fresh view. complete describes "
+                "metadata; indexing_complete is a separate conservative snapshot. "
+                "For semantic readiness, query ada_workspace_symbols on a known "
+                "source/symbol and honor complete/truncated with bounded retries "
+                "without reselection or refresh. Other tools do not all wait or "
+                "report semantic completeness."
             ),
             inputSchema={
                 "type": "object",
@@ -675,6 +684,14 @@ async def list_tools() -> list[Tool]:
                         "description": (
                             "GPR scenario values which override configured "
                             "defaults for this project view"
+                        ),
+                    },
+                    "refresh": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": (
+                            "False observes the existing exact live view; true requests "
+                            "GPR/source reevaluation on a reused client. Strict Boolean."
                         ),
                     },
                 },
@@ -946,6 +963,20 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         )
     logger.debug(f"Tool called: {name} with args: {logged_arguments}")
 
+    refresh = arguments.get("refresh", False) if name == "ada_project_info" else False
+    if type(refresh) is not bool:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "refresh must be a Boolean",
+                        "context": {"tool": name},
+                    }
+                ),
+            )
+        ]
+
     # Extract file path from arguments for project detection
     file_path = arguments.get("file") or arguments.get("gpr_file")
     gpr_file = arguments.get("gpr_file") if name == "ada_project_info" else None
@@ -1044,6 +1075,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
                 result = await handle_project_info(
                     client,
                     gpr_file=arguments["gpr_file"],
+                    refresh=refresh,
                 )
 
             case "ada_call_hierarchy":

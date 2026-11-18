@@ -88,7 +88,7 @@ class TestProjectInfo:
             },
             [],
         ]
-        result = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
         assert result["complete"] is True
         assert mock_als_client.project_view_sources == frozenset({root_source, imported})
         assert imported.parent / "unlisted.ads" not in mock_als_client.project_view_sources
@@ -129,6 +129,7 @@ class TestProjectInfo:
         result = await handle_project_info(
             mock_als_client,
             str(sample_gpr_path),
+            refresh=True,
         )
 
         assert result["project_file"] == str(sample_gpr_path.resolve())
@@ -167,7 +168,7 @@ class TestProjectInfo:
         ]
 
     @pytest.mark.asyncio
-    async def test_fresh_empty_view_skips_reload_but_reselection_refreshes(
+    async def test_empty_view_default_repeat_observes_ready_then_explicit_refresh_reloads(
         self, sample_gpr_path, mock_als_client
     ):
         """Freshness is one-shot acquisition state, independent of source membership."""
@@ -178,10 +179,10 @@ class TestProjectInfo:
             ],
         }
         mock_als_client.project_selection_fresh = True
-        mock_als_client.is_indexing_complete.return_value = False
+        mock_als_client.is_indexing_complete.side_effect = [False, True, False]
         mock_als_client.wait_for_indexing.side_effect = AssertionError("must not wait for indexing")
-        mock_als_client.send_request.side_effect = [view, [], None, view, []]
-        result = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        mock_als_client.send_request.side_effect = [view, [], view, [], None, view, []]
+        result = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
         assert result["complete"] is True and result["indexing_complete"] is False
         assert mock_als_client.project_view_sources == frozenset()
         assert mock_als_client.project_selection_fresh is False
@@ -190,9 +191,16 @@ class TestProjectInfo:
             "als-project-view-information",
             "als-mains",
         ]
-        await handle_project_info(mock_als_client, str(sample_gpr_path))
+        repeated = await handle_project_info(mock_als_client, str(sample_gpr_path))
+        assert repeated["complete"] is True and repeated["indexing_complete"] is True
+        mock_als_client.prepare_project_reload.assert_not_awaited()
         assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list][
             2:
+        ] == ["als-project-view-information", "als-mains"]
+        refreshed = await handle_project_info(mock_als_client, str(sample_gpr_path), refresh=True)
+        assert refreshed["complete"] is True and refreshed["indexing_complete"] is False
+        assert [row.args[1]["command"] for row in mock_als_client.send_request.await_args_list][
+            4:
         ] == ["als-reload-project", "als-project-view-information", "als-mains"]
         mock_als_client.wait_for_indexing.assert_not_awaited()
 

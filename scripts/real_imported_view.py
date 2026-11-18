@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from additional_native import native_pairs
 from real_diagnostics import process_state
 from real_reading import require_child_exit, require_references, require_workspace, source_hashes
 
@@ -34,6 +35,7 @@ def run_control(output: Path) -> JSON:
         root / name for name in ("cli/src/main.adb", "src/shared.ads", "src/shared.adb")
     )
     project = root / "cli/cli.gpr"
+    trace = output / "native-requests.jsonl"
     command = [
         "env",
         "ADA_PROJECT_FILE=",
@@ -42,18 +44,55 @@ def run_control(output: Path) -> JSON:
         "ADA_MCP_UPDATE_CHANNEL=off",
         "ADA_MCP_LOG_LEVEL=INFO",
         sys.executable,
-        "-m",
-        "ada_mcp",
+        "-B",
+        str(Path(__file__).resolve().with_name("observe_additional.py")),
+        "--serve-trace",
+        str(trace),
     ]
     report: JSON = {"status": "failed", "input_sha256": inputs, "calls": []}
     session = None
     identity = None
     problem = None
 
+    def trace_rows() -> list[JSON]:
+        return (
+            [json.loads(line) for line in trace.read_text().splitlines()] if trace.exists() else []
+        )
+
     def call(tool: str, arguments: JSON) -> JSON:
         assert session is not None
+        before = len(trace_rows())
         result: JSON = session.call(tool, arguments)
-        report["calls"].append({"tool": tool, "arguments": arguments, "result": result})
+        events = trace_rows()[before:]
+        report["calls"].append(
+            {
+                "tool": tool,
+                "arguments": arguments,
+                "result": result,
+                "native_events": events,
+            }
+        )
+        if tool == "ada_project_info":
+            pairs = native_pairs(events)
+            cold = bool(pairs and pairs[0][0] == "initialize")
+            if cold:
+                if pairs[0][1]["initializationOptions"] != {"projectFile": str(project)}:
+                    raise AssertionError("cold selection must initialize the exact CLI GPR")
+                pairs = pairs[1:]
+            reload = arguments.get("refresh", False) is True and not cold
+            commands = ["als-project-view-information", "als-mains"]
+            if reload:
+                commands.insert(0, "als-reload-project")
+            expected_requests = [
+                ("workspace/executeCommand", {"command": name, "arguments": []})
+                for name in commands
+            ]
+            if [(method, params) for method, params, _ in pairs] != expected_requests:
+                raise AssertionError(
+                    "project-info native requests must match explicit refresh policy"
+                )
+            if reload and pairs[0][2] is not None:
+                raise AssertionError("native reload must have a null result")
         return result
 
     def compile_sources(name: str, compiler: list[str]) -> None:
@@ -107,6 +146,18 @@ def run_control(output: Path) -> JSON:
         identity = process_state(session, output / "mcp/server-stderr.log")
         report["initial_process"] = identity
         require_semantic_readiness()
+        repeated = call("ada_project_info", selection)
+        if repeated.get("complete") is not True or repeated.get("indexing_complete") is not True:
+            raise AssertionError(
+                "default repeat must observe readiness without restarting indexing"
+            )
+        unchanged = call("ada_project_info", {**selection, "refresh": True})
+        if (
+            unchanged.get("complete") is not True
+            or type(unchanged.get("indexing_complete")) is not bool
+        ):
+            raise AssertionError("explicit unchanged refresh must preserve a valid view")
+        require_semantic_readiness()
         expected = {(str(main), 4, 11), (str(spec), 2, 14), (str(body), 2, 14)}
         imported_alias = spec.parent / ".." / "src" / spec.name
         for source, line, column in ((main, 4, 11), (imported_alias, 2, 14)):
@@ -135,7 +186,7 @@ def run_control(output: Path) -> JSON:
             "added_compile",
             ["gprbuild", "-p", "-P", str(root / "library.gpr"), "-c", "-u", "late.adb"],
         )
-        refreshed = call("ada_project_info", selection)
+        refreshed = call("ada_project_info", {**selection, "refresh": True})
         if (
             refreshed.get("complete") is not True
             or refreshed.get("project_file") != str(project)

@@ -122,6 +122,11 @@ def tooling_files(
 def lightweight_plugin(root: Path, version: str, tooling: JSON) -> dict[str, bytes]:
     """Embed the trusted acquisition code in Markdown, avoiding remote script reads."""
     full_skill = (root / "integrations/full-skill.md").read_text()
+    project_workflow = full_skill[
+        full_skill.index("## Project selection and readiness") : full_skill.index(
+            "## Runtime selection and entry compatibility"
+        )
+    ]
     update_workflow = full_skill[full_skill.index("## Runtime selection and entry compatibility") :]
     instructions = f'''---
 name: ada-development
@@ -178,6 +183,7 @@ Native configuration and current managed Cloud tool registration are separate;
 actual Mac/other-client/registry/fresh-Cloud acceptance remains in development.
 Never replace the repository's compiler/coverage/test/documentation chain.
 
+{project_workflow}
 {update_workflow}
 '''
     plugin = {

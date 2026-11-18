@@ -5,8 +5,9 @@
 - Retain explicitly selected GPR views for queries anchored to imported source
   files outside their directories, including equivalent absolute paths.
   Shared imports use the most recent matching explicit selection unless an
-  explicitly selected lexical ancestor applies. Reselecting a project
-  reevaluates changed source membership. Fresh startup avoids a redundant
+  explicitly selected lexical ancestor applies. Project info observes the live
+  view by default; optional Boolean `refresh: true` reevaluates changed source
+  membership. Fresh startup avoids a redundant
   reload, and valid metadata remains available while indexing is pending,
   reported separately by the Boolean `indexing_complete` snapshot.
 - Default new bootstrap bindings to GHCR with the hash-locked release archive

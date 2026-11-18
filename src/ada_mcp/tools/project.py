@@ -49,12 +49,15 @@ async def _execute_als_command(als_client: ALSClient, command: str) -> Any:
     )
 
 
-async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str, Any]:
+async def handle_project_info(
+    als_client: ALSClient, gpr_file: str, refresh: bool = False
+) -> dict[str, Any]:
     """Handle ada_project_info tool request.
 
     Args:
         als_client: Initialized ALS client for the requested project
         gpr_file: Path to the .gpr project file
+        refresh: Reevaluate a reused client's GPR tree instead of observing its live view
 
     Returns:
         Project information evaluated by ALS/GPR
@@ -67,7 +70,7 @@ async def handle_project_info(als_client: ALSClient, gpr_file: str) -> dict[str,
     als_client.project_selection_fresh = False
     generation = None
     try:
-        if not fresh:
+        if refresh and not fresh:
             generation = await als_client.prepare_project_reload()
             await _execute_als_command(als_client, "als-reload-project")
         project_info = await _execute_als_command(

@@ -284,14 +284,15 @@ def require_call_native(
             )
             pairs = pairs[1:]
         commands: tuple[str, ...] = ("als-project-view-information", "als-mains")
-        if not cold:
+        reload = not cold and arguments.get("refresh", False) is True
+        if reload:
             commands = ("als-reload-project", *commands)
         expected = [
             ("workspace/executeCommand", {"command": command, "arguments": []})
             for command in commands
         ]
         require_equal([(m, p) for m, p, _ in pairs], expected, "native project requests")
-        if not cold:
+        if reload:
             require_equal(pairs[0][2], None, "native project reload result")
         view, mains = pairs[-2][2], pairs[-1][2]
         selected = [

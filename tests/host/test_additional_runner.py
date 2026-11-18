@@ -726,8 +726,10 @@ def test_provisional_runner_keeps_positional_discrepancies_unaccepted(runner):
     assert runner.close_count == runner.cleanup_count == 1
 
 
-@pytest.mark.parametrize("alteration", ["cold-reload", "warm-missing", "warm-reordered"])
-def test_project_selection_distinguishes_exact_cold_and_warm_requests(runner, alteration):
+@pytest.mark.parametrize(
+    "alteration", ["cold-reload", "default-reload", "warm-missing", "warm-reordered"]
+)
+def test_project_selection_distinguishes_default_and_explicit_refresh_requests(runner, alteration):
     row = real.run_control(runner.output, True)["calls"][0]
     cold = row["native_events"]
     reload = [
@@ -741,27 +743,31 @@ def test_project_selection_distinguishes_exact_cold_and_warm_requests(runner, al
     ]
     warm = reload + cold[2:]
 
-    def check(events):
+    def check(events, refresh=False):
         real.require_call_native(
             events,
             "ada_project_info",
-            row["arguments"],
+            {**row["arguments"], "refresh": refresh},
             row["result"],
             Path(row["arguments"]["gpr_file"]).parent,
             real.require_native_signature,
         )
 
     check(cold)
-    check(warm)
+    check(cold, True)
+    check(cold[2:])
+    check(warm, True)
     invalid = (
         cold[:2] + reload + cold[2:]
         if alteration == "cold-reload"
+        else warm
+        if alteration == "default-reload"
         else warm[2:]
         if alteration == "warm-missing"
         else warm[2:4] + warm[:2] + warm[4:]
     )
     with pytest.raises(AssertionError, match="native project requests"):
-        check(invalid)
+        check(invalid, alteration in {"warm-missing", "warm-reordered"})
 
 
 def test_strict_default_fails_native_wrong_positional_selection(runner):

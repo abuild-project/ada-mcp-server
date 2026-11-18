@@ -9,10 +9,13 @@ matching explicit view, including equivalent absolute paths and file symlinks.
 Ordered search paths, scenario values and membership survive pool eviction.
 
 A new ALS client configured for the exact explicit GPR/context supplies its
-initial view without a redundant reload. Reused clients refresh through the
-native reload fence before metadata is evaluated. Freshness is one-shot state,
-independent of whether a valid view contains sources. Successful reselection
-refreshes membership and selection order; ordinary file use does not.
+initial view without a redundant reload. Optional strict Boolean `refresh`
+defaults to false: same-view repeats observe the live view without reloading
+or invalidating readiness. True requests reevaluation on a reused client through
+the native reload fence. Validation precedes client acquisition or selection
+mutation. Changed paths/scenarios select their exact view; membership changes
+needing reevaluation use explicit refresh. Freshness is independent of whether
+a valid view contains sources. Successful selection retains recent-view order.
 
 `complete=true` describes valid evaluated project metadata and membership.
 The separate Boolean `indexing_complete` conservatively confirms observed,
@@ -23,18 +26,21 @@ on project selection. Real load, reload and wrong-view errors still fail.
 Semantic queries retain their own completeness guards.
 
 Focused controls cover fresh/warm and empty views, pending-to-ready progress,
-client retention, load errors, aliases, selection context and native command
-ordering. The compiling STDIO control requires three references from initial
-anchors, adds an imported caller and requires four after reselection, with
+client retention, invalid refresh, load errors, aliases, selection context and
+native command ordering. The compiling STDIO control checks default repeat,
+explicit unchanged refresh and three-reference initial anchors, then adds an
+imported caller and requires four after explicit refresh, with
 stable process births and preserved input hashes. It honors semantic readiness
 separately. Additional-tool traces distinguish exact cold and warm setup while
 retaining forbidden-action and existing signature controls.
 
-Negative API controls compare against `ced1076fb1e87df0bc73f4702d31160aa0c8cfde`.
+Negative API controls compare against `7ec5a1713f9fa2a5e01d15ff40183e5d85d0edb9`.
 Source-mounted development checks supplement the required complete exact-head
 Trixie build/check, artifacts and numeric-identity validation; each immutable
 head's evidence is recorded in a new PR comment. Larger-project Mac timing
 remains pending before release under `doc/assessments/project-selection-timing.md`.
 See `doc/setup.md` and `doc/plans/reference-project-view.md` for the contract.
+The tool schema and generated full/lightweight skills describe that contract;
+older compatible entries read their selected runtime's verified guide/catalog.
 
 Co-Authored-By: Codex (GPT-6) <codex@openai.com>

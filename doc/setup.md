@@ -203,11 +203,15 @@ File queries first retain the deepest explicitly selected lexical ancestor
 view. For an imported file outside all selected roots, they use its canonical
 evaluated source membership, including equivalent absolute paths with `..` or
 file symlinks. If several selected views include that file, the
-most recently explicitly selected matching view wins. Reselect its GPR to
-refresh that choice and the evaluated source list. After project or source
-membership changes, repeat `ada_project_info` to refresh this snapshot. Files
-outside those lists continue through normal project discovery. Successful
-reselection reevaluates source membership in the existing ALS process.
+most recently explicitly selected matching view wins. Files outside those lists
+continue through normal project discovery.
+
+For the same exact `gpr_file`, ordered `project_paths` and `scenario_variables`,
+`ada_project_info` observes the existing live view by default. Its optional
+`refresh` parameter is a strict Boolean defaulting to false. Repeats do not
+reload or reset indexing readiness. Use `refresh: true` when changed GPR/source
+membership needs reevaluation on the reused client; a new exact client is already
+fresh. Changed paths/scenarios select the corresponding exact view.
 
 `ada_project_info.complete=true` confirms the requested evaluated project
 metadata and membership. Its separate Boolean `indexing_complete` is a
@@ -215,6 +219,12 @@ conservative readiness snapshot: false means indexing is pending or has not
 yet been confirmed. The valid selection and ALS process remain available.
 Semantic queries still apply their own completeness checks; a successful
 project selection alone does not establish complete semantic results.
+Use `ada_workspace_symbols` with a known actual source/symbol as the guarded
+readiness path, honoring `complete` and `truncated`. Retry at most three times
+without reselection or refresh between attempts. Other tools do not all wait
+or report completeness. Follow the selected runtime's verified guide and
+advertised catalog: older RC3 runtimes may lack `refresh`, so an entry's
+workflow compatibility alone does not establish this capability.
 
 Doctor checks the actual locked image, numeric identity, read-only mounts,
 private HOME, network/capability isolation, MCP catalog and confirmed EOF

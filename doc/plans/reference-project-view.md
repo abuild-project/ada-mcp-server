@@ -134,3 +134,25 @@ reviews remain required. Prepare the bounded larger-project Mac measurement
 in `doc/assessments/project-selection-timing.md`; actual Mac timing remains
 pending before release. This does not authorize SDK changes, global timeout
 redesign, unrelated matrices, history rewriting, merging or publication.
+
+## 2026-11-18 — Approved explicit refresh contract
+
+The maintainer requested the robust variant: “Kannst du das auf die robuste
+Variante umstellen?” and required its contract to be explained in the skill.
+This continues the bounded exception with local 0/3 and PR 3/3 retained; there
+is no new topic, round or reset.
+
+Make `refresh` an optional strict Boolean, default false, checked before client
+acquisition or selection mutation. Repeated requests with the same exact GPR,
+ordered paths and scenarios observe the live view without reload or readiness
+invalidation. Only true requests reevaluation on a reused client; an exact new
+client is already fresh. Preserve existing load-error, context, canonical-path,
+selection-order and semantic-readiness behavior. Source/GPR membership changes
+needing reevaluation use explicit refresh.
+
+Describe the actual tool schema and full/packaged lightweight skills consistently,
+including per-session selected-runtime guide/catalog checks for older compatible
+runtimes without this parameter. No workflow-contract bump or installer change
+is required. Extend the existing compiling fixture/control with default repeat,
+unchanged explicit refresh and source-add refresh; keep bounded guarded semantic
+queries, process/hash/cleanup checks and the pending Mac before-release gate.
