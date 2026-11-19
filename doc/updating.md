@@ -16,8 +16,9 @@ and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
 
-RC4 is the current source candidate. Select it only after its actual publication
-and verification; preserve older runtime/binding pairs for rollback. A compatible
+RC4 has supplied post-publication Mac acceptance described in the maintained
+[support guide](support.md). Select it only after checking actual publication
+and pins; preserve older runtime/binding pairs for rollback. A compatible
 RC3-or-later entry may retain its own version while using RC4. Read the selected
 runtime's verified guide/catalog before using RC4's optional Boolean `refresh`;
 workflow contract 1 alone does not add that tool parameter to an older runtime.

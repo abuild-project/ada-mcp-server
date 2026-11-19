@@ -15,6 +15,18 @@ active runtime through the shared selection procedure below; helpers beside
 this entry are its fallback, not proof of the active server version. See
 references/setup.md for explicit host setup, hashes and client limits.
 
+For local Codex, prefer one user-wide skill at
+~/.agents/skills/ada-development and an explicitly merged native Ada entry in
+the actual user config, normally ~/.codex/config.toml. Repository scope is an
+explicit alternative. Preserve existing entries; generate NEW bindings/native
+fragments and use consented merges/backups rather than global replacement.
+Keep persistent runtime/selection outside repositories. Select physical
+development workspace parents and actual client worktree parents once with
+the user: approved parents cover all descendants read-only. Inspect intended
+Git worktrees and actual client settings/location, including custom worktree
+roots; do not assume they lie below the repository, repurpose CODEX_HOME or
+discover/mount arbitrary extra roots. See references/setup.md for details.
+
 Run the SELECTED runtime's scripts/ada_mcp_setup.py through Python: doctor first,
 bootstrap with the
 existing binding if its pinned image is missing, or create a new explicit
@@ -26,8 +38,9 @@ with a no-clobber backup; Docker daemon/global configuration stays unchanged.
 
 Use query batch with actual ada_project_info arguments: exact gpr_file,
 ordered project_paths and scenario_variables. Existing GPR files remain the
-project contract. Anchor later symbol/navigation calls to an absolute Ada
-file in that view. Check complete/truncated/scope and source coordinates;
+project contract. This selection belongs to the connection; never pin one
+global project in the shared installation. Anchor later symbol/navigation calls
+to an absolute Ada file in that view. Check complete/truncated/scope and source coordinates;
 an empty unscoped diagnostic cache is not a successful compilation.
 
 Use only documented candidate support. A catalog tool name is not a support
@@ -35,8 +48,12 @@ promise. The query client forbids write rename/format/build; rename preview
 requires explicit preview=true. Run the project's prescribed compiler, tests,
 coverage and documentation separately. MCP does not replace CI.
 
-Native Mac, Claude, OpenCode, registry transport and fresh managed Cloud
-deployment remain in development until directly tested. Native configuration
+Supplied RC4 Mac/Codex Desktop evidence covers bounded user-wide queries,
+a managed worktree and default GHCR acquisition; follow references/support.md
+for versions and limits. User-wide skill discovery is reported; installation
+metadata and native query excerpts are retained, without a fresh-session skill
+inventory. Other clients, native-host ALS and fresh managed Cloud
+deployment remain in development. Native configuration
 generation or local skill discovery does not register tools in the running
 managed Cloud chat. Report missing resources/image access as concrete blockers.
 

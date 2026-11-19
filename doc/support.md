@@ -1,8 +1,8 @@
-# Candidate support and evidence matrix
+# Support and evidence matrix
 
-Version: pilot prerelease candidate `0.2.0-rc.4` (Python `0.2.0rc4`). The table defines
-its acceptance scope; the exact immutable revision must pass the documented
-checks before approval. The
+Version: pilot prerelease `0.2.0-rc.4` (Python `0.2.0rc4`). The table defines
+its acceptance scope; new artifacts still require the documented checks at
+their exact immutable revision. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
 has verified public asset downloads and hashes; see the maintained
 [first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
@@ -36,9 +36,9 @@ advertised guarded `ada_workspace_symbols` path with a known actual source/symbo
 honor `complete`/`truncated` and bound retries without reselecting or refreshing.
 Other tools do not all wait or provide completeness fields. Project selection
 no longer waits on the former 25-second indexing gate; the 30-second per-ALS-RPC
-timeout and 25-second guarded semantic wait remain. The
-[post-publication local Mac acceptance](plans/release-0.2.0-rc.4.md) is separate
-from the optional [larger-project timing assessment](assessments/project-selection-timing.md).
+timeout and 25-second guarded semantic wait remain. The supplied
+[post-publication Mac acceptance](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/macos-codex-rc4.md) is separate
+from the optional [larger-project timing assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/project-selection-timing.md).
 
 The server advertises 19 tools. The read-only client policy permits 16 tools
 and explicit rename preview, but the catalog alone does not prove correctness
@@ -49,7 +49,7 @@ rename, formatting, build and Alire integration are not supported by this
 read-only distribution workflow. They are never described as safe substitutes
 for review or compiler CI.
 
-The [additional-tool regression assessment](assessments/additional-tool-capabilities.md)
+The [additional-tool regression assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/additional-tool-capabilities.md)
 adds bounded internal evidence without expanding this support matrix. Three
 positional active-parameter results from the pinned ALS remain incorrect and
 explicitly unaccepted; named-argument checks do not hide them. See the
@@ -85,11 +85,28 @@ runtime without skill/plugin replacement. This workflow contract is separate
 from semantic support and requires actual published metadata; RC1/RC2 manifests
 remain legacy. See [selection and activation](updating.md#keep-the-entry-and-runtime-independent).
 
-Actual macOS/Apple Bash/Docker Desktop/Colima, native Mac MCP registration,
-Claude, OpenCode and separate-account private plugin import remain in development
-until tested directly. Native Cloud registration and other accounts' runtime
+Supplied 2026-11-19 RC4 acceptance covers macOS 26.5.1 (25F80) arm64 with Codex
+Desktop 26.1111.21308 build 27194 and Docker Desktop's Linux/AMD64 Trixie runtime,
+source `7864cda95a5dfc264926a5110416196279ff957c`. Curated extracts record user-wide
+skill installation/native registration, Spawn main and a Codex-managed worktree
+with external Anet, two consolidated read-only parent mounts, RC4 handshakes
+in new/resumed chats, and default GHCR acquisition with Doctor/cleanup. User-wide
+skill discovery is reported; a fresh-session discovery inventory or skill-use
+transcript is not bundled. Native query excerpts directly retain their results.
+The separate Arca native run used project-local registration before migration.
+The native policy permits 16 tools; the server catalog lists 19. Neither count
+establishes all-tool functionality. Both Spawn checkouts used the same commit;
+different-branch concurrency and compiler CI were not tested by this bundle.
+These are supplied curated results, not independently rerun Mac logs. See the
+[sanitized assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/macos-codex-rc4.md)
+for archive identity, source coordinates, LSP category normalization and limits.
+
+Other macOS/client versions, Colima, native-host ALS, Claude, OpenCode and
+separate-account private plugin import remain in development until tested
+directly. Native Cloud registration and other accounts' runtime
 behavior require their own evidence beyond the reported workflow and public
-artifact-byte access. Registry image execution likewise needs its own evidence.
+artifact-byte access. Registry acceptance above applies to the tested RC4 host;
+other releases/hosts need their own evidence.
 Local CLI discovery or a temporary app-server proves neither the current Cloud
 catalog nor another client's behavior. Configuration examples prepare those
 tests rather than promising compatibility.
