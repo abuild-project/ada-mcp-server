@@ -1,0 +1,3406 @@
+{
+  "captured_at_utc": "2026-11-19T22:55:02.465045+00:00",
+  "ci_run_count": 25,
+  "collection": {
+    "artifact_download": "GitHub connector download_workflow_artifact then ephemeral File Service HTTP download",
+    "downloaded_artifact_code_executed": false,
+    "existing_workspace_evidence_reused": false,
+    "full_archives_extracted": false,
+    "jobs_query": "GET /repos/abuild-project/ada-mcp-server/actions/runs/<id>/jobs?filter=all&per_page=100&page=1",
+    "provider": "GitHub Actions via connected GitHub app",
+    "runs_query": "GET /repos/abuild-project/ada-mcp-server/actions/runs?head_sha=<exact SHA>&per_page=100&page=1"
+  },
+  "failed_run_context": "All 25 exact-head CI runs are success, attempt 1. Exact-head queries returned no failed CI runs; no nonexistent or expired failed-run artifact is represented as preserved. Earlier local/ancestor-commit failures are outside these exact-head queries. Negative-control and observed-native-blocker data remain unchanged inside the original validation ZIPs.",
+  "repository": "abuild-project/ada-mcp-server",
+  "retention_boundary": "Git archive refs preserve Git history. Actions retention is independently 14 days. This local handoff preserves selected available bytes only; it does not extend provider retention or create a published backup.",
+  "runs": [
+    {
+      "artifact": {
+        "created_at": "2026-11-15T15:49:02Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T15:49:01Z",
+        "id": 14168737549,
+        "member_index": "indices/43731590680-14168737549.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43731590680-14168737549-validation-evidence.zip",
+        "provider_digest": "sha256:f52bcc85921fa1a12604f3e3d4c2625504c10fc1dc0b26a4495e9a7059af07cd",
+        "sha256": "f52bcc85921fa1a12604f3e3d4c2625504c10fc1dc0b26a4495e9a7059af07cd",
+        "size": 1089450,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "d0b45884e07cd929bc114c20e113940dff4d1abc9f0bfd5ac05478eec2a46c04",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "082c885fa07680cbd6f3183dd9a7496378ace8a8a6500e34506891a9cd93c9cb"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "49b70d46202ff356824df7eb51b2dd139cf6feb8854287e82135bf4b39e3bf34",
+              "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:e4f02fe084e6125636e384d8cf25075c8663ce6833d23dbdf825faf6f597bfa8",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T15:44:52Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43731590680/job/132865010508",
+          "id": 132865010508,
+          "log": "logs/43731590680-132865010508.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "2901d1f64f6508d32433de9afccfc9b5ab0e3785ea4488f1b496ca5c89746c5d",
+          "log_size": 133893,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43731590680.json",
+      "run_attempt": 1,
+      "run_id": 43731590680,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43731590680",
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-3",
+      "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14168712771/zip",
+          "created_at": "2026-11-15T15:49:00Z",
+          "digest": "sha256:8e9a46c13ebecf1a583a96640469279a5afb1ac1902a3a4987b287d05480ea3b",
+          "expired": false,
+          "expires_at": "2026-11-29T15:48:50Z",
+          "id": 14168712771,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE2ODcxMjc3MQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303501160,
+          "updated_at": "2026-11-15T15:49:00Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14168712771",
+          "workflow_run": {
+            "head_branch": "codex/additional-tool-regressions",
+            "head_repository_id": 1455260220,
+            "head_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+            "id": 43731590680,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T15:49:06Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-15T15:48:11Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T15:48:09Z",
+        "id": 14168332688,
+        "member_index": "indices/43731557889-14168332688.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43731557889-14168332688-validation-evidence.zip",
+        "provider_digest": "sha256:2e33ec453486a7c8d7b0da0c38f035cfd75eb861554c76e9edb01b991de8f2f1",
+        "sha256": "2e33ec453486a7c8d7b0da0c38f035cfd75eb861554c76e9edb01b991de8f2f1",
+        "size": 1089555,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "d0b45884e07cd929bc114c20e113940dff4d1abc9f0bfd5ac05478eec2a46c04",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "082c885fa07680cbd6f3183dd9a7496378ace8a8a6500e34506891a9cd93c9cb"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "49b70d46202ff356824df7eb51b2dd139cf6feb8854287e82135bf4b39e3bf34",
+              "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:7af715b52373cd90ffd170c2a1384089ede88514c198b9501b9d80f017e8bc2d",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T15:44:31Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43731557889/job/132864901739",
+          "id": 132864901739,
+          "log": "logs/43731557889-132864901739.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "3edcfe50986ce065bafdfec8aed7d0afe15e3e4f332cb16479c5b9fd66cbee91",
+          "log_size": 134022,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43731557889.json",
+      "run_attempt": 1,
+      "run_id": 43731557889,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43731557889",
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-3",
+      "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14168387574/zip",
+          "created_at": "2026-11-15T15:48:08Z",
+          "digest": "sha256:77d2125df929b2254c07c9185b196aab1a5b40eb022bb4d8ad9aa861d16815ba",
+          "expired": false,
+          "expires_at": "2026-11-29T15:47:59Z",
+          "id": 14168387574,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE2ODM4NzU3NA==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303499844,
+          "updated_at": "2026-11-15T15:48:08Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14168387574",
+          "workflow_run": {
+            "head_branch": "codex/additional-tool-regressions",
+            "head_repository_id": 1455260220,
+            "head_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+            "id": 43731557889,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T15:48:17Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-15T15:31:11Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T15:31:09Z",
+        "id": 14167928292,
+        "member_index": "indices/43729940927-14167928292.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43729940927-14167928292-validation-evidence.zip",
+        "provider_digest": "sha256:cfe8f642fa2b0095a4cd90ec04cb6e3d4734a4ded2f4e0956a7114a2136d090b",
+        "sha256": "cfe8f642fa2b0095a4cd90ec04cb6e3d4734a4ded2f4e0956a7114a2136d090b",
+        "size": 1089493,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "d0b45884e07cd929bc114c20e113940dff4d1abc9f0bfd5ac05478eec2a46c04",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "082c885fa07680cbd6f3183dd9a7496378ace8a8a6500e34506891a9cd93c9cb"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "49b70d46202ff356824df7eb51b2dd139cf6feb8854287e82135bf4b39e3bf34",
+              "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:7d354ea4c4ddf12a1bcd65df69849dc84b3ebe06ce7d97e2148096bc795beebb",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T15:27:03Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43729940927/job/132859955749",
+          "id": 132859955749,
+          "log": "logs/43729940927-132859955749.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "7716c01761c00017288dc58e372fefe6bf8af6af585a9e9d7da65c714366a1d5",
+          "log_size": 133894,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43729940927.json",
+      "run_attempt": 1,
+      "run_id": 43729940927,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43729940927",
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-3",
+      "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14167609415/zip",
+          "created_at": "2026-11-15T15:31:09Z",
+          "digest": "sha256:0d5f1a1772043ed75ca52b9040aa694e7a975c884166695bb2caa353db0751a3",
+          "expired": false,
+          "expires_at": "2026-11-29T15:30:59Z",
+          "id": 14167609415,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE2NzYwOTQxNQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303496783,
+          "updated_at": "2026-11-15T15:31:09Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14167609415",
+          "workflow_run": {
+            "head_branch": "codex/validation/additional-tool-round-3",
+            "head_repository_id": 1455260220,
+            "head_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684",
+            "id": 43729940927,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T15:31:15Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T13:00:38Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T13:00:36Z",
+        "id": 14228401745,
+        "member_index": "indices/43871045792-14228401745.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43871045792-14228401745-validation-evidence.zip",
+        "provider_digest": "sha256:2f3d65885a1cadd7eabed94ad7d68992b9b50cf430639fc685f82d5ea2f8b849",
+        "sha256": "2f3d65885a1cadd7eabed94ad7d68992b9b50cf430639fc685f82d5ea2f8b849",
+        "size": 1113859,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "2f9fe22d19cf0fcf6a23348bf4dba7458fc3c3811ab9503db5fb050e86f7e9e2",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "9b45ce32c9107642866b81bc6004337b989ff629912f54ada6dd490b708f54d9"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "20af93b89ebbae34e24ed97f3d80c486ce044301e500f56dc6e6bafdaca2afd5",
+              "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:06d31d43952f05ba9d030e5594fa5e60d4326650fe2a8ac47d7dbe3ba1d39ce8",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T12:56:03Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43871045792/job/133311994894",
+          "id": 133311994894,
+          "log": "logs/43871045792-133311994894.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "d1b07a10fad6567b1ffcd55ebbff82edde93027b79d30a8183491ac17ef753d3",
+          "log_size": 134215,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43871045792.json",
+      "run_attempt": 1,
+      "run_id": 43871045792,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43871045792",
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-1",
+      "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14228391791/zip",
+          "created_at": "2026-11-16T13:00:36Z",
+          "digest": "sha256:1e4e1bfbb2a0f8f4f9f23fe7328516edb98d3a64679d974a00257a8473091a83",
+          "expired": false,
+          "expires_at": "2026-11-30T13:00:26Z",
+          "id": 14228391791,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyODM5MTc5MQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303567818,
+          "updated_at": "2026-11-16T13:00:36Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14228391791",
+          "workflow_run": {
+            "head_branch": "codex/generic-unit-names",
+            "head_repository_id": 1455260220,
+            "head_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+            "id": 43871045792,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T13:00:41Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T12:59:52Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T12:59:51Z",
+        "id": 14227873192,
+        "member_index": "indices/43870957463-14227873192.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43870957463-14227873192-validation-evidence.zip",
+        "provider_digest": "sha256:5f06bfc027752b81f931f068565291b693d331bf6107496bd29d57775b3a62bb",
+        "sha256": "5f06bfc027752b81f931f068565291b693d331bf6107496bd29d57775b3a62bb",
+        "size": 1113732,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "2f9fe22d19cf0fcf6a23348bf4dba7458fc3c3811ab9503db5fb050e86f7e9e2",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "9b45ce32c9107642866b81bc6004337b989ff629912f54ada6dd490b708f54d9"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "20af93b89ebbae34e24ed97f3d80c486ce044301e500f56dc6e6bafdaca2afd5",
+              "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:797f45d76b3b7087bb74a1da017b08fe8e3e1b1356b6e55f41b1b53c9dfe003b",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T12:55:29Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43870957463/job/133311687281",
+          "id": 133311687281,
+          "log": "logs/43870957463-133311687281.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "cb261aac36b63f8e26e955d7475ca32a18574a3467f4702fcdbc78f8bb907f14",
+          "log_size": 133815,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43870957463.json",
+      "run_attempt": 1,
+      "run_id": 43870957463,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43870957463",
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-1",
+      "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14227603717/zip",
+          "created_at": "2026-11-16T12:59:51Z",
+          "digest": "sha256:2097819034b2e024cbc1be6f56fb1609c7b5fea239a6c52e4ae1882fd3322d23",
+          "expired": false,
+          "expires_at": "2026-11-30T12:59:41Z",
+          "id": 14227603717,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyNzYwMzcxNw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303554600,
+          "updated_at": "2026-11-16T12:59:51Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14227603717",
+          "workflow_run": {
+            "head_branch": "codex/generic-unit-names",
+            "head_repository_id": 1455260220,
+            "head_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+            "id": 43870957463,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T12:59:54Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T12:39:14Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T12:39:13Z",
+        "id": 14226113219,
+        "member_index": "indices/43867987533-14226113219.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43867987533-14226113219-validation-evidence.zip",
+        "provider_digest": "sha256:dc5705d74ff6aacc9b29ec1290da10bee41919e9439c22f2eac916efb86cb45a",
+        "sha256": "dc5705d74ff6aacc9b29ec1290da10bee41919e9439c22f2eac916efb86cb45a",
+        "size": 1113619,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "2f9fe22d19cf0fcf6a23348bf4dba7458fc3c3811ab9503db5fb050e86f7e9e2",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "9b45ce32c9107642866b81bc6004337b989ff629912f54ada6dd490b708f54d9"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "20af93b89ebbae34e24ed97f3d80c486ce044301e500f56dc6e6bafdaca2afd5",
+              "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:9d737b345e2758c961ab0e770aceac9bee0eefaf967c0b2cd5c21b030881c82d",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T12:35:42Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43867987533/job/133301387245",
+          "id": 133301387245,
+          "log": "logs/43867987533-133301387245.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "40592121f9d82a76dbbd62dd1c5987e095a8e246f1e8fe7f65c27dd51c0cb723",
+          "log_size": 134057,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43867987533.json",
+      "run_attempt": 1,
+      "run_id": 43867987533,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43867987533",
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-1",
+      "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14226512535/zip",
+          "created_at": "2026-11-16T12:39:13Z",
+          "digest": "sha256:a518617609ac933fbc2fad224cc4606e31db1291f9fb4d1190a691515fd38ff7",
+          "expired": false,
+          "expires_at": "2026-11-30T12:39:05Z",
+          "id": 14226512535,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyNjUxMjUzNQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303562940,
+          "updated_at": "2026-11-16T12:39:13Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14226512535",
+          "workflow_run": {
+            "head_branch": "codex/validation/generic-unit-names-local-1",
+            "head_repository_id": 1455260220,
+            "head_sha": "8c0997ab1444c51f62b999d12c901f20955912fa",
+            "id": 43867987533,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T12:39:16Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T16:27:28Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T16:27:27Z",
+        "id": 14245313686,
+        "member_index": "indices/43907046735-14245313686.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43907046735-14245313686-validation-evidence.zip",
+        "provider_digest": "sha256:f703b66c811be5f881a1554d95c30a557eb636f103cbcc743b86c5048dd14cb6",
+        "sha256": "f703b66c811be5f881a1554d95c30a557eb636f103cbcc743b86c5048dd14cb6",
+        "size": 1121092,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "3ee49dc300a7f0ef80bd601f427cdbe1b3a0e69c1a5baa83b65c96fff33b3f58"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "496cdcd2264ffe7c0ef51362ccaf6d92aa240ee38ede6d744f0f191debbb292e",
+              "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:17a7b5eb2de6a121a25839aff82a981f78ae14f080df1ca781315c9e3e7c0e47",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T16:24:00Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43907046735/job/133438569631",
+          "id": 133438569631,
+          "log": "logs/43907046735-133438569631.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "44af8d0e932f8eea9ffa3c901b9053c7d01896033232a12cfb7a1c9c8825e437",
+          "log_size": 134066,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43907046735.json",
+      "run_attempt": 1,
+      "run_id": 43907046735,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43907046735",
+      "source_ref": "refs/heads/codex/validation/harness-maintenance-local-0",
+      "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245258683/zip",
+          "created_at": "2026-11-16T16:27:26Z",
+          "digest": "sha256:136098868f883c99386f7833db63b908ed1a1374184d6370f0bd62e2c409b9d3",
+          "expired": false,
+          "expires_at": "2026-11-30T16:27:20Z",
+          "id": 14245258683,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI0NTI1ODY4Mw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303584128,
+          "updated_at": "2026-11-16T16:27:26Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245258683",
+          "workflow_run": {
+            "head_branch": "codex/harness-maintenance",
+            "head_repository_id": 1455260220,
+            "head_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+            "id": 43907046735,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T16:27:31Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T16:27:57Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T16:27:55Z",
+        "id": 14244988521,
+        "member_index": "indices/43907016277-14244988521.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43907016277-14244988521-validation-evidence.zip",
+        "provider_digest": "sha256:aa9215bea012852a3433b0aeccaa333765874780e19836ea96a77c403f32d228",
+        "sha256": "aa9215bea012852a3433b0aeccaa333765874780e19836ea96a77c403f32d228",
+        "size": 1121218,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "3ee49dc300a7f0ef80bd601f427cdbe1b3a0e69c1a5baa83b65c96fff33b3f58"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "496cdcd2264ffe7c0ef51362ccaf6d92aa240ee38ede6d744f0f191debbb292e",
+              "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:565a112bd91f4082ca1563a6d3760e3acea39cd51170b0b0211428b192b6de00",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T16:23:49Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43907016277/job/133438462580",
+          "id": 133438462580,
+          "log": "logs/43907016277-133438462580.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "6140a902f8fde63f4aa1256cd75e482f38f284cff8fe90102bbd5b74db13c489",
+          "log_size": 134836,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43907016277.json",
+      "run_attempt": 1,
+      "run_id": 43907016277,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43907016277",
+      "source_ref": "refs/heads/codex/validation/harness-maintenance-local-0",
+      "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245678383/zip",
+          "created_at": "2026-11-16T16:27:54Z",
+          "digest": "sha256:9c550d87773cec650e45196609f69760ffc9ce0e3a4e0f99da41f56137a4b4dc",
+          "expired": false,
+          "expires_at": "2026-11-30T16:27:46Z",
+          "id": 14245678383,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI0NTY3ODM4Mw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303585929,
+          "updated_at": "2026-11-16T16:27:54Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245678383",
+          "workflow_run": {
+            "head_branch": "codex/harness-maintenance",
+            "head_repository_id": 1455260220,
+            "head_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+            "id": 43907016277,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T16:28:00Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T16:14:38Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T16:14:37Z",
+        "id": 14246365687,
+        "member_index": "indices/43904484523-14246365687.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43904484523-14246365687-validation-evidence.zip",
+        "provider_digest": "sha256:aeffc4d1ee80469ad62650df13402da2b79cac4fe7dc5293eb5e4e12b9cb6c16",
+        "sha256": "aeffc4d1ee80469ad62650df13402da2b79cac4fe7dc5293eb5e4e12b9cb6c16",
+        "size": 1121254,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "3ee49dc300a7f0ef80bd601f427cdbe1b3a0e69c1a5baa83b65c96fff33b3f58"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "496cdcd2264ffe7c0ef51362ccaf6d92aa240ee38ede6d744f0f191debbb292e",
+              "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:49b6e9c45828ce6e115c897d5196132a0bc0eb127df91ac46147415c4f9c6fa8",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T16:10:11Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43904484523/job/133429532319",
+          "id": 133429532319,
+          "log": "logs/43904484523-133429532319.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "45c1641f0b0c837b53af15fe97247124be90db89e0247b24860e7cd9b9def35c",
+          "log_size": 133915,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43904484523.json",
+      "run_attempt": 1,
+      "run_id": 43904484523,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43904484523",
+      "source_ref": "refs/heads/codex/validation/harness-maintenance-local-0",
+      "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245211290/zip",
+          "created_at": "2026-11-16T16:14:37Z",
+          "digest": "sha256:fae4f576db68f1db1c97ff16998006ed335a865e152a40fd6da73b18cc76eafb",
+          "expired": false,
+          "expires_at": "2026-11-30T16:14:27Z",
+          "id": 14245211290,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI0NTIxMTI5MA==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303587722,
+          "updated_at": "2026-11-16T16:14:37Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14245211290",
+          "workflow_run": {
+            "head_branch": "codex/validation/harness-maintenance-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "47340df146ad5bc67fcfe426122b01d774d29b41",
+            "id": 43904484523,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T16:14:40Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T19:57:39Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T19:57:37Z",
+        "id": 14264082210,
+        "member_index": "indices/43944041974-14264082210.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43944041974-14264082210-validation-evidence.zip",
+        "provider_digest": "sha256:f91214a0ef140ac75bfc69aba40e8515661ffe3f23e6798243290c6d0f2d1499",
+        "sha256": "f91214a0ef140ac75bfc69aba40e8515661ffe3f23e6798243290c6d0f2d1499",
+        "size": 1122591,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "71b092ceb1b412c64050d886c3376744a524acb6c59f0a21b3c6e5e5c6a22be9"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "5e7df201256099c43492d13a3871e9b382f24f495b96f390b8d18c96788bfe78",
+              "source_sha": "b1f40a7ad1e1b6dc7012133018f50627ba71a992",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:5adb43876932187bdc94265ca633f94c4070e2fbe74d67a197b15ea2ab94cdba",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T19:53:31Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43944041974/job/133568812728",
+          "id": 133568812728,
+          "log": "logs/43944041974-133568812728.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "02c94966118a6f91179c0b7261a3ae3cdd6516162c88e04f8b3c6d1513e5d5ca",
+          "log_size": 134463,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43944041974.json",
+      "run_attempt": 1,
+      "run_id": 43944041974,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43944041974",
+      "source_ref": "refs/heads/codex/validation/permission-tests-local-1",
+      "source_sha": "b1f40a7ad1e1b6dc7012133018f50627ba71a992",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14264097290/zip",
+          "created_at": "2026-11-16T19:57:36Z",
+          "digest": "sha256:2d81881fb820f2a79a452345bd6347e37ae2f243955f939a28cab0c255d3c062",
+          "expired": false,
+          "expires_at": "2026-11-30T19:57:28Z",
+          "id": 14264097290,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI2NDA5NzI5MA==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303595230,
+          "updated_at": "2026-11-16T19:57:36Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14264097290",
+          "workflow_run": {
+            "head_branch": "codex/validation/permission-tests-local-1",
+            "head_repository_id": 1455260220,
+            "head_sha": "b1f40a7ad1e1b6dc7012133018f50627ba71a992",
+            "id": 43944041974,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T19:57:42Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T11:42:34Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T11:42:33Z",
+        "id": 14221933537,
+        "member_index": "indices/43859544606-14221933537.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43859544606-14221933537-validation-evidence.zip",
+        "provider_digest": "sha256:6e4a14892bf50cdd2a595124db545424cd1ae6492bf62db0f02756a5d5eb355d",
+        "sha256": "6e4a14892bf50cdd2a595124db545424cd1ae6492bf62db0f02756a5d5eb355d",
+        "size": 1108377,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "90e530ad3969205265c52dbf77dc43845593a74f3bc8020d8efdcd181a351f5f",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "991b92e882eacd9b83e743ab2549b0be8d2490e859eff49fd9df5a70953a9be5"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "8905a2c6adc93cab087b5bf5a48f933132f85df1e4a5405d38104bd217f524a5",
+              "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:15138f0da0c7dc5b5ef32ecfc4d9e35a15faa8afd96f7af2e73d3bb7b5c3becc",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T11:38:36Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43859544606/job/133272426821",
+          "id": 133272426821,
+          "log": "logs/43859544606-133272426821.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "1d7f6b2e3f1b80f6032c8cda5087d4ff77fdb442a3a0d329b846e3c8192a5934",
+          "log_size": 134066,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43859544606.json",
+      "run_attempt": 1,
+      "run_id": 43859544606,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43859544606",
+      "source_ref": "refs/heads/codex/validation/rename-application-result-local-0",
+      "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221693877/zip",
+          "created_at": "2026-11-16T11:42:33Z",
+          "digest": "sha256:7d2e3711aa53c77eee8228b95e723331f9f4a90a58c55f89dd0ebc624c7054e5",
+          "expired": false,
+          "expires_at": "2026-11-30T11:42:25Z",
+          "id": 14221693877,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyMTY5Mzg3Nw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303547476,
+          "updated_at": "2026-11-16T11:42:33Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221693877",
+          "workflow_run": {
+            "head_branch": "codex/rename-application-result",
+            "head_repository_id": 1455260220,
+            "head_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+            "id": 43859544606,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T11:42:37Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T11:42:49Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T11:42:48Z",
+        "id": 14223366427,
+        "member_index": "indices/43859502196-14223366427.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43859502196-14223366427-validation-evidence.zip",
+        "provider_digest": "sha256:d491f3bc7a5e37b4439055eebbba39b275d1533787c19bd8dde90e17658a025d",
+        "sha256": "d491f3bc7a5e37b4439055eebbba39b275d1533787c19bd8dde90e17658a025d",
+        "size": 1108540,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "90e530ad3969205265c52dbf77dc43845593a74f3bc8020d8efdcd181a351f5f",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "991b92e882eacd9b83e743ab2549b0be8d2490e859eff49fd9df5a70953a9be5"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "8905a2c6adc93cab087b5bf5a48f933132f85df1e4a5405d38104bd217f524a5",
+              "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:59c6f099fde88182190ef57f3fe6f46010c902c1bdd5c91d5920fd50b45547ae",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T11:38:18Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43859502196/job/133272278383",
+          "id": 133272278383,
+          "log": "logs/43859502196-133272278383.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "42c3b1a87761cc1b463a25a2c9cc855feb369d67f54860ad984d9aba8226c8a2",
+          "log_size": 133690,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43859502196.json",
+      "run_attempt": 1,
+      "run_id": 43859502196,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43859502196",
+      "source_ref": "refs/heads/codex/validation/rename-application-result-local-0",
+      "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221529317/zip",
+          "created_at": "2026-11-16T11:42:48Z",
+          "digest": "sha256:bb69f63c058c8652936dfab8e69aae784e37bfb2ed7a04f22f0853b8e3063c8a",
+          "expired": false,
+          "expires_at": "2026-11-30T11:42:38Z",
+          "id": 14221529317,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyMTUyOTMxNw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303546841,
+          "updated_at": "2026-11-16T11:42:48Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221529317",
+          "workflow_run": {
+            "head_branch": "codex/rename-application-result",
+            "head_repository_id": 1455260220,
+            "head_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+            "id": 43859502196,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T11:42:51Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T11:29:29Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T11:29:28Z",
+        "id": 14221542023,
+        "member_index": "indices/43857699224-14221542023.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43857699224-14221542023-validation-evidence.zip",
+        "provider_digest": "sha256:8cad35418a1af0e20e3ddb94ea547dd44ac462c12b413b2113f7c3899cf131a8",
+        "sha256": "8cad35418a1af0e20e3ddb94ea547dd44ac462c12b413b2113f7c3899cf131a8",
+        "size": 1108531,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "90e530ad3969205265c52dbf77dc43845593a74f3bc8020d8efdcd181a351f5f",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "991b92e882eacd9b83e743ab2549b0be8d2490e859eff49fd9df5a70953a9be5"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "8905a2c6adc93cab087b5bf5a48f933132f85df1e4a5405d38104bd217f524a5",
+              "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:4578330a856611f4981ced3843c6f5f78d5005954e200142f2155b2a9ccdc019",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T11:26:02Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43857699224/job/133266110914",
+          "id": 133266110914,
+          "log": "logs/43857699224-133266110914.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "5d71dc7ddd8fb8f012b1256c97577a207b48ac0666812d10c84c2d5307473f55",
+          "log_size": 134060,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43857699224.json",
+      "run_attempt": 1,
+      "run_id": 43857699224,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43857699224",
+      "source_ref": "refs/heads/codex/validation/rename-application-result-local-0",
+      "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221588043/zip",
+          "created_at": "2026-11-16T11:29:28Z",
+          "digest": "sha256:f43d89ed7dc90cdba2aaf63642691ecd476df8de7e3b9e269ea78aa28b1abe8d",
+          "expired": false,
+          "expires_at": "2026-11-30T11:29:21Z",
+          "id": 14221588043,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyMTU4ODA0Mw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303547933,
+          "updated_at": "2026-11-16T11:29:28Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14221588043",
+          "workflow_run": {
+            "head_branch": "codex/validation/rename-application-result-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151",
+            "id": 43857699224,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T11:29:31Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T17:22:16Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T17:22:14Z",
+        "id": 14250926694,
+        "member_index": "indices/43916976816-14250926694.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43916976816-14250926694-validation-evidence.zip",
+        "provider_digest": "sha256:d03d3ffb46275b58e444858531a6bfe7e8c5dfb6055f870c913e60c38b5c76c4",
+        "sha256": "d03d3ffb46275b58e444858531a6bfe7e8c5dfb6055f870c913e60c38b5c76c4",
+        "size": 1119738,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "ed6447a2cdb3397a14fe22dc90320495d161dbc46480834a4fcae1c88e26e351"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "1dbeaa120a1fcadc824835fd27e9db15dafd2ee958a3d8bf0988160f4a0700ae",
+              "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:3be786f125788cab9c173e40b85f96d1aa250a4a3f61ad63453f82bc380e690c",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T17:18:24Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43916976816/job/133473635506",
+          "id": 133473635506,
+          "log": "logs/43916976816-133473635506.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "d726d176341ab6147e6359bf00c240f2f1cd4b2adcc4bc243a3fbc67d82a4363",
+          "log_size": 134341,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43916976816.json",
+      "run_attempt": 1,
+      "run_id": 43916976816,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43916976816",
+      "source_ref": "refs/heads/codex/validation/retire-exploration-local-0",
+      "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14251331141/zip",
+          "created_at": "2026-11-16T17:22:14Z",
+          "digest": "sha256:70b6a840b18efad030393a712214398e43d962c2c99441f9b6a6fa612555d39c",
+          "expired": false,
+          "expires_at": "2026-11-30T17:22:04Z",
+          "id": 14251331141,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI1MTMzMTE0MQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303579029,
+          "updated_at": "2026-11-16T17:22:14Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14251331141",
+          "workflow_run": {
+            "head_branch": "codex/retire-exploration",
+            "head_repository_id": 1455260220,
+            "head_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+            "id": 43916976816,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T17:22:20Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T17:21:27Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T17:21:25Z",
+        "id": 14250027186,
+        "member_index": "indices/43916898469-14250027186.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43916898469-14250027186-validation-evidence.zip",
+        "provider_digest": "sha256:2482277a4d1a724045cd7a2f7c77813def59f1d606637a03764c22ac72319592",
+        "sha256": "2482277a4d1a724045cd7a2f7c77813def59f1d606637a03764c22ac72319592",
+        "size": 1119713,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "ed6447a2cdb3397a14fe22dc90320495d161dbc46480834a4fcae1c88e26e351"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "1dbeaa120a1fcadc824835fd27e9db15dafd2ee958a3d8bf0988160f4a0700ae",
+              "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:7ba084397db0eb670c4c36de4ea7c7d55edeb152d53bd2791043e06008c4e4a5",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T17:17:57Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43916898469/job/133473350749",
+          "id": 133473350749,
+          "log": "logs/43916898469-133473350749.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "d1a99f8498b0b3653b22f211e56be51024b83b9d2e6221712ffa507ad2de424b",
+          "log_size": 134460,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43916898469.json",
+      "run_attempt": 1,
+      "run_id": 43916898469,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43916898469",
+      "source_ref": "refs/heads/codex/validation/retire-exploration-local-0",
+      "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14250311793/zip",
+          "created_at": "2026-11-16T17:21:25Z",
+          "digest": "sha256:d2094f42b29b1f5370f99f469a77757b2517c359993e7bc9ab071fd8dfc917d8",
+          "expired": false,
+          "expires_at": "2026-11-30T17:21:17Z",
+          "id": 14250311793,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI1MDMxMTc5Mw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303580476,
+          "updated_at": "2026-11-16T17:21:25Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14250311793",
+          "workflow_run": {
+            "head_branch": "codex/retire-exploration",
+            "head_repository_id": 1455260220,
+            "head_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+            "id": 43916898469,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T17:21:30Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T17:08:12Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T17:08:10Z",
+        "id": 14248594429,
+        "member_index": "indices/43914425770-14248594429.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43914425770-14248594429-validation-evidence.zip",
+        "provider_digest": "sha256:8eea8fbd415966199c7c0a613951fbb5c37a715ec87f1775f16b9f86ff177f3d",
+        "sha256": "8eea8fbd415966199c7c0a613951fbb5c37a715ec87f1775f16b9f86ff177f3d",
+        "size": 1119846,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "ed6447a2cdb3397a14fe22dc90320495d161dbc46480834a4fcae1c88e26e351"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "1dbeaa120a1fcadc824835fd27e9db15dafd2ee958a3d8bf0988160f4a0700ae",
+              "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:4972693b70cb9ce1480550dd24b27b4fceb1633dc24b85c79321fc10302c1fd7",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T17:04:22Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43914425770/job/133464640215",
+          "id": 133464640215,
+          "log": "logs/43914425770-133464640215.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "317554f992c16bdd844380c550b477c977cd64b22f1fb5c11dfca1608dabfc88",
+          "log_size": 134450,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43914425770.json",
+      "run_attempt": 1,
+      "run_id": 43914425770,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43914425770",
+      "source_ref": "refs/heads/codex/validation/retire-exploration-local-0",
+      "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14248764161/zip",
+          "created_at": "2026-11-16T17:08:10Z",
+          "digest": "sha256:c33283a600210dad00d8ad5b786432a8f9a36e5ce11658fac3a291b5e7ab9c9c",
+          "expired": false,
+          "expires_at": "2026-11-30T17:08:00Z",
+          "id": 14248764161,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI0ODc2NDE2MQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303581037,
+          "updated_at": "2026-11-16T17:08:10Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14248764161",
+          "workflow_run": {
+            "head_branch": "codex/validation/retire-exploration-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6",
+            "id": 43914425770,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T17:08:16Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T15:18:45Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T15:18:44Z",
+        "id": 14238114120,
+        "member_index": "indices/43894306872-14238114120.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43894306872-14238114120-validation-evidence.zip",
+        "provider_digest": "sha256:c00732b7f1c85983ece05350a602e68040f9e0468a1da84652a3fd10768c564a",
+        "sha256": "c00732b7f1c85983ece05350a602e68040f9e0468a1da84652a3fd10768c564a",
+        "size": 1117837,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "4160532bd44b3347f4b93603977a4ac5ae06e14c0f1f749715b3622ddce1c742"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "b475da33852285745b9ef556c0828e217484209cfdff30ec52de1bad05c118ad",
+              "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:c79b4a4e662902f7d27a76f8791ac157236101365fae3728b32ee69b3bf23b21",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T15:15:04Z",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43894306872/job/133393582784",
+          "id": 133393582784,
+          "log": "logs/43894306872-133393582784.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "eaf9100a3e9053d7c6f6d22c923af4d6917f8c2ed1fd3399fa23496409b39ba6",
+          "log_size": 134052,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43894306872.json",
+      "run_attempt": 1,
+      "run_id": 43894306872,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43894306872",
+      "source_ref": "refs/heads/codex/validation/signature-selection-contract-local-0",
+      "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14238756315/zip",
+          "created_at": "2026-11-16T15:18:44Z",
+          "digest": "sha256:88d7bcd9d9048be7ca4f0e372bde11de02427adbe147eaa6e2b653cdab43568a",
+          "expired": false,
+          "expires_at": "2026-11-30T15:18:35Z",
+          "id": 14238756315,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIzODc1NjMxNQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303577326,
+          "updated_at": "2026-11-16T15:18:44Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14238756315",
+          "workflow_run": {
+            "head_branch": "codex/signature-selection-contract",
+            "head_repository_id": 1455260220,
+            "head_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+            "id": 43894306872,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T15:18:48Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T15:18:59Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T15:18:58Z",
+        "id": 14237598610,
+        "member_index": "indices/43894218521-14237598610.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43894218521-14237598610-validation-evidence.zip",
+        "provider_digest": "sha256:eaa6dbc4a6b92db3d38f1953ab49e178239f12a9b37dd325ace0a6683d4040a3",
+        "sha256": "eaa6dbc4a6b92db3d38f1953ab49e178239f12a9b37dd325ace0a6683d4040a3",
+        "size": 1118041,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "4160532bd44b3347f4b93603977a4ac5ae06e14c0f1f749715b3622ddce1c742"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "b475da33852285745b9ef556c0828e217484209cfdff30ec52de1bad05c118ad",
+              "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:5d5508fe46c10974885b6e7bbcf10a5a007a22112f607562bd5663f03f1e9de2",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T15:14:31Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43894218521/job/133393259854",
+          "id": 133393259854,
+          "log": "logs/43894218521-133393259854.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "398d5ca8409e82c42dd1703af06b6f8455180fc1c32c11129d6a113f3b23ca26",
+          "log_size": 133937,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43894218521.json",
+      "run_attempt": 1,
+      "run_id": 43894218521,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43894218521",
+      "source_ref": "refs/heads/codex/validation/signature-selection-contract-local-0",
+      "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14237588513/zip",
+          "created_at": "2026-11-16T15:18:58Z",
+          "digest": "sha256:83c1a731c2dd4e6d400e04fefa98c102db60ec18721d2f1e2cf369e107399722",
+          "expired": false,
+          "expires_at": "2026-11-30T15:18:48Z",
+          "id": 14237588513,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIzNzU4ODUxMw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303581616,
+          "updated_at": "2026-11-16T15:18:58Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14237588513",
+          "workflow_run": {
+            "head_branch": "codex/signature-selection-contract",
+            "head_repository_id": 1455260220,
+            "head_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+            "id": 43894218521,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T15:19:02Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T15:08:01Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T15:07:59Z",
+        "id": 14236429932,
+        "member_index": "indices/43892273136-14236429932.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43892273136-14236429932-validation-evidence.zip",
+        "provider_digest": "sha256:6dbe2a03ffe2073ee01ca61d9ff5db993af8f9a0641dc79e4c863c1d8c535310",
+        "sha256": "6dbe2a03ffe2073ee01ca61d9ff5db993af8f9a0641dc79e4c863c1d8c535310",
+        "size": 1117969,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "4160532bd44b3347f4b93603977a4ac5ae06e14c0f1f749715b3622ddce1c742"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "b475da33852285745b9ef556c0828e217484209cfdff30ec52de1bad05c118ad",
+              "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:f6b7e48be3b5ebe67936d93f5574ee9aa5d55b032b782fd0389e914d1a273130",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T15:03:29Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43892273136/job/133386371261",
+          "id": 133386371261,
+          "log": "logs/43892273136-133386371261.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "4ec780c4d21fb921c3108760b474d4bf875c51bb1c0ca71bd773fcd57ef522ac",
+          "log_size": 134210,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43892273136.json",
+      "run_attempt": 1,
+      "run_id": 43892273136,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43892273136",
+      "source_ref": "refs/heads/codex/validation/signature-selection-contract-local-0",
+      "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14238480291/zip",
+          "created_at": "2026-11-16T15:07:59Z",
+          "digest": "sha256:dc0d23c79264af06d99289d45223f9f37a4cbeaa0e6efed78f082c6b944c41b5",
+          "expired": false,
+          "expires_at": "2026-11-30T15:07:46Z",
+          "id": 14238480291,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIzODQ4MDI5MQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303571158,
+          "updated_at": "2026-11-16T15:07:59Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14238480291",
+          "workflow_run": {
+            "head_branch": "codex/validation/signature-selection-contract-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943",
+            "id": 43892273136,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T15:08:04Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-14T21:43:37Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-28T21:43:37Z",
+        "id": 14133357780,
+        "member_index": "indices/43644067970-14133357780.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43644067970-14133357780-validation-evidence.zip",
+        "provider_digest": "sha256:debbd155bc7bcba367ff619cc1d0e3cc30f6b099a197ad39b6dd028813026c64",
+        "sha256": "debbd155bc7bcba367ff619cc1d0e3cc30f6b099a197ad39b6dd028813026c64",
+        "size": 898942,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "5c753339c0df3bdda7861dfc23e35b7d88a818a56ffe9eb0ec4921e6e7af598a",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "68567012a4784b8593a31a1c79548d9c68470eb92794f9d03dd1c6dd93e9f5f3"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "b863148fd530929fb6d783197262093d1aa094bcf3c34385434cfd6e575e4480",
+              "source_sha": "5cdd315acd309b11bed22e77f98d62cb8d9b396b",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:052769709ba879a2a9e1bc744503ef4673eabc779b519aefa71ceb2bbd42e500",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-14T21:40:36Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43644067970/job/132597801555",
+          "id": 132597801555,
+          "log": "logs/43644067970-132597801555.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "838a92668f6ad9243db722fbcf03db73bb8b3f2c579c890d739aefaeaf1d32f3",
+          "log_size": 133050,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43644067970.json",
+      "run_attempt": 1,
+      "run_id": 43644067970,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43644067970",
+      "source_ref": "refs/heads/codex/read-tool-regressions",
+      "source_sha": "5cdd315acd309b11bed22e77f98d62cb8d9b396b",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14132939289/zip",
+          "created_at": "2026-11-14T21:43:36Z",
+          "digest": "sha256:725ced429d73eb9d7ba106c19534c0ccff611ee1a5f25abe3debddb895a8969c",
+          "expired": false,
+          "expires_at": "2026-11-28T21:43:30Z",
+          "id": 14132939289,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDEzMjkzOTI4OQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303328674,
+          "updated_at": "2026-11-14T21:43:36Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14132939289",
+          "workflow_run": {
+            "head_branch": "codex/read-tool-regressions",
+            "head_repository_id": 1455260220,
+            "head_sha": "5cdd315acd309b11bed22e77f98d62cb8d9b396b",
+            "id": 43644067970,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-14T21:43:39Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-15T10:16:39Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T10:16:39Z",
+        "id": 14156514264,
+        "member_index": "indices/43702988145-14156514264.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43702988145-14156514264-validation-evidence.zip",
+        "provider_digest": "sha256:4831346a8137b80bfa2ba555938687bc28d6a78e0d1b7ed5842c869c6659d96c",
+        "sha256": "4831346a8137b80bfa2ba555938687bc28d6a78e0d1b7ed5842c869c6659d96c",
+        "size": 1004615,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "5c753339c0df3bdda7861dfc23e35b7d88a818a56ffe9eb0ec4921e6e7af598a",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "92bee13e78588f65506daf3c60bfaac6b602b1961dfb9cb48607ecf212a2e3e7"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "67f905b44ae780870f3e7154839d6a3ade0598c6f34d6cc6cc68363f460d01b6",
+              "source_sha": "0950488ebbdc9710d59c5a5ed28b288d4ba00deb",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:0b261ed254639b240d08b5356fa32e80206f78ea8bed89feef765a110e66affc",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "exploratory-real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-observation/summary.json",
+            "status": "observed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T10:12:59Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43702988145/job/132777947370",
+          "id": 132777947370,
+          "log": "logs/43702988145-132777947370.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "27a63c1691339b26c680528e1e75707c1c0ccf8b19f8f7878bbbbbbd78e713f5",
+          "log_size": 133533,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43702988145.json",
+      "run_attempt": 1,
+      "run_id": 43702988145,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43702988145",
+      "source_ref": "refs/heads/codex/validation/additional-tool-observation",
+      "source_sha": "0950488ebbdc9710d59c5a5ed28b288d4ba00deb",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14156643753/zip",
+          "created_at": "2026-11-15T10:16:38Z",
+          "digest": "sha256:20573eb870ad44087c850bf107fd4b764fccef7e6975fc0205c361cf7a129c87",
+          "expired": false,
+          "expires_at": "2026-11-29T10:16:31Z",
+          "id": 14156643753,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE1NjY0Mzc1Mw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303392237,
+          "updated_at": "2026-11-15T10:16:38Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14156643753",
+          "workflow_run": {
+            "head_branch": "codex/validation/additional-tool-observation",
+            "head_repository_id": 1455260220,
+            "head_sha": "0950488ebbdc9710d59c5a5ed28b288d4ba00deb",
+            "id": 43702988145,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T10:16:42Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-15T11:10:16Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T11:10:14Z",
+        "id": 14159456016,
+        "member_index": "indices/43707331994-14159456016.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43707331994-14159456016-validation-evidence.zip",
+        "provider_digest": "sha256:7e81ad3714f7d96727d91795911d38a3fb89246b35abf34cacde637fc71c9403",
+        "sha256": "7e81ad3714f7d96727d91795911d38a3fb89246b35abf34cacde637fc71c9403",
+        "size": 1081753,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "e5b6e6600f3a91316643d64fbef9611c350f6c7c25c3fe04cbe3021a41eda00c",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "1d61939b610b520e360ad42d8b164dfdfd7f3ed10e22a2b212bb6b26d38d7545"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "fea25d5ae2e72149dfc3e7a33cd4e9830b6b490bdac912ed781f416b38d8ef95",
+              "source_sha": "452a32f546704b72bbb2477ec504cc5433c13587",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:2bd68ce77a3e6d7af978d1316649982b4ac341719f2ee2772e269cb1533cec8a",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T11:06:55Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43707331994/job/132791129223",
+          "id": 132791129223,
+          "log": "logs/43707331994-132791129223.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "cd849bc8634bffd6fe01e11224057571f3ac0bdc616b867d5f36a6ad103968b1",
+          "log_size": 134039,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43707331994.json",
+      "run_attempt": 1,
+      "run_id": 43707331994,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43707331994",
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-1",
+      "source_sha": "452a32f546704b72bbb2477ec504cc5433c13587",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14159490969/zip",
+          "created_at": "2026-11-15T11:10:14Z",
+          "digest": "sha256:3028240a78313d538205ad6f829541b0b450cf4762b90419a055a87ebb15e8a5",
+          "expired": false,
+          "expires_at": "2026-11-29T11:10:07Z",
+          "id": 14159490969,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE1OTQ5MDk2OQ==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303474246,
+          "updated_at": "2026-11-15T11:10:14Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14159490969",
+          "workflow_run": {
+            "head_branch": "codex/validation/additional-tool-round-1",
+            "head_repository_id": 1455260220,
+            "head_sha": "452a32f546704b72bbb2477ec504cc5433c13587",
+            "id": 43707331994,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T11:10:19Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-15T15:10:36Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-29T15:10:35Z",
+        "id": 14167476622,
+        "member_index": "indices/43728037821-14167476622.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43728037821-14167476622-validation-evidence.zip",
+        "provider_digest": "sha256:a5f1f1f8a55e4229e78b15e6f2580b7e35f8c2aa190f95c1712ec4ee6df7f544",
+        "sha256": "a5f1f1f8a55e4229e78b15e6f2580b7e35f8c2aa190f95c1712ec4ee6df7f544",
+        "size": 1087712,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "d003fc10e6fe9e5519db062583680f19b44412061e36555f9e96b65644b12ea6",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "e236d6524a1bafb7c7702f22e365fb655d372b573aa2c0922ca08cd38f4dc0b8"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "76985887512f69d4ef0da55742735a37c08eaeb60ac1619fd27d7577f2c1d84c",
+              "source_sha": "8b68936bd580a8ba2ab2ce80e582c4bb0d34b806",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:7dcd40a9c14b2d462d8ce30af3f33860b8e28cf1154590ba3fc9fb02fb8c0eb4",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-15T15:06:49Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43728037821/job/132854162176",
+          "id": 132854162176,
+          "log": "logs/43728037821-132854162176.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "2db897e2f14a388fcc7cc6d2d17c1540b95ba87a73bee601e1a955b43de9b756",
+          "log_size": 133733,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43728037821.json",
+      "run_attempt": 1,
+      "run_id": 43728037821,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43728037821",
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-2",
+      "source_sha": "8b68936bd580a8ba2ab2ce80e582c4bb0d34b806",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14167476617/zip",
+          "created_at": "2026-11-15T15:10:35Z",
+          "digest": "sha256:3d9420d5b4e2731b4833b30c30928470318d1db6623c859fcdc24a13b8918f81",
+          "expired": false,
+          "expires_at": "2026-11-29T15:10:26Z",
+          "id": 14167476617,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDE2NzQ3NjYxNw==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303487988,
+          "updated_at": "2026-11-15T15:10:35Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14167476617",
+          "workflow_run": {
+            "head_branch": "codex/validation/additional-tool-round-2",
+            "head_repository_id": 1455260220,
+            "head_sha": "8b68936bd580a8ba2ab2ce80e582c4bb0d34b806",
+            "id": 43728037821,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-15T15:10:38Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T12:28:11Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T12:28:10Z",
+        "id": 14226056896,
+        "member_index": "indices/43866234742-14226056896.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43866234742-14226056896-validation-evidence.zip",
+        "provider_digest": "sha256:93d75a58fde1582c212cc4661e854ccb02c32d11f2c4e0220df72de935bf18cd",
+        "sha256": "93d75a58fde1582c212cc4661e854ccb02c32d11f2c4e0220df72de935bf18cd",
+        "size": 1112933,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "f66f79297b70a6eeaf1aee311e6d86cd78a0ce858aa3f88ad61720157a47c7c9",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "dfdd3002a27c4fcaaeae5d1cc04a0734d3ce954289a5f62d6f705b47a4515698"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "db3f35b07bea0b11fd8d218475f8e520ac1196cfadeee665198d713eae203dcf",
+              "source_sha": "076cfee91dcb055519db01990beacc2f447215da",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:6acfbeb194f67ac90a6fb76d96c233006346b57f0942078245055cdad1c1c4fa",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T12:24:07Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43866234742/job/133295384333",
+          "id": 133295384333,
+          "log": "logs/43866234742-133295384333.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "0ea669433580582cccc51e8ef3b312148303f62da8093db63e054b0910369057",
+          "log_size": 134469,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43866234742.json",
+      "run_attempt": 1,
+      "run_id": 43866234742,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43866234742",
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-0",
+      "source_sha": "076cfee91dcb055519db01990beacc2f447215da",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14225692378/zip",
+          "created_at": "2026-11-16T12:28:09Z",
+          "digest": "sha256:1c39651279e249e8ff49a0a8d85b3b686900d873f5e47dc32f7223c5cbf9a69d",
+          "expired": false,
+          "expires_at": "2026-11-30T12:28:01Z",
+          "id": 14225692378,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDIyNTY5MjM3OA==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303560488,
+          "updated_at": "2026-11-16T12:28:09Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14225692378",
+          "workflow_run": {
+            "head_branch": "codex/validation/generic-unit-names-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "076cfee91dcb055519db01990beacc2f447215da",
+            "id": 43866234742,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T12:28:15Z"
+    },
+    {
+      "artifact": {
+        "created_at": "2026-11-16T19:50:07Z",
+        "expired_at_capture": false,
+        "expires_at": "2026-11-30T19:50:06Z",
+        "id": 14265160144,
+        "member_index": "indices/43942831282-14265160144.json",
+        "name": "validation-evidence",
+        "path": "artifacts/43942831282-14265160144-validation-evidence.zip",
+        "provider_digest": "sha256:a3a18d29237d9cfb31b4cf59fabb7c8f886a098c579c3044dab6ec450b9a7647",
+        "sha256": "a3a18d29237d9cfb31b4cf59fabb7c8f886a098c579c3044dab6ec450b9a7647",
+        "size": 1122404,
+        "source_provenance": [
+          {
+            "member": "ada-mcp-server/ada-mcp-server/build/check/python-dist/provenance.json",
+            "receipt": {
+              "distributions_sha256": {
+                "ada_mcp_server-0.2.0rc3-py3-none-any.whl": "9147806c7cfa143b3e23c21bf8954f24642fad1751c55b396063844c39fd80fc",
+                "ada_mcp_server-0.2.0rc3.tar.gz": "0363eb0826ac94535e93a665b2611b19ab4b025f481ea3e0c4f56de2b53141ec"
+              },
+              "project_version": "0.2.0-rc.3",
+              "source_archive_sha256": "fbf34d35998a6da6358a951f5dfb54d40724d2a2cb6d445c1da32e3777918f81",
+              "source_sha": "17baeec6f598467a7cf27697148c12b31de0f440",
+              "tested_image_platform": "linux/amd64",
+              "tested_image_target": "sha256:146cd3d8fca2c68ad2b59d83170925e667fed6c653c2f9d28b704b90102705a7",
+              "version": 2
+            }
+          }
+        ],
+        "summaries": [
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/additional-control/summary.json",
+            "status": "assessed-with-native-blocker"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "ada-mcp-server/ada-mcp-server/build/check/diagnostic-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": "real-mcp-pinned-als",
+            "member": "ada-mcp-server/ada-mcp-server/build/check/reading-control/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/summary.json",
+            "status": null
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-1000/doctor/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/bootstrap/summary.json",
+            "status": "passed"
+          },
+          {
+            "error": null,
+            "evidence_kind": null,
+            "member": "_temp/host-evidence/uid-501/doctor/summary.json",
+            "status": "passed"
+          }
+        ]
+      },
+      "conclusion": "success",
+      "created_at": "2026-11-16T19:46:31Z",
+      "event": "push",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43942831282/job/133564569888",
+          "id": 133564569888,
+          "log": "logs/43942831282-133564569888.log",
+          "log_encoding": "UTF-8 serialization of connector-decoded provider text",
+          "log_sha256": "61cd66c67cd43eead07d22fbb2fad7042fbf2f9780a98e6f177c2b0214ce7900",
+          "log_size": 134419,
+          "name": "standalone"
+        }
+      ],
+      "provider_metadata": "provider/run-43942831282.json",
+      "run_attempt": 1,
+      "run_id": 43942831282,
+      "run_url": "https://github.com/abuild-project/ada-mcp-server/actions/runs/43942831282",
+      "source_ref": "refs/heads/codex/validation/permission-tests-local-0",
+      "source_sha": "17baeec6f598467a7cf27697148c12b31de0f440",
+      "unretained_artifacts": [
+        {
+          "archive_download_url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14265070664/zip",
+          "created_at": "2026-11-16T19:50:06Z",
+          "digest": "sha256:bd767ce9b3b4b239fd9868b2251ca50a93d9ceaf3255d4952aad7d1987f74f7f",
+          "expired": false,
+          "expires_at": "2026-11-30T19:49:58Z",
+          "id": 14265070664,
+          "name": "release-candidate",
+          "node_id": "MDg6QXJ0aWZhY3QxNDI2NTA3MDY2NA==",
+          "preservation_reason": "Release image archive excluded from small validation-evidence scope",
+          "size_in_bytes": 303588659,
+          "updated_at": "2026-11-16T19:50:06Z",
+          "url": "https://api.github.com/repos/abuild-project/ada-mcp-server/actions/artifacts/14265070664",
+          "workflow_run": {
+            "head_branch": "codex/validation/permission-tests-local-0",
+            "head_repository_id": 1455260220,
+            "head_sha": "17baeec6f598467a7cf27697148c12b31de0f440",
+            "id": 43942831282,
+            "repository_id": 1455260220
+          }
+        }
+      ],
+      "updated_at": "2026-11-16T19:50:10Z"
+    }
+  ],
+  "schema": 1,
+  "scope": "All Actions runs returned by exact-head-SHA repository queries; full logs and validation ZIP for every CI run",
+  "source_count": 13,
+  "sources": [
+    {
+      "all_exact_head_run_ids": [
+        43731623263,
+        43731590680,
+        43731557889,
+        43729940927
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43731590680,
+        43731557889,
+        43729940927
+      ],
+      "inventory": "provider/runs-9d0286be506fc781f2d6f6956fedfc22eb25b684.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-3",
+      "source_sha": "9d0286be506fc781f2d6f6956fedfc22eb25b684"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43871173458,
+        43871045792,
+        43870957463,
+        43867987533
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43871045792,
+        43870957463,
+        43867987533
+      ],
+      "inventory": "provider/runs-8c0997ab1444c51f62b999d12c901f20955912fa.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-1",
+      "source_sha": "8c0997ab1444c51f62b999d12c901f20955912fa"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43907210688,
+        43907046735,
+        43907016277,
+        43904484523
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43907046735,
+        43907016277,
+        43904484523
+      ],
+      "inventory": "provider/runs-47340df146ad5bc67fcfe426122b01d774d29b41.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/harness-maintenance-local-0",
+      "source_sha": "47340df146ad5bc67fcfe426122b01d774d29b41"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43944041974
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43944041974
+      ],
+      "inventory": "provider/runs-b1f40a7ad1e1b6dc7012133018f50627ba71a992.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/permission-tests-local-1",
+      "source_sha": "b1f40a7ad1e1b6dc7012133018f50627ba71a992"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43859652543,
+        43859544606,
+        43859502196,
+        43857699224
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43859544606,
+        43859502196,
+        43857699224
+      ],
+      "inventory": "provider/runs-5e8fb17810d90a55c0dedae911f147efef5ef151.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/rename-application-result-local-0",
+      "source_sha": "5e8fb17810d90a55c0dedae911f147efef5ef151"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43918150608,
+        43916976816,
+        43916898469,
+        43914425770
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43916976816,
+        43916898469,
+        43914425770
+      ],
+      "inventory": "provider/runs-c1c9be5e426dfce454e88ef28bc4cf2638b831b6.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/retire-exploration-local-0",
+      "source_sha": "c1c9be5e426dfce454e88ef28bc4cf2638b831b6"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43896057098,
+        43894394830,
+        43894306872,
+        43894218521,
+        43892273136
+      ],
+      "archive_tag": null,
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43894306872,
+        43894218521,
+        43892273136
+      ],
+      "inventory": "provider/runs-e7c9d9f21b4586a5b264e1f5a6f77e5006f70943.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/signature-selection-contract-local-0",
+      "source_sha": "e7c9d9f21b4586a5b264e1f5a6f77e5006f70943"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43644067970
+      ],
+      "archive_tag": "archive/codex/read-tool-regressions",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43644067970
+      ],
+      "inventory": "provider/runs-5cdd315acd309b11bed22e77f98d62cb8d9b396b.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/read-tool-regressions",
+      "source_sha": "5cdd315acd309b11bed22e77f98d62cb8d9b396b"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43702988145
+      ],
+      "archive_tag": "archive/codex/validation/additional-tool-observation",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43702988145
+      ],
+      "inventory": "provider/runs-0950488ebbdc9710d59c5a5ed28b288d4ba00deb.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/additional-tool-observation",
+      "source_sha": "0950488ebbdc9710d59c5a5ed28b288d4ba00deb"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43707331994
+      ],
+      "archive_tag": "archive/codex/validation/additional-tool-round-1",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43707331994
+      ],
+      "inventory": "provider/runs-452a32f546704b72bbb2477ec504cc5433c13587.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-1",
+      "source_sha": "452a32f546704b72bbb2477ec504cc5433c13587"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43728037821
+      ],
+      "archive_tag": "archive/codex/validation/additional-tool-round-2",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43728037821
+      ],
+      "inventory": "provider/runs-8b68936bd580a8ba2ab2ce80e582c4bb0d34b806.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/additional-tool-round-2",
+      "source_sha": "8b68936bd580a8ba2ab2ce80e582c4bb0d34b806"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43866234742
+      ],
+      "archive_tag": "archive/codex/validation/generic-unit-names-local-0",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43866234742
+      ],
+      "inventory": "provider/runs-076cfee91dcb055519db01990beacc2f447215da.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/generic-unit-names-local-0",
+      "source_sha": "076cfee91dcb055519db01990beacc2f447215da"
+    },
+    {
+      "all_exact_head_run_ids": [
+        43942831282
+      ],
+      "archive_tag": "archive/codex/validation/permission-tests-local-0",
+      "ci_conclusions": [
+        "success"
+      ],
+      "ci_run_ids": [
+        43942831282
+      ],
+      "inventory": "provider/runs-17baeec6f598467a7cf27697148c12b31de0f440.json",
+      "preservation_ready": true,
+      "source_ref": "refs/heads/codex/validation/permission-tests-local-0",
+      "source_sha": "17baeec6f598467a7cf27697148c12b31de0f440"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "all_source_heads_preservation_ready": true,
+  "inner_manifest_sha256": "39f991558ad707cf2d4854b127f65da4a655ff16875726572ba76e5b700f6ff9",
+  "parts": [
+    {
+      "part": 1,
+      "path": "ci-evidence-part-1.zip",
+      "sha256": "e8898b3949ff0626665d63063437a31d57fdbeb9f87d2b72457cccfac1663928",
+      "size": 15115583
+    },
+    {
+      "part": 2,
+      "path": "ci-evidence-part-2.zip",
+      "sha256": "d050fd456c74afaf37ee67d4fc8c9ff10d97f5110ee37641775a98eb712b090e",
+      "size": 13459445
+    }
+  ],
+  "required_parts": 2
+}
