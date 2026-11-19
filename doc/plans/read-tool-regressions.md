@@ -86,3 +86,13 @@ documentation checker and test a swapped index in an owned minimal tree.
 The initial comment line remains serialized fixture metadata; semantic
 no-target calls exercise the changed state. Final exact-head CI and independent
 acceptance evidence belong in the PR, separately from host details in the record.
+
+## 2026-11-19: Archive substitution for the earlier branch
+
+Decision: the maintainer authorized replacing the explicit earlier-branch
+retention requirement with an annotated archive tag at the unchanged original
+source. Delete that branch only after verifying its remote tag object, exact
+target and effective protection against updates/deletion. The
+[retention ledger](../assessments/validation-ref-retention.md) identifies the
+branch, source and archive mapping. Preserve earlier text, commits, counters
+and separately retained primary evidence; tags do not extend CI retention.

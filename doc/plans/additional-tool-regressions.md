@@ -463,3 +463,16 @@ the coordinator's existing PR-delivery authorization covers pushes, exact
 hosted CI and PR metadata. Merge, release and publication remain unauthorized.
 Any further source correction after this exception's commit requires a
 maintainer decision.
+
+## 2026-11-19: Archive substitution for superseded execution refs
+
+Decision: the maintainer authorized substituting annotated archive tags for
+the observation and first two strict execution branches, preserving their
+exact source snapshots. Verify remote tag objects, peeled targets and
+effective protection against updates/deletion before deleting unchanged
+branches. The final local execution head is reachable from main and its
+redundant branch may be removed after checking unchanged head and inactive
+work. The [retention ledger](../assessments/validation-ref-retention.md) holds
+the exact sources and mappings. Preserve earlier text, published commits,
+authorship, counters and separately retained primary evidence; archive tags
+do not extend CI retention.
