@@ -4,17 +4,22 @@ For first installation or an approved upgrade, start with the maintained
 [first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
 It covers a reader-owned private Cloud skill-plugin copy and local Codex setup
 using the existing released helpers. This page supplies detailed host-binding
-rules and locally generated artifact setup. The RC1 archives retain their
+rules and locally generated artifact setup. The released archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
 RC2-or-later notifier and the initial approved upgrade needed by RC1 installations.
-The current source candidate is `0.2.0-rc.4`; acquire it only after its actual
-publication and verification. Existing released archives retain their own guides.
+RC4 acquisition still requires actual publication and digest verification.
+Maintained source documentation includes later setup clarifications; published
+RC4 archives and already installed skills retain their original verified bytes.
 
-The candidate requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
+The tooling requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
 Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,
-GPRbuild and the pinned Ada Language Server. macOS, native client registration
-and other client applications remain in development until their own tests pass.
+GPRbuild and the pinned Ada Language Server. Supplied RC4 evidence covers bounded
+macOS 26.5.1 arm64/Codex Desktop 26.1111.21308 use, including user-wide installation,
+native queries, a managed worktree and default GHCR acquisition. Skill discovery
+is reported; the bundle lacks a fresh-session discovered-skill inventory. See
+[support.md](support.md) for the exact scope and limits. Other clients and
+native-host ALS remain in development.
 
 The [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
 provides verified public assets and version-specific artifact metadata.
@@ -70,7 +75,7 @@ python3 /absolute/runtime/scripts/ada_mcp_setup.py bootstrap \
 ```
 
 The generated runtime manifest supplies the immutable config digest and the image
-archive's exact versioned URL, byte size and SHA256. Unreleased tooling defaults
+archive's exact versioned URL, byte size and SHA256. RC4 tooling defaults
 to pulling `ghcr.io/abuild-project/ada-mcp-server:v<project-version>` when the
 locked local target is absent. The version tag only locates the bytes: before
 execution, setup verifies their canonical config digest, platform, source and
@@ -153,8 +158,16 @@ policy, not an inventory of currently active files. Broad ancestors such as
 physical directories such as `/opt/my-project`, `/usr/local/src` and
 `/opt/ada-mcp-extra` remain eligible; ordinary project paths are not globally
 excluded merely for being below `/opt` or `/usr`.
-Include dependency roots and parents for future worktrees. Additional roots
-outside those parents need a new binding/server restart. Paths with spaces and
+Choose user-approved development workspace parents plus actual client worktree
+parents once. A parent's approval grants all descendants read-only access,
+including future checkouts; do not enumerate each repository or discover/mount
+arbitrary extra roots. Inspect `git worktree list --porcelain` for intended
+repositories and the client's actual worktree location/settings. Codex commonly
+uses `~/.codex/worktrees`, outside the development workspace; custom client
+homes/locations must be resolved without changing HOME/CODEX_HOME. Include
+external dependency roots only when outside the approved parents. Additional
+roots outside those parents need a new binding, a new native fragment and an
+explicit backed-up switch/reconnect. Paths with spaces and
 Unicode are supported; comma, double quote, newline and path aliases are refused.
 UID/GID default to the caller and must be nonzero. Private HOME follows the
 selected identity. `--uid 501 --gid 20` is a Linux numeric-identity test, not a
@@ -246,9 +259,21 @@ unit controls on Linux do not establish actual macOS runtime acceptance.
 
 ## Native clients and discovery
 
+For one local Codex installation across repositories and worktrees, default
+skill discovery to `~/.agents/skills/ada-development` and native registration
+to the actual user config, normally `~/.codex/config.toml`. Repository scope is
+an explicit alternative. Keep the persistent runtime/selection outside source
+checkouts; use the same default selection locator or retain an explicit custom
+one. Sharing the runtime and filesystem roots does not pin a project globally:
+select the actual GPR/search-path/scenario view in each connection.
+
 `native-config --binding FILE --output NEW.toml` creates a separate UTF-8 TOML
-fragment. Review and merge it explicitly using the native client's supported
-configuration, then reconnect. Generation is not registration or lifecycle
+fragment. Back up existing configuration and explicitly merge only the agreed
+Ada entry using the native client's supported flow, preserving unrelated entries.
+Never replace a whole user config with the fragment. Reconnect afterward; for
+Codex Desktop, fully quit/reopen and verify new and resumed chats, user-wide
+discovery, actual MCP version and real queries in a regular checkout and a
+managed worktree. Generation is not registration or lifecycle
 proof. The fragment exposes read tools; write rename/format/build are excluded.
 The command client allows rename only as explicit preview. Availability is not
 a support promise for every tool; see [support.md](support.md), included and
@@ -257,7 +282,11 @@ hash-verified beside this setup guide in the standalone bundle.
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery
 root. Storage stays outside that root to avoid duplicate discovery. Existing
-entries are preserved. This proves only the actually tested local scope.
+entries are preserved. Use `--destination "$HOME/.agents/skills/ada-development"`
+for user scope; an occupied destination needs an explicit guarded entry switch
+as described in [updating.md](updating.md).
+Inspect conflicting repository-local entries before migration and preserve them
+unless their backed-up removal/switch is explicitly approved.
 Installing a skill does not register native tools in the current managed Cloud
 catalog. A reader's account/session still needs its own plugin-import,
 discovery, acquisition and runtime checks; public bytes alone do not prove them.

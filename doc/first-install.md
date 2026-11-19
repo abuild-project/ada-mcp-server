@@ -7,39 +7,63 @@ self-operated service. GitHub Releases supplies the artifacts.
 
 Choose one entry path:
 
-- **Direct MCP:** [acquire the released tooling](#acquire-the-tooling-for-direct-mcp-or-local-codex),
+- **Direct MCP:** [install the current release](#install-or-upgrade-to-rc4),
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
 - **Optional Managed Cloud skill:** use the copyable prompt below with an available Plugin
   Creator to save your own private copy of the skill plugin, then acquire and
   run its pinned tooling in a suitable environment.
-- **Optional local Codex skill:** after acquiring the same tooling, install its
-  skill in an explicit project scope. This path does not need Plugin Creator.
+- **Local Codex:** use the same current-release flow, then install the skill
+  once at `~/.agents/skills/ada-development` and optionally register native MCP
+  in `~/.codex/config.toml`. This user-wide setup serves multiple repositories
+  and worktrees. Repository-local discovery remains an explicit alternative.
+  This path does not need Plugin Creator.
 
-Native MCP integrations retain the client-specific development boundaries
-below. A skill installation does not register native MCP tools. Users of Ada
+See the [tested Mac/Codex scope](#native-clients-and-host-boundaries) below.
+A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
 ## Install or upgrade to RC4
 
-RC4 includes explicit project refresh, imported-source view retention and the
+Use RC4 for a new installation. It includes explicit project refresh,
+imported-source view retention and the
 [bounded fixes in its release notes](releases/0.2.0-rc.4.md). RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
 can keep using compatible exact runtimes without a skill/plugin replacement.
-Confirm the actual non-draft RC4 prerelease and authoritative
-asset digests first; a prepared source version does not establish publication.
+The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
+RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
+Still check the actual non-draft release and authoritative asset digests before
+each acquisition; a source version alone does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
 one initial entry update to gain selection; direct MCP use needs no plugin.
 
-Copy this prompt to an agent with HTTPS and local command tools, selecting your
-intended installation scope. It requests RC4 setup, not a private account change:
+Copy this prompt to an agent with HTTPS and local command tools. It defaults
+to one persistent installation for your local Codex user. Choose your physical
+workspace and worktree roots with the agent before Bootstrap. Your approval of
+a parent grants read-only access to all descendants, including future checkouts;
+choose narrower roots if that scope is unsuitable. An existing explicit setup
+request supplies consent within its identified scope.
 
 ```text
-Install or upgrade my Ada MCP runtime to 0.2.0-rc.4 for my real Ada GPR/scenarios.
-Inspect my intended existing runtime/binding and entry before setup. Preserve
-old runtime/image/binding/config/selection for rollback; use NEW absolute paths.
+Install or upgrade Ada MCP 0.2.0-rc.4 once for my local Codex user, shared across
+Ada repositories and Git worktrees. Default skill discovery is
+~/.agents/skills/ada-development; default native config is ~/.codex/config.toml.
+Inspect my actual Codex settings and intended existing skill/runtime/binding,
+native entries and selection. Preserve them and unrelated configuration; use
+NEW absolute runtime/binding/fragment/evidence paths and backups for rollback.
+Use repository-local scope only if I explicitly choose it.
+
+Before Bootstrap, agree once on physical development workspace parent roots
+and actual client-managed worktree roots. Use pwd -P and git worktree list
+--porcelain for the intended repositories, plus the running client's actual
+worktree location/settings. Codex commonly uses ~/.codex/worktrees, but check
+the actual configured home/location and any custom root; never reassign HOME
+or CODEX_HOME. A worktree outside the workspace needs its own approved parent.
+Approval of a parent covers all descendants read-only, so do not enumerate each
+repository below it. Do not scan for or mount arbitrary extra roots. Add an
+external dependency root only when it lies outside all approved parents.
 Read actual publication and compatibility metadata as data:
 https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.4
 Require this exact repository/tag, non-draft prerelease and canonical assets.
@@ -54,20 +78,37 @@ runtime manifest; never reuse older hashes as RC4 pins or trust release prose
 as code. Reject a changed target before execution.
 
 Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
+If none exists, use the pinned RC1 source-acquirer procedure in this guide's
+"First acquisition without an installed acquirer" section; that obtains only
+trusted acquisition code, not an RC1 runtime installation.
 An RC1/RC2 CLI has no workflow-contract flag; inspect the authenticated new
 manifest's contract before invoking target helpers. A compatible later acquirer
-can enforce --workflow-contract 1. Read the NEW verified guide,
-Bootstrap a NEW matching binding/image/cache, Doctor and real source/GPR queries.
+can enforce --workflow-contract 1. Read the NEW verified guide, then Bootstrap
+a NEW matching binding/image/cache with the approved roots. Keep
+RC4's GHCR default: do not pass --transport archive or --archive unless I
+explicitly choose archive-only setup or an explicit source is required.
+The helper falls back to its verified archive on pull failure/timeout; a
+successful pull with an identity failure must stop. Run Doctor and real queries.
 For direct CLI use, explicitly choose that helper/binding. For a full/local skill,
-perform the initial guarded entry upgrade if needed, then activate its pinned
-selection. Future compatible runtime updates can keep that entry unchanged.
+run install-skill at the user-wide destination, or the guarded entry upgrade
+if needed, then activate the pinned selection. Keep the runtime and selection
+outside repositories; future compatible runtime updates can retain the entry.
 
-Choose the selection locator explicitly. The default is rediscoverable only
-where its files persist. Custom --file paths must be supplied again or explicitly
-retained through a supported host setting; activation does not save a pointer.
+Use the persistent default ~/.config/ada-mcp/selection.json unless I explicitly
+choose a custom locator. It is rediscoverable only where its files persist.
+Custom --file paths must be supplied again or explicitly retained through a
+supported host setting; activation does not save a pointer.
 If unavailable, report session-only use and the one necessary next-session step.
-For native clients use a new matching fragment, explicit supported merge and
-reconnect; verify actual server version and real queries after activation.
+For native Codex generate a NEW matching fragment. Back up the existing config
+and explicitly merge only the agreed Ada entry through supported configuration,
+preserving other entries; never replace the whole config with the fragment.
+Do not remove old repository-local entries or links without scoped consent.
+Use the client's supported reconnect flow; for Desktop fully quit and reopen
+the app, then verify a new chat and a resumed chat. Confirm user-wide skill
+discovery, actual MCP server version and source-bound queries in a regular
+checkout and an actual Codex-managed worktree after activation.
+Select each connection's actual GPR, ordered dependency paths and scenarios;
+never put one globally pinned GPR/project into the shared installation.
 Do not claim completion from downloads, staging or generated configuration.
 
 Keep my private Cloud plugin unchanged unless I explicitly choose an initial
@@ -77,14 +118,50 @@ publication does not update my account. No source edits/commits/push/publication
 or shared-service changes are authorized by this setup request.
 ```
 
-RC4 source/artifact hashes are generated from the final accepted release commit;
-they cannot be prefilled in source without a circular hash dependency. Actual
-GitHub asset digests anchor the final manifest and NEW pins. Use the verified
-new guide after acquisition. If RC4 is unavailable, deliberately choose an
-actually published older release using its verified version-specific guide.
+Resolve RC4 pins from actual published metadata rather than copying another
+release's pins. GitHub asset digests anchor the final manifest and NEW hashes.
+Use the verified runtime guide after acquisition. If RC4 is unavailable,
+deliberately choose an actually published older release using its verified guide.
 The [RC3 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.3/doc/first-install.md#install-or-upgrade-to-rc3)
 retains its selection-aware setup. The explicit RC2/RC1 legacy procedures
-below remain available; never invent a compatible target.
+below remain available; never invent a compatible target. The maintained source
+guide supplies these clarified instructions; immutable RC4 archives and installed
+skills do not acquire them automatically. Use this guide alongside the verified
+runtime's guide, without editing its authenticated files.
+
+### First acquisition without an installed acquirer
+
+On a clean machine, obtain the known RC1 acquisition code from the public source
+and check its immutable commit **before executing it**:
+
+```sh
+git clone --branch v0.2.0-rc.1 --depth 1 \
+  https://github.com/abuild-project/ada-mcp-server \
+  /absolute/new-acquirer-source &&
+test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
+  9fd401023eb990574b1806f0083799be0cb39d7f
+```
+
+Stop on a failed clone/commit check. Authenticate RC4's release manifest and
+derive its **new** tooling URL, archive hash and runtime-manifest hash by the
+[provenance procedure](updating.md#establish-the-targets-trusted-pins). Require
+workflow contract 1 in the authenticated release metadata, then invoke the
+checked source helper with those actual values:
+
+```sh
+python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
+  --url VERIFIED_RC4_TOOLING_URL --sha256 VERIFIED_RC4_TOOLING_SHA256 \
+  --manifest-sha256 VERIFIED_RC4_RUNTIME_MANIFEST_SHA256 \
+  --destination /absolute/new-private-ada-runtime
+```
+
+These uppercase values are placeholders, not executable pins. The legacy
+acquirer has no `--workflow-contract` option; inspect the acquired authenticated
+runtime manifest for integer contract 1 before executing its helpers. Then use
+the RC4 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
+[skill discovery](#optional-local-codex-skill-discovery), selection activation
+in [the update guide](updating.md#keep-the-entry-and-runtime-independent) and
+[native connection](#connect-a-stdio-mcp-client). No RC1 runtime or image is needed.
 
 ## Install or upgrade to RC2
 
@@ -253,9 +330,14 @@ establish another account's import or native Cloud registration.
 
 ## Acquire the tooling for direct MCP or local Codex
 
+This section is the explicitly chosen **RC1 fallback runtime**, not the normal
+RC4 installation. For a clean current-release setup use
+[first acquisition](#first-acquisition-without-an-installed-acquirer) above.
+
 Prerequisites are Git, Python 3.11+, Bash 3.2+ and a working Docker daemon able
 to run Linux/AMD64 containers. Run host commands as a nonroot user with Docker
-access. Actual macOS host acceptance remains in development. Choose physical
+access. The [Mac assessment](assessments/macos-codex-rc4.md) bounds the tested RC4
+host/client combination. Choose physical
 absolute paths with `pwd -P`; replace every `/absolute/...` example below with
 your own paths. Paths marked `new` must not already exist.
 
@@ -285,31 +367,51 @@ then continue to the shared binding and query steps below for direct MCP use.
 ## Optional local Codex skill discovery
 
 For skill-assisted use, also read the verified runtime's `SKILL.md`.
-Use its existing helper to publish a new skill link
-in the actual Codex project's supported `.agents/skills` discovery directory:
+Use its existing helper to publish one new skill link in Codex's user-wide
+discovery directory, shared across repositories and worktrees:
 
 ```sh
 python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py install-skill \
-  --destination /absolute/ada-workspaces/project/.agents/skills/ada-development
+  --destination "$HOME/.agents/skills/ada-development"
 ```
 
 The helper verifies and copies the skill into separate storage, prepares only
 the launcher's user execute bit, and creates a no-replace symlink at that
-destination. It preserves existing entries. Start a new Codex session in that
-project and confirm discovery of `ada-development` from that path; invoke
+destination. It preserves existing entries. If that destination exists, inspect
+it and use the [guarded entry-switch procedure](updating.md#switch-a-local-skill-without-losing-its-old-target)
+only when an entry update is needed; do not delete or overwrite it. Start a new
+Codex session and confirm discovery of `ada-development` from that path; invoke
 `$ada-development` when needed. Follow your Codex version's supported discovery
 and session flow. Installing files alone does not prove discovery in a running
 session or register native MCP tools.
 
-The runtime and host binding below can serve several repositories. To expose
-the skill in another project, choose that project's own new discovery path.
-This procedure does not edit global client configuration or change `HOME`,
-`CODEX_HOME` or the Docker daemon/context configuration.
+Repository-local scope is an explicit alternative: use
+`/absolute/ada-workspaces/project/.agents/skills/ada-development` as the
+destination. Inspect existing local entries when migrating to user scope and
+remove or switch them only with consent and a backup to avoid duplicate or
+stale discovery. Keep the persistent runtime and selection outside repositories.
+Skill installation does not edit native client configuration or change `HOME`,
+`CODEX_HOME` or Docker selection.
 
 ## Shared Docker binding and first queries
 
-Select a physical parent that contains your actual projects, dependency roots
-and future worktrees. Add another `--root` for dependencies outside that parent.
+Choose your physical development workspace parent roots once, plus the actual
+client-managed worktree parents outside them. Check intended repositories with
+`git worktree list --porcelain` and resolve directories with `pwd -P`. Git's list
+shows existing worktrees for that repository; also inspect the running client's
+actual worktree location/settings for future managed worktrees. Codex's usual
+`~/.codex/worktrees` may be outside your development workspace. Resolve its
+actual physical path, including a custom `CODEX_HOME` or client worktree root;
+do not change those settings to fit an example. If no managed worktree exists,
+use the client's supported flow to establish its location before claiming that
+route is covered.
+
+User approval of a parent grants access to all its descendants, including
+future repositories and worktrees below it. Do not enumerate every descendant
+as a separate root, scan unrelated directories or mount an entire home by
+default. Add another approved `--root` only for needed sources/dependencies or
+worktrees outside the selected parents. The example assumes two distinct
+approved parents; replace or omit the second according to your actual layout.
 Roots are mounted read-only at the same absolute paths. The image runtime uses
 your nonzero numeric identity, private HOME, no network and dropped capabilities.
 See [host setup](setup.md) for reserved paths, permissions and timeout details.
@@ -318,6 +420,7 @@ See [host setup](setup.md) for reserved paths, permissions and timeout details.
 python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py bootstrap \
   --binding /absolute/new-ada-binding.json \
   --root /absolute/ada-workspaces \
+  --root /absolute/client-worktrees \
   --image-cache /absolute/new-private-image-cache \
   --output /absolute/new-bootstrap-evidence
 python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
@@ -327,7 +430,7 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
 
 Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
-be new. Unreleased tooling tries GHCR first and uses the hash-locked image
+be new. RC4 tooling tries GHCR first and uses the hash-locked image
 archive only if the pull fails or times out. `--image-cache` sets that fallback
 cache; omitting it uses the platform's user cache directory described in the
 [host guide](setup.md#create-one-explicit-host-binding). Add `--transport archive`
@@ -343,6 +446,10 @@ In a managed environment, use the actual supported daemon endpoint if its
 default is unavailable; do not guess or globally change Docker configuration.
 Existing bindings are immutable. Restore their recorded image with Bootstrap
 and no overrides, or choose a new binding when changing roots or host selection.
+For a changed root set, generate a new matching native fragment and explicitly
+switch selection/configuration with backups, then reconnect. A shared binding
+grants filesystem access; it does not choose a global GPR. Every connection
+selects its own GPR, ordered dependency search paths and scenario values.
 
 Create a JSON batch, for example `/absolute/private/first-queries.json`, with
 paths from your actual selected view. Keep any required generated GPR inputs
@@ -395,13 +502,26 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py native-config
 
 The fragment contains the stdio launcher command and arguments derived from
 that binding, plus a read-tool policy. It uses Codex-style `[mcp_servers.ada]`
-TOML. Review the fields supported by your installed Codex version, explicitly
-merge them through its supported configuration and reconnect. The helper
-creates only a new fragment; it does not install or activate native tools.
+TOML. For user scope, review and explicitly merge the Ada entry into the actual
+Codex user configuration (normally `~/.codex/config.toml`) through your version's
+supported configuration flow. Back up the existing file first, retain unrelated
+settings and resolve any existing Ada entry explicitly. Do not copy the fragment
+over the entire configuration. Repository-local configuration is an explicit
+alternative. The helper creates only a new fragment; it does not activate tools.
+
+Use the client's supported reconnect flow after activation. For Codex Desktop,
+fully quit and reopen the app, then check a new chat and a resumed chat; do not
+assume a particular Restart menu exists. In both, confirm skill discovery from
+the chosen user scope and the actual native server version (`0.2.0rc4` for RC4).
+Run project selection, a known symbol search and source-bound navigation in a
+regular checkout and an actual managed worktree. Worktree queries must use that
+worktree's GPR/source paths and its dependency/scenario context. A result pointing
+at the main checkout is not worktree acceptance. Check lifecycle/cleanup through
+the available client evidence and Doctor; report what remains unverified.
 
 For another client, follow its own supported local stdio configuration using
 the reviewed launcher command/arguments. This TOML is not Claude or OpenCode
-configuration. Native registration and runtime behavior remain in development;
+configuration. Other native clients remain in development;
 verify actual discovery, GPR-bound queries and disconnect/EOF cleanup in each
 client. The query helper above is available independently of native integration.
 
@@ -409,9 +529,9 @@ client. The query helper above is available independently of native integration.
 
 | Client or host | First-install guidance | Acceptance boundary |
 | --- | --- | --- |
-| Local Codex skill | Use project-scoped `install-skill` above and confirm discovery in a new session. The skill invokes the command-line query helper. | Skill discovery does not register native MCP tools. |
-| Codex native MCP | `native-config --binding FILE --output NEW.toml` produces a separate Codex-style `[mcp_servers.ada]` TOML fragment. Review fields supported by your installed version, explicitly merge it through the client's supported configuration and reconnect. | Development only; generation is not registration, query or lifecycle proof for CLI/Desktop. |
-| macOS host | Check actual Python/Bash availability, Linux/AMD64 emulation, Docker Desktop/Colima sharing of every physical root, numeric permissions and GUI PATH. | Development only; Linux UID/GID `501:20` evidence does not establish Mac behavior. |
+| Local Codex skill | Install once in `~/.agents/skills/ada-development`; verify discovery after reopening. Repository scope is optional. | Supplied RC4 records retain user-wide installation and report discovery with Spawn; a fresh-session skill inventory is not bundled. Discovery alone does not register native tools. |
+| Codex native MCP | Generate a new fragment, back up and explicitly merge into the user config, then fully quit/reopen Desktop and check new/resumed chats. | Bounded RC4 evidence on Desktop 26.1111.21308 build 27194 covers Spawn main and a managed worktree with external Anet. Other versions/CLI need their own checks. |
+| macOS host | Check Python/Bash, Linux/AMD64 emulation, Docker sharing of every physical root, permissions and GUI PATH. | Supplied macOS 26.5.1 (25F80) arm64 evidence covers Docker Desktop's tested setup, two read-only parents and GHCR default acquisition. Other Mac/Docker setups need checks. |
 | Claude native MCP | Follow that Claude client's own supported local stdio registration/configuration. Use the reviewed binding's launcher command/arguments only where that client supports them; the generated TOML is not a Claude configuration. | Development only; no Claude registration command or native lifecycle acceptance is provided. |
 | OpenCode native MCP | Follow the installed OpenCode version's supported MCP configuration and process lifecycle. Adapt the reviewed launcher command/arguments to that format explicitly; the generated TOML is not an OpenCode configuration. | Development only; no OpenCode registration command or native lifecycle acceptance is provided. |
 
@@ -419,7 +539,11 @@ For every native client, enumerate its actual tools, select the real GPR view,
 run source-bound queries and verify disconnect/EOF cleanup in that client.
 The public plugin cannot add native server configuration that it does not
 contain. The server's 19 advertised tools do not promise support for every tool;
-the distribution's read-only policy and [support matrix](support.md) still apply.
+the distribution's 16-tool native read policy and [support matrix](support.md)
+still apply. The [assessment](assessments/macos-codex-rc4.md) distinguishes the
+project-local Arca run from user-wide Spawn runs and records the evidence limits.
+It establishes neither all-tool functionality nor concurrent different-branch
+queries. Native-host ALS and fresh Cloud registration remain in development.
 
 RC1 installations remain pinned to these bytes; there is no automatic updater.
 Evaluate a future release deliberately with its own trusted hashes and new

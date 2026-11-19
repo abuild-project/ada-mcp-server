@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Clarify once-per-user Codex installation across Ada repositories and worktrees,
+  including actual client-managed worktree roots, explicit configuration merges
+  and RC4's GHCR default. Record bounded macOS/Codex Desktop RC4 acceptance;
+  published archives and already installed skills remain unchanged.
+
 ## 0.2.0-rc.4 — pilot prerelease
 
 - Retain explicitly selected GPR views for queries anchored to imported source
