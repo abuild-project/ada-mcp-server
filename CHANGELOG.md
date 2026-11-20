@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Reject unknown tool names before starting Ada Language Server.
 - Clarify once-per-user Codex installation across Ada repositories and worktrees,
   including actual client-managed worktree roots, explicit configuration merges
   and RC4's GHCR default. Record bounded macOS/Codex Desktop RC4 acceptance;

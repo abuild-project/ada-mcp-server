@@ -963,6 +963,21 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         )
     logger.debug(f"Tool called: {name} with args: {logged_arguments}")
 
+    if name not in {tool.name for tool in await list_tools()}:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": f"Unknown tool: {name}",
+                        "context": {"tool": name},
+                        "available_tools": "Use list_tools to see available tools",
+                    },
+                    indent=2,
+                ),
+            )
+        ]
+
     refresh = arguments.get("refresh", False) if name == "ada_project_info" else False
     if type(refresh) is not bool:
         return [
