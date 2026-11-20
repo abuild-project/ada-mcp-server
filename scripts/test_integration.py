@@ -342,20 +342,13 @@ async def run_integration_tests() -> bool:
 
         # Test document_symbols
         print("\n[7] Testing ada_document_symbols...")
-        response = await client.send_request(
-            "tools/call",
+        result = await call_tool(
+            client,
+            "ada_document_symbols",
             {
-                "name": "ada_document_symbols",
-                "arguments": {"file": str(test_file), "unused_contract_probe": True},
+                "file": str(test_file),
             },
         )
-        envelope = response.get("result", {})
-        test_result(
-            "Extra tool property reaches real handler",
-            "error" not in response and envelope.get("isError", False) is False,
-            json.dumps(response),
-        )
-        result = json.loads(envelope.get("content", [{}])[0].get("text", "{}"))
 
         if "error" not in result:
             symbols = result.get("symbols", [])
@@ -364,6 +357,25 @@ async def run_integration_tests() -> bool:
                 print(f"        - {sym.get('name')} ({sym.get('kind')})")
         else:
             test_result("ada_document_symbols", False, str(result.get("error")))
+
+        print("\n[7a] Allowing an extra tool property...")
+        response = await client.send_request(
+            "tools/call",
+            {
+                "name": "ada_document_symbols",
+                "arguments": {"file": str(test_file), "unused_contract_probe": True},
+            },
+        )
+        envelope = response.get("result", {})
+        extra_result = json.loads(envelope.get("content", [{}])[0].get("text", "{}"))
+        test_result(
+            "Extra tool property returns real document symbols",
+            "error" not in response
+            and envelope.get("isError", False) is False
+            and "error" not in extra_result
+            and bool(extra_result.get("symbols")),
+            json.dumps(response),
+        )
 
         # Test workspace_symbols
         print("\n[8] Testing ada_workspace_symbols...")

@@ -13,15 +13,15 @@ and nested project-path and scenario-value types. Each requires exactly
 one text input-validation error, an untouched ALS startup sentinel, a
 subsequent reply from the same server process and protocol-only stdout.
 Four controls preserve valid input, allowed extra properties, explicit
-false refresh and the existing unknown-tool server error. The handler's
-own refresh Boolean guard remains unchanged and is currently shadowed by
-SDK validation.
+false refresh and the existing unknown-tool server error. Unknown-tool
+errors do not constrain ALS startup. The handler's own refresh Boolean
+guard remains unchanged and is currently shadowed by SDK validation.
 
 The existing real-ALS integration probe adds one raw rejected reference
-call with unchanged known Ada/GPR input hashes and a normal
-extra-property document-symbol result. Development guidance requires SDK
-2 to reproduce server validation or document a deliberate contract
-decision.
+call with unchanged known Ada/GPR input hashes and a separate normal
+extra-property document-symbol result, retaining the ordinary call.
+Development guidance requires SDK 2 to reproduce server validation or
+document a deliberate contract decision.
 
 The sensitivity experiment disables only decorator validation in an
 independent owned source copy: the contract must fail, then pass with

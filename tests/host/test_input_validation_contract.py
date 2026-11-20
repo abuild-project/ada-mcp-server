@@ -131,6 +131,7 @@ def test_non_validation_controls_reach_existing_server_error(server, case):
     payload = json.loads(content["text"])
     assert payload["error"]
     assert payload["context"]["tool"] == tool
-    assert marker.read_text() == "started\n"
+    if case != "unknown-tool":
+        assert marker.read_text() == "started\n"
     assert session.process.poll() is None
     assert session.request("tools/list", {}) == catalog

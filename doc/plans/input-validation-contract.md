@@ -33,3 +33,11 @@ independent review before the normal prepared-PR handoff. Only the
 assigned developer edits the candidate; local and PR correction counters
 start at zero for this new topic. No external push, PR, merge, tag,
 release or publication is authorized.
+
+## 2026-11-20: Bound positive controls
+
+Decision: preserve the unknown-tool JSON server error, tool context and
+process liveness without requiring ALS startup for an unknown name.
+The three known-tool positive controls still require sentinel startup.
+Retain the ordinary document-symbol integration call and check the
+allowed extra property in a separate raw request with actual symbols.
