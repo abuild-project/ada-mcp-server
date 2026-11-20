@@ -94,20 +94,12 @@ installed-version evidence requirement.
   texts.
 - Post each head's validation as a new short comment; never rewrite
   an earlier validation comment.
-- After merge, consider temporary validation-ref cleanup only within the
-  maintainer's authorized scope. Preserve active work and open-PR refs. An
-  unchanged source head reachable from main may lose its redundant temporary
-  branch. For a superseded snapshot, first create an annotated
-  `archive/<original-branch>` tag at its exact source SHA, recording the original
-  branch, SHA and reason. Verify the remote tag object/peeled target and effective
-  archive-namespace protection against updates/deletion before guarded deletion
-  of the unchanged branch. Stop on changed heads, active work, conflicting tags
-  or failed preservation/protection. Never move or overwrite archive tags.
-  Retain required CI logs/artifacts separately: tags preserve Git history and do
-  not extend the workflow's 14-day artifact retention. Append dated substitutions
-  to earlier retention decisions without rewriting history or counters. Existing
-  scoped authorization remains valid; do not repeat approval requests for the
-  same authorized actions.
+- After merge, temporary validation-ref cleanup needs maintainer authorization
+  for that occasion's named refs and permitted actions; later cleanups need new
+  authorization. Preserve active work and open-PR refs, and never move or
+  overwrite archive tags. Follow the detailed
+  [cleanup safeguards](doc/development.md#validation-reference-retention).
+  Do not repeat approval requests for the same already-authorized operations.
 - Write records around the final problem, behavior, scope, validation at an
   identified revision and remaining limits. Size records to the change: a
   few-line fix needs about 100–250 words. For substantial changes, use

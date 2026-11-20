@@ -289,6 +289,30 @@ The CI harness intentionally overrides the image entrypoint and imports the
 committed check snapshot through its explicit PYTHONPATH; those source tests
 remain separate from the installed production server's imports.
 
+## Validation reference retention
+
+After merge, temporary validation-ref cleanup requires explicit maintainer
+authorization for each cleanup occasion's named refs and permitted actions.
+This guidance grants no standing authorization; later cleanups require new
+authorization. Do not repeat approval requests for the same operations already
+authorized within that scope. Preserve active work and open-PR refs.
+
+An unchanged source head reachable from main may lose its redundant temporary
+branch. For a superseded snapshot, first create an annotated
+`archive/<original-branch>` tag at its exact source SHA, recording the original
+branch, SHA and reason. Verify the remote tag object and peeled target and
+effective archive-namespace protection against updates/deletion before guarded
+deletion of the unchanged branch. Stop on changed heads, active work,
+conflicting tags or failed preservation/protection. Never move or overwrite
+archive tags.
+
+Retain required CI logs and artifacts separately: source tags preserve Git
+history and do not extend the workflow's fourteen-day artifact retention.
+Append dated substitutions to earlier retention decisions without rewriting
+history or counters. The
+[retention assessment](assessments/validation-ref-retention.md) identifies the
+specifically authorized source inventory and separately archived CI evidence.
+
 ## Release and hosted review
 
 Prepare coherent unpublished commits before the first submission. The PR

@@ -33,3 +33,18 @@ and support claims unchanged; no changelog entry is required. Use existing
 documentation/link/index and whitespace checks for the prose, followed by
 the established immutable-candidate tester and independent-reviewer workflow.
 The coordinator owns remote refs/settings and normal delivery handoff.
+
+## 2026-11-20: Authorization for each cleanup occasion
+
+Decision: cleanup authorization covers only the named refs and permitted
+actions for that specific cleanup occasion. Later cleanups require new
+maintainer authorization. The same already-authorized operations need no
+repeat request. This clarifies the earlier scope statements without extending
+their authorization to future cleanups.
+
+Decision: keep the core authorization, active-work and immutable-tag rules in
+AGENTS.md and move all detailed cleanup safeguards to the development guide.
+Record the published public CI-evidence archive and its immutable identity in
+the assessment, dating the protection/access observation and distinguishing
+connector-serialized logs from original validation ZIP bytes. Keep raw evidence
+outside main and leave workflow retention, runtime, tests and versions unchanged.

@@ -55,9 +55,10 @@ deletion or continuing server-side enforcement.
 
 The evidence capture at `2026-11-19T22:55:02Z` covers the thirteen exact source
 heads above. Exact-head Actions queries returned twenty-five successful CI
-runs and no failed CI runs. The retained handoff contains their twenty-five
-job logs and twenty-five original `validation-evidence` ZIPs, each checked
-against its provider SHA256 digest, with run/source metadata and member indices.
+runs and no failed CI runs. The collection contains twenty-five job logs as
+UTF-8 serializations of connector-decoded provider text and twenty-five original
+`validation-evidence` ZIPs. The ZIP bytes were checked against provider SHA256
+digests; run/source metadata and member indices are retained with them.
 Verification checked all 115 handoff files without extracting or executing
 downloaded code. Its inner manifest SHA256 is
 `39f991558ad707cf2d4854b127f65da4a655ff16875726572ba76e5b700f6ff9`.
@@ -67,12 +68,21 @@ downloaded code. Its inner manifest SHA256 is
 | 1 of 2 | 15115583 | `e8898b3949ff0626665d63063437a31d57fdbeb9f87d2b72457cccfac1663928` |
 | 2 of 2 | 13459445 | `d050fd456c74afaf37ee67d4fc8c9ff10d97f5110ee37641775a98eb712b090e` |
 
-This is a separately retained evidence handoff, not a published backup. Raw
-archives, logs and private host paths are omitted here. Release image archives
-were outside this bounded collection, as were failures at ancestor revisions
-or in local attempts. Original negative controls and native-blocker data remain
-inside the retained validation ZIPs; preservation does not change acceptance.
+The [public evidence archive](https://github.com/abuild-project/ada-mcp-server/tree/70d082155b88b9a9b2a372bfc7ff80e04c47eee7)
+is pinned by annotated tag `archive/ci-evidence/2026-11-19` to commit
+`70d082155b88b9a9b2a372bfc7ff80e04c47eee7`, with tag object
+`5a1bf350c91b70206d387cdf7a4ee71c0c4088cb`. Publication readback at
+`2026-11-20T05:33:04Z` verified anonymous access, matching published bytes and
+active archive-namespace protection against updates/deletion. This is a dated
+observation; server-side protection can change independently of source.
 
-Archive tags preserve reachable Git source history. The CI workflow's
-`validation-evidence` and `release-candidate` artifacts have fourteen-day
-retention; tags do not extend that period or preserve Actions logs.
+Raw archives and logs are stored in that separate archive commit, outside main;
+private host paths are omitted here. Release image archives were outside this
+bounded collection, as were failures at ancestor revisions or in local attempts.
+Original negative controls and native-blocker data remain inside the retained
+validation ZIPs; preservation does not change acceptance.
+
+The CI workflow's `validation-evidence` and `release-candidate` artifacts have
+fourteen-day retention. Creating a source archive tag does not extend that
+period or automatically preserve Actions logs; the separate evidence archive
+explicitly stores the selected bytes.
