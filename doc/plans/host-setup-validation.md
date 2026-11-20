@@ -75,3 +75,14 @@ private output cleanup, stdin/stdout and intentional off bypass. Check empty,
 malformed and older zero-exit counterexamples against the prior immutable
 implementation, retaining the real supported interpreter control. This is
 version-response validation, not executable authentication or interpreter search.
+
+## 2026-11-20: Validate the complete version response
+
+Require the complete private probe output to contain exactly one canonical
+numeric version and its terminating LF, with at most 64 version bytes plus LF.
+Compare the complete standard Unix byte count with the parsed line length so
+valid-prefix responses with trailing data cannot pass offline validation.
+Preserve successful exit, the Python 3.11 minimum, timeout/reaping/cleanup,
+advisory-only runtime fallback and intentional off bypass. Use only the small
+trailing-text and oversized-trailer counterexamples against the prior immutable
+implementation; no interpreter authentication or broader parser scope is added.

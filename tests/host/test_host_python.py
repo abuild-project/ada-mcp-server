@@ -146,6 +146,28 @@ def test_zero_exit_probe_requires_a_supported_reported_version(gui_launch, tmp_p
         assert "python_status=disabled" in disabled.stdout
 
 
+@pytest.mark.parametrize(
+    "trailer",
+    [
+        pytest.param("not-a-version", id="trailing-text"),
+        pytest.param("x" * 128, id="oversized-trailer"),
+    ],
+)
+def test_probe_requires_one_complete_bounded_version_line(gui_launch, tmp_path, trailer):
+    interpreter = tmp_path / "trailing-output-python"
+    interpreter.write_text(f"#!/bin/sh\nprintf '%s\\n' '3.11.0' '{trailer}'\nexit 0\n")
+    interpreter.chmod(0o755)
+    arguments = ["--python", str(interpreter), "--update-channel", "auto"]
+    checked = launch(gui_launch, [*arguments, "--check"])
+    assert checked.returncode == 2 and "Python 3.11+ required" in checked.stderr
+    assert "python_status=unavailable-or-unsupported" in checked.stdout
+    result = launch(gui_launch, arguments)
+    _, _, capture, marker = gui_launch
+    assert result.returncode == 0 and result.stdout == '{"jsonrpc":"2.0","id":1}\n'
+    assert "Python 3.11+ required" in result.stderr and len(result.stderr) < 256
+    assert notice(capture) == "" and not marker.exists()
+
+
 def test_deliberate_off_needs_no_advisory_python(gui_launch):
     result = launch(gui_launch, ["--python", "/missing/python", "--update-channel", "off"])
     _, _, capture, marker = gui_launch

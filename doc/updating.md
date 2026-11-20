@@ -239,8 +239,9 @@ and merge it into the intended Ada entry with a backup and reconnect.
 
 The new launcher's `--check` prints `update_channel`, selected `python`,
 `python_status` and version without running the checker or networking. With
-advisories enabled, probe success requires exit zero and a bounded numeric
-`X.Y.Z` response meeting Python 3.11. Missing, malformed or older replies make
+advisories enabled, probe success requires exit zero and exactly one numeric
+`X.Y.Z` line meeting Python 3.11: at most 64 ASCII version bytes plus its final
+LF, with no trailing output. Missing, malformed, oversized or older replies make
 the offline check fail. Ordinary MCP startup instead emits a bounded stderr
 diagnostic and continues. Checker process failure or oversized output also gets
 a bounded diagnostic. Protocol
