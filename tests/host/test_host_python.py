@@ -28,8 +28,10 @@ def gui_launch(tmp_path):
     docker = binary / "docker"
     docker.write_text(
         f"#!{sys.executable}\n"
-        "import json,os,sys\nfrom pathlib import Path\n"
+        "import json,os,sys,time\nfrom pathlib import Path\n"
         "if sys.argv[1:3] == ['image','inspect']:\n"
+        "    if 'Architecture' in sys.argv[4] and os.environ.get('TEST_PLATFORM_PHASE'):\n"
+        "        time.sleep((float(os.environ['TEST_PLATFORM_PHASE']) - time.time()) % 1)\n"
         "    print('linux/amd64' if 'Architecture' in sys.argv[4] else 'sha256:'+'a'*64)\n"
         "else:\n"
         f"    Path({str(capture)!r}).write_text(json.dumps(sys.argv[1:]))\n"
@@ -183,18 +185,24 @@ def test_deliberate_off_needs_no_advisory_python(gui_launch):
 def test_hanging_python_probe_is_killed_reaped_and_bounded(gui_launch, tmp_path, check):
     command, environment, capture, marker = gui_launch
     pid_file = tmp_path / "probe.pid"
+    heartbeats = tmp_path / "probe-heartbeats.txt"
     interpreter = tmp_path / "hanging-python"
     interpreter.write_text(
         f"#!{sys.executable}\n"
         "import os,signal,time\nfrom pathlib import Path\n"
         f"Path({str(pid_file)!r}).write_text(str(os.getpid()))\n"
         "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
-        "while True: time.sleep(60)\n"
+        f"with Path({str(heartbeats)!r}).open('w', buffering=1) as heartbeat:\n"
+        "    while True:\n"
+        "        print(time.monotonic(), file=heartbeat)\n"
+        "        time.sleep(0.01)\n"
     )
     interpreter.chmod(0o755)
     scratch = tmp_path / "private-probe-output"
     scratch.mkdir()
     environment["TMPDIR"] = str(scratch)
+    # Reach the probe partway through a wall-clock second, independent of launch phase.
+    environment["TEST_PLATFORM_PHASE"] = "0.45"
     arguments = ["--python", str(interpreter)] + (["--check"] if check else [])
     started = time.monotonic()
     process = subprocess.Popen(
@@ -219,6 +227,8 @@ def test_hanging_python_probe_is_killed_reaped_and_bounded(gui_launch, tmp_path,
             assert stdout == '{"jsonrpc":"2.0","id":1}\n' and notice(capture) == ""
         with pytest.raises(ProcessLookupError):
             os.kill(int(pid_file.read_text()), 0)
+        timestamps = [float(line) for line in heartbeats.read_text().splitlines()]
+        assert timestamps[-1] - timestamps[0] >= 1.9
         assert not marker.exists() and list(scratch.iterdir()) == []
     finally:
         if pid_file.exists():

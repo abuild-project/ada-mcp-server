@@ -15,6 +15,7 @@
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
 - [MCP input validation contract](input-validation-contract.md)
 - [Merge and validation history](merge-validation-policy.md)
+- [Minimum Python probe deadline](probe-deadline-minimum.md)
 - [Optional development dependency baseline](dev-dependency-baseline.md)
 - [Parameter selection result contract](parameter-selection-contract.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)
