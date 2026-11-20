@@ -12,6 +12,7 @@
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
 - [Imported-source project views](reference-project-view.md)
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
+- [MCP input validation contract](input-validation-contract.md)
 - [Merge and validation history](merge-validation-policy.md)
 - [Optional development dependency baseline](dev-dependency-baseline.md)
 - [Parameter selection result contract](parameter-selection-contract.md)
