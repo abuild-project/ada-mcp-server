@@ -199,6 +199,44 @@ async def run_integration_tests() -> bool:
         for tool in expected_tools:
             test_result(f"Tool '{tool}' registered", tool in tool_names)
 
+        print("\n[3a] Rejecting invalid input before ALS startup...")
+        known_inputs = (
+            sample_project / "sample.gpr",
+            test_file,
+            utils_file,
+            sample_project / "src" / "utils.adb",
+        )
+        before_validation = {
+            str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in known_inputs
+        }
+        try:
+            response = await client.send_request(
+                "tools/call",
+                {
+                    "name": "ada_find_references",
+                    "arguments": {"file": str(utils_file), "line": "5", "column": 13},
+                },
+            )
+            rejected = response.get("result", {})
+            content = rejected.get("content", [])
+            test_result(
+                "Invalid reference line returns MCP input-validation error",
+                rejected.get("isError") is True
+                and len(content) == 1
+                and content[0].get("type") == "text"
+                and content[0].get("text", "").startswith("Input validation error: ")
+                and ("line" in content[0]["text"] or "5" in content[0]["text"]),
+                json.dumps(response),
+            )
+        finally:
+            after_validation = {
+                str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in known_inputs
+            }
+            print(json.dumps({"input_validation_sha256": before_validation}))
+            test_result(
+                "Validation fixture inputs unchanged", before_validation == after_validation
+            )
+
         # Wait for ALS to initialize (first tool call starts ALS)
         print("\n[4] Testing ada_hover (this starts ALS, may take a moment)...")
         result = await call_tool(
@@ -224,14 +262,8 @@ async def run_integration_tests() -> bool:
 
         # Reject unsupported application on the existing initialized project.
         print("\n[4a] Rejecting unsupported rename application...")
-        rename_inputs = (
-            sample_project / "sample.gpr",
-            test_file,
-            utils_file,
-            sample_project / "src" / "utils.adb",
-        )
         before_rename = {
-            path: hashlib.sha256(path.read_bytes()).hexdigest() for path in rename_inputs
+            path: hashlib.sha256(path.read_bytes()).hexdigest() for path in known_inputs
         }
         try:
             result = await call_tool(
@@ -247,7 +279,7 @@ async def run_integration_tests() -> bool:
             )
         finally:
             after_rename = {
-                path: hashlib.sha256(path.read_bytes()).hexdigest() for path in rename_inputs
+                path: hashlib.sha256(path.read_bytes()).hexdigest() for path in known_inputs
             }
             test_result("Rename fixture inputs unchanged", before_rename == after_rename)
         test_result(
@@ -325,6 +357,25 @@ async def run_integration_tests() -> bool:
                 print(f"        - {sym.get('name')} ({sym.get('kind')})")
         else:
             test_result("ada_document_symbols", False, str(result.get("error")))
+
+        print("\n[7a] Allowing an extra tool property...")
+        response = await client.send_request(
+            "tools/call",
+            {
+                "name": "ada_document_symbols",
+                "arguments": {"file": str(test_file), "unused_contract_probe": True},
+            },
+        )
+        envelope = response.get("result", {})
+        extra_result = json.loads(envelope.get("content", [{}])[0].get("text", "{}"))
+        test_result(
+            "Extra tool property returns real document symbols",
+            "error" not in response
+            and envelope.get("isError", False) is False
+            and "error" not in extra_result
+            and bool(extra_result.get("symbols")),
+            json.dumps(response),
+        )
 
         # Test workspace_symbols
         print("\n[8] Testing ada_workspace_symbols...")

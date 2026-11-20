@@ -136,6 +136,14 @@ is an optional later performance assessment. The
 [RC4 release plan](plans/release-0.2.0-rc.4.md) schedules a separate clean local
 Mac Codex/Arca installation and native-tool acceptance after publication.
 
+The locked MCP SDK 1.30 validates advertised tool input schemas before server
+dispatch. `tests/host/test_input_validation_contract.py` checks that boundary
+through actual stdio with an ALS startup sentinel; `scripts/test_integration.py`
+adds a rejected call and an allowed extra-property call against real ALS.
+The handler's strict refresh Boolean guard is currently shadowed by SDK
+validation on stdio. An SDK 2 migration must reproduce server-side validation
+or document a deliberate contract decision before changing this behavior.
+
 Three pinned-ALS positional signature cases remain unaccepted. The default
 control fails their incorrect active indices. CI explicitly assesses only
 the three evidenced cases, requiring the unchanged native request/cursor,
