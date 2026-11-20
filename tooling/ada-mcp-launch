@@ -34,6 +34,33 @@ require_value() {
     fi
 }
 
+probe_python() (
+    # Keep the deadline independent of Python startup and wrapper behavior.
+    probe_output="$(mktemp "${TMPDIR:-/tmp}/ada-mcp-python.XXXXXXXX" 2>/dev/null)" || exit 1
+    trap 'rm -f -- "$probe_output" 2>/dev/null' EXIT
+    "$advisory_python" -I -c \
+        'import sys; print(".".join(map(str, sys.version_info[:3]))); sys.exit(sys.version_info < (3, 11))' \
+        </dev/null >"$probe_output" 2>/dev/null &
+    probe_pid=$!
+    deadline=$((SECONDS + 2))
+    while kill -0 "$probe_pid" 2>/dev/null; do
+        if [[ "$SECONDS" -ge "$deadline" ]]; then
+            kill -KILL "$probe_pid" 2>/dev/null || :
+            wait "$probe_pid" 2>/dev/null || :
+            exit 124
+        fi
+        # Each foreground sleep is reaped; no background watchdog survives.
+        sleep 0.1
+    done
+    probe_status=0
+    wait "$probe_pid" 2>/dev/null || probe_status=$?
+    [[ "$probe_status" -eq 0 ]] || exit 1
+    version=''
+    IFS= read -r version <"$probe_output" || :
+    printf '%.64s' "$version"
+    exit 0
+)
+
 image=''
 docker_host=''
 docker_context=''
@@ -42,6 +69,7 @@ runtime_gid="$(id -g)"
 container_name=''
 check_only=false
 update_channel="${ADA_MCP_UPDATE_CHANNEL:-auto}"
+update_channel_explicit=false
 update_cache="${ADA_MCP_UPDATE_CACHE:-}"
 advisory_python=''
 roots=()
@@ -127,6 +155,7 @@ while [[ $# -gt 0 ]]; do
         --update-channel)
             require_value "$@"
             update_channel="$2"
+            update_channel_explicit=true
             shift 2
             ;;
         --update-cache)
@@ -149,6 +178,17 @@ while [[ $# -gt 0 ]]; do
         *) fail "unknown argument: $1" ;;
     esac
 done
+
+case "$update_channel" in
+    auto|stable|prerelease|off) ;;
+    *)
+        if [[ "$check_only" == true || "$update_channel_explicit" == true ]]; then
+            fail 'invalid update channel; use auto, stable, prerelease or off'
+        fi
+        printf '%s\n' 'ada-mcp-launch: Invalid inherited update channel; advisory disabled. Use auto, stable, prerelease or off. MCP remains usable.' >&2
+        update_channel=off
+        ;;
+esac
 
 [[ -n "$image" ]] || fail '--image is required'
 [[ ${#roots[@]} -gt 0 ]] || fail 'at least one --root is required'
@@ -192,12 +232,15 @@ fi
 case "$update_channel" in
     auto|stable|prerelease)
         python_status=unavailable-or-unsupported
-        if [[ -n "$advisory_python" ]] && python_version="$("$advisory_python" -I -c \
-            'import sys; print(".".join(map(str, sys.version_info[:3]))); sys.exit(sys.version_info < (3, 11))' \
-            </dev/null 2>/dev/null)"; then
+        if [[ -n "$advisory_python" ]] && python_version="$(probe_python)"; then
             python_status=supported
         else
-            printf '%s\n' 'ada-mcp-launch: Update advisory unavailable: host Python 3.11+ required; review --python or python3 on PATH. MCP remains usable.' >&2
+            if [[ $? -eq 124 ]]; then
+                python_status=timed-out
+                printf '%s\n' 'ada-mcp-launch: Update advisory unavailable: host Python probe exceeded its two-second deadline. Review --python; MCP remains usable.' >&2
+            else
+                printf '%s\n' 'ada-mcp-launch: Update advisory unavailable: host Python 3.11+ required; review --python or python3 on PATH. MCP remains usable.' >&2
+            fi
         fi
         if [[ "$check_only" == false && "$python_status" == supported ]]; then
             script_root="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)" || script_root=''
@@ -212,7 +255,6 @@ case "$update_channel" in
         fi
         ;;
     off) ;;
-    *) fail 'invalid update channel; use auto, stable, prerelease or off' ;;
 esac
 
 if [[ "$check_only" == true ]]; then
@@ -220,7 +262,7 @@ if [[ "$check_only" == true ]]; then
         "$resolved_image" "$platform" "$runtime_uid" "$runtime_gid" "${#roots[@]}"
     printf 'update_channel=%s\npython=%s\npython_status=%s\npython_version=%.64s\n' \
         "$update_channel" "$advisory_python" "$python_status" "$python_version"
-    [[ "$python_status" != unavailable-or-unsupported ]] || exit 2
+    [[ "$python_status" == supported || "$python_status" == disabled ]] || exit 2
     exit 0
 fi
 

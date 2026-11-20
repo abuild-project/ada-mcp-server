@@ -18,6 +18,12 @@ Missing/unsupported advisory Python, checker process failure and oversized
 output receive bounded stderr diagnostics while normal MCP startup preserves
 protocol stdout, stdin and its fail-open behavior. Ordinary offline or empty
 snapshot outcomes retain their existing best-effort semantics.
+The version probe has an independent two-second host deadline, kills/reaps a
+timed-out selected process and removes its private output without a surviving
+timer. This covers that probe only, preserving the existing checker network
+budget and making no general process-tree guarantee. Invalid inherited channels
+warn once and disable advisories during normal launcher/query use; generation,
+Doctor and `--check` remain strict.
 
 Offline launcher `--check` and Doctor validate the intended interpreter for an
 enabled advisory. Doctor reports its intended launch check separately from its
@@ -38,7 +44,9 @@ correction route and cannot accept the unreleased `--python` option.
 The topic is based on `d723cd23261e0973a8e8e9d41383a3744f7fcf85`.
 Focused development tests cover GUI PATH, pinned/failing interpreters,
 protocol preservation, offline validation and generated policy; the added
-counterexamples reject that unchanged baseline. Ruff, strict typing and
+counterexamples reject that unchanged baseline. The probe/channel controls
+also reject the immutable `52018a9d636104266869c3b3dbe142245e94f1bd`
+implementation. Ruff, strict typing and
 maintained documentation checks pass. Exact-head canonical hosted validation
 and independent acceptance are recorded separately in the PR evidence.
 Published RC4/RC5 bytes, release notes and historical Mac assessments remain

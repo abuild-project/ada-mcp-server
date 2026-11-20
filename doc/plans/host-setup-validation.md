@@ -45,3 +45,21 @@ at 0/3, followed only after acceptance by a separate PR phase at 0/3. Infrastruc
 retries without candidate changes consume no round. Preserve prior artifacts;
 no local Docker, weaker compiler, version bump, push, PR, merge, tag, release or
 plugin/account write is authorized for this developer handoff.
+
+## 2026-11-20: Bound offline probes and preserve advisory fallback
+
+Apply a fixed two-second deadline to the host-interpreter version probe using
+Bash 3.2-compatible host process supervision, independent of the selected
+interpreter. Terminate and reap the timed-out probe and its watchdog, preserve
+MCP stdin/protocol stdout, and make offline validation fail visibly. This bounds
+only the new version probe; the existing checker's network deadline is unchanged
+and no general runtime-process watchdog or process-tree contract is introduced.
+
+Keep malformed inherited update policy advisory during ordinary launcher/query
+use: emit one bounded stderr warning, disable the advisory and continue MCP
+without checker/cache/network work. Native configuration generation, Doctor and
+launcher --check remain strict so incorrect configuration cannot be validated
+as successful. Preserve valid explicit flags, environment precedence, deliberate
+off and default auto. Verify the two defects with small hanging-interpreter and
+invalid-environment counterexamples against the prior immutable implementation;
+retain that published commit and add one following correction commit.

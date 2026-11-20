@@ -256,7 +256,10 @@ interpreter from an intended native entry; `--update-channel` records its
 intended policy, otherwise the process environment/default applies. The report's
 `update_policy` and `doctor.launcher_check` distinguish that choice from
 `doctor.probe_update_channel: "off"`. An enabled advisory with unavailable or
-unsupported Python fails the offline check; deliberate `off` needs no advisory
+unsupported Python, or a version probe exceeding its independent two-second
+deadline, fails the offline check. The timed-out probe is killed/reaped and its
+private output removed. This deadline covers only the version probe, without
+changing the checker's network budget. Deliberate `off` needs no advisory
 interpreter. This does not read or modify client config. Released RC5 lacks the
 new Python option/validation; see [host Python and policy](updating.md).
 Keep argv/protocol/stderr logs private; they contain caller paths and Docker's

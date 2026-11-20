@@ -1,13 +1,17 @@
 """Exercise GUI interpreter selection without Docker or update networking."""
 
+import argparse
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
+import time
 import tomllib
 
 import ada_mcp_setup as setup
+import mcp_client
 import pytest
 from test_setup_boundaries import binding
 from version import ROOT
@@ -124,6 +128,118 @@ def test_deliberate_off_needs_no_advisory_python(gui_launch):
     )
     assert checked.returncode == 0 and checked.stderr == ""
     assert "python_status=disabled" in checked.stdout and not marker.exists()
+
+
+@pytest.mark.parametrize("check", [False, True])
+def test_hanging_python_probe_is_killed_reaped_and_bounded(gui_launch, tmp_path, check):
+    command, environment, capture, marker = gui_launch
+    pid_file = tmp_path / "probe.pid"
+    interpreter = tmp_path / "hanging-python"
+    interpreter.write_text(
+        f"#!{sys.executable}\n"
+        "import os,signal,time\nfrom pathlib import Path\n"
+        f"Path({str(pid_file)!r}).write_text(str(os.getpid()))\n"
+        "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+        "while True: time.sleep(60)\n"
+    )
+    interpreter.chmod(0o755)
+    scratch = tmp_path / "private-probe-output"
+    scratch.mkdir()
+    environment["TMPDIR"] = str(scratch)
+    arguments = ["--python", str(interpreter)] + (["--check"] if check else [])
+    started = time.monotonic()
+    process = subprocess.Popen(
+        command + arguments,
+        env=environment,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        try:
+            stdout, stderr = process.communicate('{"jsonrpc":"2.0","id":1}\n', timeout=4)
+        except subprocess.TimeoutExpired:
+            pytest.fail("host Python probe exceeded the independent deadline")
+        assert time.monotonic() - started < 4
+        assert process.returncode == (2 if check else 0)
+        assert "two-second deadline" in stderr and len(stderr) < 256
+        if check:
+            assert "python_status=timed-out" in stdout and not capture.exists()
+        else:
+            assert stdout == '{"jsonrpc":"2.0","id":1}\n' and notice(capture) == ""
+        with pytest.raises(ProcessLookupError):
+            os.kill(int(pid_file.read_text()), 0)
+        assert not marker.exists() and list(scratch.iterdir()) == []
+    finally:
+        if pid_file.exists():
+            try:
+                os.kill(int(pid_file.read_text()), signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        if process.poll() is None:
+            process.kill()
+        process.communicate(timeout=2)
+
+
+def test_invalid_inherited_channel_keeps_launcher_usable_but_fails_check(gui_launch):
+    _, environment, capture, marker = gui_launch
+    environment["ADA_MCP_UPDATE_CHANNEL"] = "disabled"
+    result = launch(gui_launch, ["--python", sys.executable])
+    assert result.returncode == 0 and result.stdout == '{"jsonrpc":"2.0","id":1}\n'
+    assert notice(capture) == "" and not marker.exists()
+    assert result.stderr.count("Invalid inherited update channel") == 1
+    assert len(result.stderr) < 256
+    checked = launch(gui_launch, ["--check", "--python", sys.executable])
+    assert checked.returncode == 2 and "invalid update channel" in checked.stderr
+
+
+def test_invalid_inherited_query_channel_is_disabled_once_while_setup_stays_strict(
+    gui_launch, tmp_path, monkeypatch, capsys
+):
+    command, environment, capture, marker = gui_launch
+    environment["ADA_MCP_UPDATE_CHANNEL"] = "disabled"
+    monkeypatch.setenv("ADA_MCP_UPDATE_CHANNEL", "disabled")
+    monkeypatch.setattr(setup, "verified_manifest", lambda: {})
+    monkeypatch.setattr(setup, "read_binding", lambda *_: binding(tmp_path))
+    monkeypatch.setattr(setup, "image_present", lambda *_: True)
+    monkeypatch.setattr(
+        setup, "launcher_arguments", lambda *_: command[1:] + ["--python", sys.executable]
+    )
+
+    def client(arguments):
+        assert arguments.count("--update-channel") == 1
+        assert arguments[arguments.index("--update-channel") + 1] == "off"
+        parser = argparse.ArgumentParser()
+        mcp_client.add_launch_arguments(parser)
+        parser.add_argument("request")
+        options = parser.parse_args(["--launcher", command[1], *arguments])
+        result = subprocess.run(
+            mcp_client.launcher_command(options),
+            env=environment,
+            input='{"jsonrpc":"2.0","id":1}\n',
+            text=True,
+            capture_output=True,
+            timeout=4,
+        )
+        print(result.stdout, end="")
+        print(result.stderr, end="", file=sys.stderr)
+        return result.returncode
+
+    monkeypatch.setattr(setup, "load_helper", lambda _: {"main": client})
+    monkeypatch.setattr(sys, "argv", ["setup", "query", "tools"])
+    assert setup.main() == 0
+    streams = capsys.readouterr()
+    assert streams.out == '{"jsonrpc":"2.0","id":1}\n'
+    assert streams.err.count("Invalid inherited update channel") == 1 and len(streams.err) < 256
+    assert notice(capture) == "" and not marker.exists()
+    for mode in ["native-config", "doctor"]:
+        output = tmp_path / (mode + ".toml")
+        arguments = ["setup", mode] + (["--output", str(output)] if mode == "native-config" else [])
+        monkeypatch.setattr(sys, "argv", arguments)
+        assert setup.main() == 1
+        report = json.loads(capsys.readouterr().out)
+        assert "invalid update channel" in report["error"] and not output.exists()
 
 
 @pytest.mark.parametrize(

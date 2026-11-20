@@ -786,7 +786,14 @@ def update_policy(options: argparse.Namespace) -> JSON:
     explicit = getattr(options, "update_channel", None)
     inherited = os.environ.get("ADA_MCP_UPDATE_CHANNEL")
     channel = explicit or inherited or "auto"
-    require(channel in {"auto", "stable", "prerelease", "off"}, "invalid update channel")
+    if channel not in {"auto", "stable", "prerelease", "off"}:
+        require(options.mode == "query" and explicit is None, "invalid update channel")
+        print(
+            "ada-mcp-setup: Invalid inherited update channel; advisory disabled. "
+            "Use auto, stable, prerelease or off. MCP remains usable.",
+            file=sys.stderr,
+        )
+        channel = "off"
     return {
         "channel": channel,
         "source": "argument" if explicit else "environment" if inherited else "default",
@@ -1141,6 +1148,9 @@ def main() -> int:
                     absolute_path(getattr(options, "python", None) or sys.executable, "host Python")
                 )
             }
+        if options.mode == "query":
+            options.update_channel = report["update_policy"]["channel"]
+            notice_arguments = update_arguments(options)
         if options.mode == "native-config":
             require(sys.version_info >= (3, 11), "host Python 3.11+ required")
             options.update_channel = report["update_policy"]["channel"]

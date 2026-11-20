@@ -54,7 +54,12 @@ unless flags/environment/user choice specify otherwise. Source/unreleased
 native generation pins its working Python 3.11+ interpreter and reports the
 effective channel/source. Offline launcher --check and Doctor can validate
 that chosen interpreter; enabled-advisory startup failure stays fail-open with
-bounded stderr diagnostics. Published RC5 lacks --python and the new check;
+bounded stderr diagnostics. Its version probe has an independent two-second
+host deadline that kills/reaps the probe on timeout; this does not extend to a
+general runtime/process-tree watchdog or change the checker's network budget.
+Invalid inherited update channels disable advisories with one warning during
+normal queries; native generation, Doctor and --check reject that configuration.
+Published RC5 lacks --python and the new check;
 use its supported scoped Ada-entry PATH correction instead. Follow the
 verified selected runtime's options, and do not edit authenticated helper files.
 

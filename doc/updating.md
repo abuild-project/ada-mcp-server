@@ -242,8 +242,17 @@ The new launcher's `--check` prints `update_channel`, selected `python`,
 advisories enabled, missing/unsupported Python makes this check fail; ordinary
 MCP startup instead emits a bounded stderr diagnostic and continues. Checker
 process failure or oversized output also gets a bounded diagnostic. Protocol
-stdout and MCP stdin stay usable. Intentional `off` reports Python status `disabled` and requires no
-advisory interpreter. Source Doctor accepts `--python ABSOLUTE_EXECUTABLE` and
+stdout and MCP stdin stay usable. The selected interpreter's version probe has
+an independent two-second host deadline; timeout kills and reaps that probe,
+cleans its private output and reports `python_status=timed-out`. No background
+timer remains. This bounds the version probe only; the checker's existing
+network budget is unchanged and no process-tree watchdog is promised.
+An invalid inherited `ADA_MCP_UPDATE_CHANNEL` disables the advisory with one
+bounded stderr warning during normal launcher/query use, without checker,
+cache or network work. Explicit CLI choices, native generation, Doctor and
+`--check` remain strict so malformed configuration cannot pass validation.
+Intentional `off` reports Python status `disabled` and requires no advisory
+interpreter. Source Doctor accepts `--python ABSOLUTE_EXECUTABLE` and
 `--update-channel` to validate the intended entry offline; its report separates
 that launch check from `doctor.probe_update_channel: "off"`. Supply the actual
 entry's intended values: Doctor does not read or rewrite your native config.
