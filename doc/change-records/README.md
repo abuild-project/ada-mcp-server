@@ -28,6 +28,7 @@
 - [RC3 prerelease and public notification check](release-0.2.0-rc.3.md)
 - [RC4 prerelease preparation](release-0.2.0-rc.4.md)
 - [RC5 prerelease preparation](release-0.2.0-rc.5.md)
+- [RC6 prerelease preparation](release-0.2.0-rc.6.md)
 - [Registry downloads with archive fallback](installer-registry-default.md)
 - [Reject unknown tools before ALS startup](reject-unknown-tools.md)
 - [Rename application result](rename-application-result.md)

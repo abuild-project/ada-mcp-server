@@ -50,7 +50,7 @@ HOME/CODEX_HOME. An approved update may switch only its identified client entry
 with a no-clobber backup; Docker daemon/global configuration stays unchanged.
 Inspect the intended native update policy separately from Doctor's offline
 MCP probe, which uses off. Preserve deliberate off; default new setup to auto
-unless flags/environment/user choice specify otherwise. Source/unreleased
+unless flags/environment/user choice specify otherwise. RC6
 native generation pins its working Python 3.11+ interpreter and reports the
 effective channel/source. Offline launcher --check and Doctor can validate
 that chosen interpreter; enabled-advisory startup failure stays fail-open with

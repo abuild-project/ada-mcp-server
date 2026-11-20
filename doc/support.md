@@ -1,6 +1,6 @@
 # Support and evidence matrix
 
-Version: pilot prerelease `0.2.0-rc.5` (Python `0.2.0rc5`). The table defines
+Version: pilot prerelease `0.2.0-rc.6` (Python `0.2.0rc6`). The table defines
 its acceptance scope; new artifacts still require the documented checks at
 their exact immutable revision. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
@@ -100,8 +100,10 @@ different-branch concurrency and compiler CI were not tested by this bundle.
 These are supplied curated results, not independently rerun Mac logs. See the
 [sanitized assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/macos-codex-rc4.md)
 for archive identity, source coordinates, LSP category normalization and limits.
-RC5 retains this historical RC4 evidence; its Mac update path has not yet been
-accepted and needs a separate test of the published RC5 artifacts.
+Later supplied RC4-to-RC5 observations cover a scoped PATH correction and
+cached notice. Actual Mac acceptance of RC6's host Python and policy changes
+requires a separate source and published consumer check. See the
+[host Python guidance](updating.md#host-python-and-native-update-policy).
 
 Other macOS/client versions, Colima, native-host ALS, Claude, OpenCode and
 separate-account private plugin import remain in development until tested

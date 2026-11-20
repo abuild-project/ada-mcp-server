@@ -138,6 +138,9 @@ publication-before-Mac-test order. The supplied
 [RC4 Mac assessment](assessments/macos-codex-rc4.md) retains the later bounded
 evidence. The [RC5 release plan](plans/release-0.2.0-rc.5.md) prepares a new
 published target for a subsequent Mac update check, without claiming acceptance.
+The [RC6 release plan](plans/release-0.2.0-rc.6.md) packages the host Python and
+policy fixes for the Managed Cloud update. The actual Mac source and published
+consumer checks remain pending.
 
 The locked MCP SDK 1.30 validates advertised tool input schemas before server
 dispatch. `tests/host/test_input_validation_contract.py` checks that boundary
