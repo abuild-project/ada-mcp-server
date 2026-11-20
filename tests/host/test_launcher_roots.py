@@ -219,6 +219,10 @@ def test_notice_is_data_only_and_checker_failure_does_not_stop_launch(
         capture_output=True,
     )
     assert result.returncode == 0 and result.stdout == ""
+    if failure:
+        assert "Update advisory failed" in result.stderr and len(result.stderr) < 256
+    else:
+        assert result.stderr == ""
     assert received.read_text() == ""
     command = json.loads(capture.read_text().splitlines()[-1])
     assert command[command.index("--network") + 1] == "none"

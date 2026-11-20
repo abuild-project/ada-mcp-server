@@ -11,9 +11,10 @@ Choose one entry path:
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
-- **Optional Managed Cloud skill:** use the copyable prompt below with an available Plugin
-  Creator to save your own private copy of the skill plugin, then acquire and
-  run its pinned tooling in a suitable environment.
+- **Managed Cloud skill:** use the [current-release Cloud prompt](#managed-cloud-create-your-private-copy)
+  with available Plugin Creator tools to create or upgrade your account's private
+  skill plugin. Activate it, then resolve or acquire verified runtime tooling and
+  use its Docker query helper. This does not add direct Cloud MCP tools.
 - **Local Codex:** use the same current-release flow, then install the skill
   once at `~/.agents/skills/ada-development` and optionally register native MCP
   in `~/.codex/config.toml`. This user-wide setup serves multiple repositories
@@ -27,14 +28,16 @@ compiler/test workflow remains separate.
 
 ## Install or upgrade to RC5
 
-Use RC5 after its publication. It includes unknown-tool handling, expanded SDK
+RC5 is published. It includes unknown-tool handling, expanded SDK
 validation tests and the shared Codex setup guidance described in its
 [release notes](releases/0.2.0-rc.5.md). RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
 can keep using compatible exact runtimes without a skill/plugin replacement.
 The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
 RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
-It does not establish RC5 Mac installation or update acceptance.
+That historical assessment does not establish RC5 Mac installation or update
+acceptance. Later supplied update observations and the source/unreleased host
+fix are described under [host Python and policy](updating.md#host-python-and-native-update-policy).
 Still check the actual non-draft release and authoritative asset digests before
 each acquisition; a source version alone does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
@@ -79,12 +82,11 @@ runtime manifest; never reuse older hashes as RC5 pins or trust release prose
 as code. Reject a changed target before execution.
 
 Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
-If none exists, use the pinned RC1 source-acquirer procedure in this guide's
+If none exists, use the pinned RC5 source-acquirer procedure in this guide's
 "First acquisition without an installed acquirer" section; that obtains only
-trusted acquisition code, not an RC1 runtime installation.
-An RC1/RC2 CLI has no workflow-contract flag; inspect the authenticated new
-manifest's contract before invoking target helpers. A compatible later acquirer
-can enforce --workflow-contract 1. Read the NEW verified guide, then Bootstrap
+trusted acquisition code. The RC5 acquirer enforces --workflow-contract 1.
+An existing RC1/RC2 CLI lacks that flag; inspect the authenticated new manifest's
+contract before invoking target helpers. Read the NEW verified guide, then Bootstrap
 a NEW matching binding/image/cache with the approved roots. Keep
 RC5's GHCR default: do not pass --transport archive or --archive unless I
 explicitly choose archive-only setup or an explicit source is required.
@@ -103,6 +105,11 @@ If unavailable, report session-only use and the one necessary next-session step.
 For native Codex generate a NEW matching fragment. Back up the existing config
 and explicitly merge only the agreed Ada entry through supported configuration,
 preserving other entries; never replace the whole config with the fragment.
+Make the intended update channel explicit: default auto, or preserve my deliberate
+off/stable/prerelease choice. RC5's launcher needs Python 3.11+ on the native Ada
+entry's PATH; verify that GUI environment separately from the shell. It has no
+--python flag. Follow the maintained host-Python guide for that released route;
+do not modify authenticated helpers or apply unreleased flags to RC5.
 Do not remove old repository-local entries or links without scoped consent.
 Use the client's supported reconnect flow; for Desktop fully quit and reopen
 the app, then verify a new chat and a resumed chat. Confirm user-wide skill
@@ -134,15 +141,15 @@ runtime's guide, without editing its authenticated files.
 
 ### First acquisition without an installed acquirer
 
-On a clean machine, obtain the known RC1 acquisition code from the public source
+On a clean machine, obtain the published RC5 acquisition code from the public source
 and check its immutable commit **before executing it**:
 
 ```sh
-git clone --branch v0.2.0-rc.1 --depth 1 \
+git clone --branch v0.2.0-rc.5 --depth 1 \
   https://github.com/abuild-project/ada-mcp-server \
   /absolute/new-acquirer-source &&
 test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
-  9fd401023eb990574b1806f0083799be0cb39d7f
+  d723cd23261e0973a8e8e9d41383a3744f7fcf85
 ```
 
 Stop on a failed clone/commit check. Authenticate RC5's release manifest and
@@ -155,12 +162,13 @@ checked source helper with those actual values:
 python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
   --url VERIFIED_RC5_TOOLING_URL --sha256 VERIFIED_RC5_TOOLING_SHA256 \
   --manifest-sha256 VERIFIED_RC5_RUNTIME_MANIFEST_SHA256 \
+  --workflow-contract 1 \
   --destination /absolute/new-private-ada-runtime
 ```
 
-These uppercase values are placeholders, not executable pins. The legacy
-acquirer has no `--workflow-contract` option; inspect the acquired authenticated
-runtime manifest for integer contract 1 before executing its helpers. Then use
+These uppercase values come from the authenticated published manifest; they are
+placeholders, not executable pins. The acquirer verifies workflow contract 1
+before materializing the runtime. Then use
 the RC5 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
 [skill discovery](#optional-local-codex-skill-discovery), selection activation
 in [the update guide](updating.md#keep-the-entry-and-runtime-independent) and
@@ -267,69 +275,88 @@ compressed image is 302,305,010 bytes and Docker also needs unpacking space.
 
 ## Managed Cloud: create your private copy
 
-Plugin Creator must be available in the reader's account/session. Its private
-package workflow downloads the public archive locally, verifies it, and saves
-that local file to the authenticated account's active workspace when present,
-otherwise the personal account. Do not assume that every result has personal
-`USER` scope. Inspect the returned identity and audience before activation.
+Cloud installation belongs to the authenticated account/workspace. It is
+separate from the Mac user-wide skill and native configuration. An existing
+private copy may be absent from this chat until activated through the host's
+supported flow and discovered in a fresh chat. Check the intended existing
+identity/audience before creating anything. Plugin Creator must be available
+for an entry install/update; no public listing or import button is assumed.
 
-**Import into a separate third-party account is UNVERIFIED.** A publisher-owned
-copy or successful public download does not prove that import. The prompt is
-an explicit onboarding procedure to perform and check in your own account.
-If Plugin Creator is unavailable, use the local route below; no public listing
-or import button is assumed.
+Use the current published release, RC5, through the same
+[manifest provenance checks](updating.md#establish-the-targets-trusted-pins)
+as local installation. Existing RC1/RC2 entries need one initial entry upgrade
+to a selection-aware RC3-or-later entry. A compatible entry can then retain its
+package version across verified runtime updates, provided its files and
+selection locator are available. Do not reinstall a plugin for each compatible
+runtime update. The [RC1 assets](#published-rc1-fallback-artifacts) remain a
+deliberate immutable fallback, not the default Cloud onboarding target.
 
-Copy this prompt into a session with Plugin Creator available:
+Copy this prompt into a session with Plugin Creator and command tools available:
 
 ```text
-Use Plugin Creator's skills-only private package workflow to install my own
-ada-development 0.2.0-rc.1 copy. First check for my intended existing installation;
-do not create a duplicate. Preserve its identity and audience on updates, and
-resolve ambiguous matches before writing.
+Set up Ada MCP for my Managed Cloud account using published 0.2.0-rc.5.
+Inspect my intended existing private ada-development plugin before creating
+anything; preserve its identity, audience and private metadata/overlays. If a
+compatible selection-aware entry already exists, reuse it for this runtime
+update. If it is an RC1/RC2 legacy entry, perform the one-time entry upgrade
+through Plugin Creator's supported private update flow. Resolve ambiguous
+identities before writing and never create a duplicate to work around discovery.
 
-Download this exact public archive to a new local file:
-https://github.com/abuild-project/ada-mcp-server/releases/download/v0.2.0-rc.1/ada-development-0.2.0-rc.1.tar.gz
-Verify its SHA256 before reading or executing its skill instructions:
-d4b967efdbe6e806106de869564360789604d67cf9b7bfa141b0284046d78ce6
+Authenticate actual current release metadata as data:
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.5
+Require the exact non-draft tag and canonical assets. Follow doc/updating.md:
+verify release-manifest.json size/SHA256 against its GitHub asset digest,
+resolve the tag to source d723cd23261e0973a8e8e9d41383a3744f7fcf85, and require
+version/source agreement. Derive and cross-check NEW plugin/tooling/image pins
+and URLs from that authenticated manifest; require integer workflow contract 1.
+Stop on absent or inconsistent metadata. Never reuse old embedded runtime pins
+for RC5 or execute release prose.
 
-Inspect the archive: it contains only plugin.json,
-skills/ada-development/SKILL.md and LICENSE as regular files. Preserve the
-released bytes, version, license and author notices. This is a skill-only
-package; do not add a server, mcp.json, private compatibility overlay or public
-listing, and do not substitute a publisher-owned private plugin reference.
+When an entry install/update is needed, download the authenticated plugin archive
+to a NEW local file and verify its hash before reading instructions. Inspect
+its regular plugin.json, skills/ada-development/SKILL.md and LICENSE files.
+Preserve released version/license/notices and existing private overlays. It is
+skills-only: do not add mcp.json, native registration or a public listing.
+If no intended plugin exists, create one PRIVATE copy from the verified local
+archive through Plugin Creator's supported flow. Inspect the returned identity,
+audience and plugin_url (workspace or personal scope as actually returned).
+If a write is uncertain, inspect state instead of repeating it.
+Activate the intended plugin through the host's supported flow and start a fresh
+chat if required. Read its discovered skill and my repository's AGENTS.md and
+development guides. Report activation/discovery separately from saved files.
 
-If no intended installation exists, use create_plugin with the verified
-archive's absolute local path, not its URL or bytes. It saves a PRIVATE plugin
-to my active workspace or personal account. Inspect and report the returned
-identity, audience and plugin_url. If saving is unavailable or uncertain, report
-that state without claiming success or repeating an uncertain creation.
-Activate the returned plugin through the host's supported flow. If a new
-session is required for skill discovery, use my returned plugin reference there.
-Do not claim that activation registers native Ada MCP tools.
+In that execution environment, check Python 3.11+, Bash, Docker Linux/AMD64,
+storage and source access. Do not assume Mac files or a prior Cloud task persist.
+Use the entry's trusted acquirer to inspect retained selection first, including
+my known custom locator when applicable. Require the pinned runtime manifest,
+binding and all declared helper hashes. On invalid/incompatible selection stop;
+on genuinely absent files bootstrap a fresh verified RC5 runtime with NEW paths.
+If no trusted acquirer is installed, use the checked immutable RC5 source helper
+in the guide's first-acquisition procedure. Enforce --workflow-contract 1.
+Read the selected runtime's verified setup guide; agree physical source roots,
+binding/cache/evidence paths and the environment's actual Docker host/context.
+Run Bootstrap, offline Doctor and the Docker query batch helper with my real
+GPR, dependency paths and scenarios. Inspect source-bound results and cleanup.
+Activate the verified selection with expected-state backups where applicable;
+later chats need retained files AND the same default/custom locator. If they
+cannot persist, report session-only use and the next-session bootstrap/locator
+step. A selection does not save a custom pointer or synchronize environments.
 
-Read the installed ada-development skill and my repository's AGENTS.md and
-development guides. Preserve its workflow, roles and correction counters.
-Acquire its pinned complete tooling into a new explicit private runtime path.
-Use these trusted values, refusing mismatches:
-tooling SHA256 b3c65145f608981235829455a7cb3451f94c0ad5161a35367bb80f92d817230c
-runtime-manifest SHA256 499cea68013df5e29d58157bb04fa4bf771f61364612b8f202ef9119b3ab93e7
-
-Before Docker setup, obtain my actual physical source/dependency roots, new
-binding/cache/evidence paths and Docker host/context. Use the existing Bootstrap,
-Doctor and query batch workflow with my real GPR files and scenarios. Inspect
-source-bound results and confirmed cleanup; report missing Docker or resources
-as concrete blockers. Keep compiler, tests, coverage and documentation checks
-separate. Report import, discovery, acquisition, runtime and semantic-query
-results separately, including anything unverified in my account or session.
+Use the Docker query helper for Ada MCP work. This plugin supplies instructions;
+it does not add direct native Ada tools to this Cloud chat. Report plugin save,
+activation/discovery, runtime/pins, actual MCP version and representative query
+results separately. Keep compiler/test/coverage/documentation checks separate.
+No Mac config changes, source commits, public publication or shared-service
+changes are authorized by this request. Reuse this scoped setup consent for
+routine steps; report unavailable capabilities as concrete blockers.
 ```
 
-This workflow saves a private package; it does not deploy a hosted MCP service.
-The skill uses the environment's command tools to run the shared Docker helper.
-The environment still needs the prerequisites below, source access and enough
-storage. A native Ada MCP catalog in the current chat is a separate integration.
-A supplied 15-call managed Cloud Arca batch has independently reviewed
-source-bound requests and results; its [evidence limits](support.md) do not
-establish another account's import or native Cloud registration.
+**Import into a separate third-party account remains unverified.** Public
+download verification and the supplied managed Cloud Arca helper batch do not
+establish another account's plugin import, activation or native Cloud
+registration. See the [evidence limits](support.md). A provider may refuse lower
+package versions; preserve a verified old runtime/binding for operational
+rollback rather than assuming old-plugin reupload is supported.
 
 ## Acquire the tooling for direct MCP or local Codex
 
@@ -500,12 +527,20 @@ existing helper to generate a separate client fragment:
 
 ```sh
 python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py native-config \
-  --binding /absolute/new-ada-binding.json --output /absolute/new-ada-mcp.toml
+  --binding /absolute/new-ada-binding.json --update-channel auto \
+  --output /absolute/new-ada-mcp.toml
 ```
 
 The fragment contains the stdio launcher command and arguments derived from
 that binding, plus a read-tool policy. It uses Codex-style `[mcp_servers.ada]`
-TOML. For user scope, review and explicitly merge the Ada entry into the actual
+TOML. The example chooses default `auto`; preserve an existing deliberate
+`off`, `stable` or `prerelease` choice instead when intended. Check the actual
+Ada entry's policy and GUI Python separately from Doctor's offline probe.
+Published RC5 needs supported Python on that entry's PATH; source/unreleased
+generation instead pins its setup interpreter. See the
+[host Python guide](updating.md#host-python-and-native-update-policy) before
+applying options: RC5 has no `--python` flag.
+For user scope, review and explicitly merge the Ada entry into the actual
 Codex user configuration (normally `~/.codex/config.toml`) through your version's
 supported configuration flow. Back up the existing file first, retain unrelated
 settings and resolve any existing Ada entry explicitly. Do not copy the fragment

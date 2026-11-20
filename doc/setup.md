@@ -2,8 +2,8 @@
 
 For first installation or an approved upgrade, start with the maintained
 [first-install guide](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md).
-It covers a reader-owned private Cloud skill-plugin copy and local Codex setup
-using the existing released helpers. This page supplies detailed host-binding
+It covers a reader-owned private Cloud skill-plugin copy and local Codex setup.
+This page supplies detailed host-binding
 rules and locally generated artifact setup. The released archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
@@ -21,8 +21,10 @@ is reported; the bundle lacks a fresh-session discovered-skill inventory. See
 [support.md](support.md) for the exact scope and limits. Other clients and
 native-host ALS remain in development.
 
-The [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
-provides verified public assets and version-specific artifact metadata.
+The [published RC5 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.5)
+provides current version-specific artifact metadata. Authenticate the release
+manifest and new pins using the [provenance procedure](updating.md).
+The explicit RC1 fallback retains its immutable published bytes.
 During development, use
 the artifacts generated from the checked source revision by scripts/artifacts.py.
 Future GitHub Releases/GHCR paths in generated candidate metadata remain
@@ -248,6 +250,18 @@ private HOME, network/capability isolation, MCP catalog and confirmed EOF
 cleanup. Direct host Docker calls have `--command-timeout`; MCP requests and
 initialization use `--timeout`. Unknown inspect/timeout states fail and never
 authorize explicit removal. Doctor excludes Config.Env from inspect requests.
+In source/unreleased tooling, Doctor also checks the selected host Python
+offline before its MCP session. `--python ABSOLUTE_EXECUTABLE` validates the
+interpreter from an intended native entry; `--update-channel` records its
+intended policy, otherwise the process environment/default applies. The report's
+`update_policy` and `doctor.launcher_check` distinguish that choice from
+`doctor.probe_update_channel: "off"`. An enabled advisory with unavailable or
+unsupported Python, or a version probe exceeding its independent two-second
+deadline, fails the offline check. The timed-out probe is killed/reaped and its
+private output removed. This deadline covers only the version probe, without
+changing the checker's network budget. Deliberate `off` needs no advisory
+interpreter. This does not read or modify client config. Released RC5 lacks the
+new Python option/validation; see [host Python and policy](updating.md).
 Keep argv/protocol/stderr logs private; they contain caller paths and Docker's
 own diagnostics. Direct command timeouts retain available stdout/stderr before
 failure propagates. The legacy Mac smoke retains full private inspect records.
@@ -268,7 +282,15 @@ one. Sharing the runtime and filesystem roots does not pin a project globally:
 select the actual GPR/search-path/scenario view in each connection.
 
 `native-config --binding FILE --output NEW.toml` creates a separate UTF-8 TOML
-fragment. Back up existing configuration and explicitly merge only the agreed
+fragment. Choose and review the intended update policy, including a deliberate
+`off`, rather than copying Doctor's offline probe policy. Source/unreleased
+generation pins the setup process's absolute supported Python with `--python`,
+freezes the effective channel from flags/environment/default `auto`, and retains
+an inherited notice-cache path. The report identifies `host_python.path` and
+`update_policy.channel`/`source`; keep that interpreter installed. Old native
+fragments remain usable through PATH. Released RC5 has no `--python` flag and
+needs the scoped PATH route in the [update guide](updating.md).
+Back up existing configuration and explicitly merge only the agreed
 Ada entry using the native client's supported flow, preserving unrelated entries.
 Never replace a whole user config with the fragment. Reconnect afterward; for
 Codex Desktop, fully quit/reopen and verify new and resumed chats, user-wide
@@ -290,3 +312,13 @@ unless their backed-up removal/switch is explicitly approved.
 Installing a skill does not register native tools in the current managed Cloud
 catalog. A reader's account/session still needs its own plugin-import,
 discovery, acquisition and runtime checks; public bytes alone do not prove them.
+Cloud uses an account/workspace-owned private skill plugin: activate it through
+the supported host flow, then start a fresh chat when required for discovery.
+Preserve an existing identity/audience; RC1/RC2 legacy entries need one entry
+upgrade to gain selection. A compatible entry then reuses verified runtime
+selection without replacement. In each execution environment, validate retained
+selection and pins or bootstrap a fresh published runtime, then use Doctor and
+the Docker query helper. Mac files/settings and previous Cloud task files are
+not assumed to exist there. The [Cloud onboarding prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#managed-cloud-create-your-private-copy)
+is in the maintained repository guide; standalone bundles use the corresponding
+public guide, without editing their authenticated files.

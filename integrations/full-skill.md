@@ -27,6 +27,19 @@ Git worktrees and actual client settings/location, including custom worktree
 roots; do not assume they lie below the repository, repurpose CODEX_HOME or
 discover/mount arbitrary extra roots. See references/setup.md for details.
 
+Managed Cloud uses a private account/workspace skill plugin, separately from
+Mac files and native configuration. Inspect the intended existing plugin and
+preserve its identity/audience/private overlays. An installed copy may need
+activation through the supported host flow and a fresh chat for discovery;
+never create a duplicate to resolve missing discovery. RC1/RC2 legacy entries
+need one entry upgrade to gain selection. Compatible later runtime updates
+retain the entry. Check retained selection/pins in each execution environment
+or bootstrap verified current published tooling when genuinely absent; assume
+neither Mac synchronization nor Cloud task persistence. Use the Docker query
+helper after runtime checks. The plugin does not register direct native Ada
+tools in Cloud. See the maintained first-install guide's current-release Cloud
+prompt and references/updating.md for provenance, activation and rollback.
+
 Run the SELECTED runtime's scripts/ada_mcp_setup.py through Python: doctor first,
 bootstrap with the
 existing binding if its pinned image is missing, or create a new explicit
@@ -35,6 +48,20 @@ ADA_MCP_BINDING, then the normal user configuration path. Never overwrite
 immutable bindings, silently change client/Docker configuration or repurpose
 HOME/CODEX_HOME. An approved update may switch only its identified client entry
 with a no-clobber backup; Docker daemon/global configuration stays unchanged.
+Inspect the intended native update policy separately from Doctor's offline
+MCP probe, which uses off. Preserve deliberate off; default new setup to auto
+unless flags/environment/user choice specify otherwise. Source/unreleased
+native generation pins its working Python 3.11+ interpreter and reports the
+effective channel/source. Offline launcher --check and Doctor can validate
+that chosen interpreter; enabled-advisory startup failure stays fail-open with
+bounded stderr diagnostics. Its version probe has an independent two-second
+host deadline that kills/reaps the probe on timeout; this does not extend to a
+general runtime/process-tree watchdog or change the checker's network budget.
+Invalid inherited update channels disable advisories with one warning during
+normal queries; native generation, Doctor and --check reject that configuration.
+Published RC5 lacks --python and the new check;
+use its supported scoped Ada-entry PATH correction instead. Follow the
+verified selected runtime's options, and do not edit authenticated helper files.
 
 Use query batch with actual ada_project_info arguments: exact gpr_file,
 ordered project_paths and scenario_variables. Existing GPR files remain the

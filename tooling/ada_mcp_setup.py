@@ -721,7 +721,9 @@ def provision_image(
     require(image_present(binding, report, timeout), "provisioning did not supply the pinned image")
 
 
-def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
+def launcher_arguments(
+    binding: JSON, name: str | None = None, python: str | None = None
+) -> list[str]:
     """Produce the launcher's exact binding argv without shell evaluation."""
     arguments = [str(SCRIPT_ROOT / "ada-mcp-launch"), "--image", target_id(binding)]
     for root in binding["roots"]:
@@ -731,6 +733,7 @@ def launcher_arguments(binding: JSON, name: str | None = None) -> list[str]:
             arguments.extend(["--" + key.replace("_", "-"), str(binding[key])])
     if name is not None:
         arguments.extend(["--name", name])
+    arguments.extend(["--python", str(absolute_path(python or sys.executable, "host Python"))])
     return arguments
 
 
@@ -778,6 +781,25 @@ def update_arguments(options: argparse.Namespace) -> list[str]:
     return arguments
 
 
+def update_policy(options: argparse.Namespace) -> JSON:
+    """Resolve the intended channel before a GUI can supply another environment."""
+    explicit = getattr(options, "update_channel", None)
+    inherited = os.environ.get("ADA_MCP_UPDATE_CHANNEL")
+    channel = explicit or inherited or "auto"
+    if channel not in {"auto", "stable", "prerelease", "off"}:
+        require(options.mode == "query" and explicit is None, "invalid update channel")
+        print(
+            "ada-mcp-setup: Invalid inherited update channel; advisory disabled. "
+            "Use auto, stable, prerelease or off. MCP remains usable.",
+            file=sys.stderr,
+        )
+        channel = "off"
+    return {
+        "channel": channel,
+        "source": "argument" if explicit else "environment" if inherited else "default",
+    }
+
+
 def doctor(
     binding: JSON,
     manifest: JSON,
@@ -796,6 +818,18 @@ def doctor(
     )
     docker, environment = docker_binding(binding)
     info = report.setdefault("doctor", {"container_inspections": []})
+    intended_channel = report.get("update_policy", {}).get("channel", "auto")
+    python = report.get("host_python", {}).get("path", sys.executable)
+    checked = command_run(
+        ["/bin/bash"]
+        + launcher_arguments(binding, python=python)
+        + ["--update-channel", intended_channel, "--check"],
+        environment,
+        report,
+        command_timeout,
+    )
+    info["launcher_check"] = dict(line.split("=", 1) for line in checked.stdout.splitlines())
+    info["probe_update_channel"] = "off"
     observations = info["container_inspections"]
     name = "ada-mcp-doctor-" + uuid.uuid4().hex
     info["container_name"] = name
@@ -807,7 +841,7 @@ def doctor(
     errors = []
     try:
         session = session_type(
-            ["/bin/bash"] + launcher_arguments(binding, name) + ["--update-channel", "off"],
+            ["/bin/bash"] + launcher_arguments(binding, name, python) + ["--update-channel", "off"],
             timeout,
             output / "mcp" if output is not None else None,
         )
@@ -1065,6 +1099,7 @@ def main() -> int:
     setup.add_argument("--archive-sha256")
     check = modes.add_parser("doctor", help="check the actual host binding and MCP runtime")
     check.add_argument("--binding")
+    check.add_argument("--python", help="absolute host interpreter from the intended native entry")
     for mode in [setup, check]:
         mode.add_argument("--output", help="new evidence directory")
         mode.add_argument("--timeout", type=float, default=60)
@@ -1078,7 +1113,7 @@ def main() -> int:
     native = modes.add_parser("native-config", help="write a new native Desktop/CLI TOML fragment")
     native.add_argument("--binding")
     native.add_argument("--output", required=True)
-    for mode in [query, native]:
+    for mode in [setup, check, query, native]:
         mode.add_argument("--update-channel", choices=["auto", "stable", "prerelease", "off"])
         mode.add_argument("--update-cache")
     updates = modes.add_parser("updates", help="show or check advisory release metadata")
@@ -1102,8 +1137,26 @@ def main() -> int:
     output = None
     try:
         notice_arguments = (
-            update_arguments(options) if options.mode in {"query", "native-config"} else []
+            update_arguments(options)
+            if options.mode in {"bootstrap", "doctor", "query", "native-config"}
+            else []
         )
+        if options.mode in {"bootstrap", "doctor", "query", "native-config"}:
+            report["update_policy"] = update_policy(options)
+            report["host_python"] = {
+                "path": str(
+                    absolute_path(getattr(options, "python", None) or sys.executable, "host Python")
+                )
+            }
+        if options.mode == "query":
+            options.update_channel = report["update_policy"]["channel"]
+            notice_arguments = update_arguments(options)
+        if options.mode == "native-config":
+            require(sys.version_info >= (3, 11), "host Python 3.11+ required")
+            options.update_channel = report["update_policy"]["channel"]
+            if options.update_cache is None:
+                options.update_cache = os.environ.get("ADA_MCP_UPDATE_CACHE") or None
+            notice_arguments = update_arguments(options)
         manifest = verified_manifest()
         if options.mode in ["bootstrap", "doctor"]:
             require(

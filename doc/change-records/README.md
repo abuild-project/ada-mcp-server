@@ -10,6 +10,7 @@
 - [Dependency unit and context forms](dependency-unit-forms.md)
 - [Generic unit dependency names](generic-unit-names.md)
 - [Hatchling hash lock update](pip-main-hatchling-1.33.0.md)
+- [Host Python and explicit update policy](host-setup-validation.md)
 - [Imported-source project views](reference-project-view.md)
 - [Independent entry and runtime selection](plugin-runtime-decoupling.md)
 - [MCP input validation contract](input-validation-contract.md)

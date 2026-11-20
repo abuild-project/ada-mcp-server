@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Pin the working host Python in new native configurations, make update policy
+  explicit, and diagnose missing/unsupported advisory Python or failed checker
+  processes while keeping MCP usable. Bound the interpreter version probe to
+  two seconds; invalid inherited channels disable only the startup/query advisory
+  while generation and offline checks remain strict. Add host validation and clarify
+  separate Mac/Codex and Managed Cloud setup, current-release onboarding and
+  the supported PATH correction for immutable RC5 installations.
+
 ## 0.2.0-rc.5 — pilot prerelease
 
 - Reject unknown tool names before starting Ada Language Server, and report
