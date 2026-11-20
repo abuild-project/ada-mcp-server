@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0-rc.6 — pilot prerelease
+
 - Pin the working host Python in new native configurations, make update policy
   explicit, and diagnose missing/unsupported advisory Python or failed checker
   processes while keeping MCP usable. Bound the interpreter version probe to

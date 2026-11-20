@@ -8,9 +8,9 @@ rules and locally generated artifact setup. The released archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
 RC2-or-later notifier and the initial approved upgrade needed by RC1 installations.
-RC4 acquisition still requires actual publication and digest verification.
-Maintained source documentation includes later setup clarifications; published
-RC4 archives and already installed skills retain their original verified bytes.
+RC6 acquisition requires actual publication and digest verification.
+Previously released archives and already installed skills retain their
+original verified bytes.
 
 The tooling requires Python 3.11+, Bash 3.2+ and an existing Docker daemon.
 Its validated container target is Linux/AMD64 Debian Trixie with GNAT 14,
@@ -21,9 +21,9 @@ is reported; the bundle lacks a fresh-session discovered-skill inventory. See
 [support.md](support.md) for the exact scope and limits. Other clients and
 native-host ALS remain in development.
 
-The [published RC5 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.5)
-provides current version-specific artifact metadata. Authenticate the release
-manifest and new pins using the [provenance procedure](updating.md).
+After publication, the [RC6 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
+provides version-specific artifact metadata. Authenticate the release manifest
+and new pins using the [provenance procedure](updating.md).
 The explicit RC1 fallback retains its immutable published bytes.
 During development, use
 the artifacts generated from the checked source revision by scripts/artifacts.py.
@@ -250,7 +250,7 @@ private HOME, network/capability isolation, MCP catalog and confirmed EOF
 cleanup. Direct host Docker calls have `--command-timeout`; MCP requests and
 initialization use `--timeout`. Unknown inspect/timeout states fail and never
 authorize explicit removal. Doctor excludes Config.Env from inspect requests.
-In source/unreleased tooling, Doctor also checks the selected host Python
+In RC6, Doctor also checks the selected host Python
 offline before its MCP session. `--python ABSOLUTE_EXECUTABLE` validates the
 interpreter from an intended native entry; `--update-channel` records its
 intended policy, otherwise the process environment/default applies. The report's
@@ -283,7 +283,7 @@ select the actual GPR/search-path/scenario view in each connection.
 
 `native-config --binding FILE --output NEW.toml` creates a separate UTF-8 TOML
 fragment. Choose and review the intended update policy, including a deliberate
-`off`, rather than copying Doctor's offline probe policy. Source/unreleased
+`off`, independently of Doctor's offline probe policy. RC6
 generation pins the setup process's absolute supported Python with `--python`,
 freezes the effective channel from flags/environment/default `auto`, and retains
 an inherited notice-cache path. The report identifies `host_python.path` and

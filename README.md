@@ -19,9 +19,9 @@ You need Git, Python 3.11+, Bash 3.2+ and Docker able to run Linux/AMD64
 containers. Use a nonroot account with Docker access and readable project
 sources. You do not need to build Ada MCP or run this repository's CI.
 
-1. [Install or upgrade to published RC5](doc/first-install.md#install-or-upgrade-to-rc5).
+1. [Install or upgrade to RC6 after publication](doc/first-install.md#install-or-upgrade-to-rc6).
    The guide verifies published downloads and creates one shared Docker binding
-   for your approved workspace and client worktree roots. RC5 uses GHCR by
+   for your approved workspace and client worktree roots. RC6 uses GHCR by
    default, with a verified image archive as fallback.
 2. [Use the bundled MCP query client](doc/first-install.md#shared-docker-binding-and-first-queries),
    or [prepare your client's stdio connection](doc/first-install.md#connect-a-stdio-mcp-client).
@@ -64,10 +64,11 @@ RC4 adds explicit project refresh, imported-source view retention and
 guide includes the later [Mac acceptance assessment](doc/assessments/macos-codex-rc4.md);
 published archives and already installed skills retain their original instructions.
 RC5 adds [unknown-tool handling and expanded validation tests](doc/releases/0.2.0-rc.5.md)
-and packages the shared Codex setup guidance. The historical Mac assessment
-remains specific to RC4. Later supplied update observations exposed the host
-Python/policy issue; the source fix is **unreleased** and does not change RC5's
-published bytes or establish Mac acceptance of the fix.
+and packages the shared Codex setup guidance.
+RC6 adds [host Python and update-policy validation](doc/releases/0.2.0-rc.6.md)
+and guidance for separate Mac/Codex and Managed Cloud installations. The
+historical Mac assessment covers RC4. Mac consumer acceptance of the RC6 fix
+remains pending.
 
 ## Contributing
 

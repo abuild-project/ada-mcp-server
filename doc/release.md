@@ -7,8 +7,8 @@ updates need the maintainer's authorization; a reviewed PR alone is not that
 authorization. Ordinary CI only builds/tests and uploads CI artifacts.
 The promotion workflow is manually invoked for the approved release.
 
-The coordinated `0.2.0-rc.5` candidate remains a pilot prerelease, not a stable
-support promise. Its [release notes](releases/0.2.0-rc.5.md) describe the changes
+The coordinated `0.2.0-rc.6` candidate remains a pilot prerelease with bounded
+client support. Its [release notes](releases/0.2.0-rc.6.md) describe the changes
 and client/platform limits. Older published releases remain immutable fallbacks.
 The [public repository assessment](assessments/public-release.md) distinguishes
 observed settings from policy and unavailable administrative evidence.
@@ -16,7 +16,7 @@ observed settings from policy and unavailable administrative evidence.
 ## Artifact trust and version
 
 The canonical SemVer is read from src/ada_mcp/_version.py. Python converts
-`0.2.0-rc.5` to `0.2.0rc5`; package metadata and MCP initialization report that
+`0.2.0-rc.6` to `0.2.0rc6`; package metadata and MCP initialization report that
 project version, not the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
@@ -62,7 +62,7 @@ metadata and checksums record the digest and exact tested artifact hashes.
    notes hash, command and output. Publication passes those reviewed bytes via
    a temporary notes file outside the release assets; it adds no artifact.
 2. With merge/release authority supplied, create the intended immutable tag
-   `v0.2.0-rc.5` on that same approved revision and verify the tag target.
+   `v0.2.0-rc.6` on that same approved revision and verify the tag target.
    Verify repository/GitHub Actions permissions, release protection,
    GHCR publication rights and the exact redistributed components' required
    source delivery under [licensing](licensing.md). A declared environment name
@@ -111,6 +111,10 @@ later performance work. MCP SDK 2 work follows the local acceptance test.
 For RC5, the maintainer authorized publication to enable a subsequent Mac
 update-path test. Follow the [RC5 plan](plans/release-0.2.0-rc.5.md); retain
 RC4's historical Mac assessment without treating it as RC5 acceptance.
+
+For RC6, follow the [RC6 plan](plans/release-0.2.0-rc.6.md) for publication
+and the subsequent update, installation and verification of the existing
+private Managed Cloud plugin. The actual Mac consumer check remains pending.
 
 Registry behavior reference:
 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry

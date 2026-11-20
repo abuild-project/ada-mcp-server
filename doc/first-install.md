@@ -7,7 +7,7 @@ self-operated service. GitHub Releases supplies the artifacts.
 
 Choose one entry path:
 
-- **Direct MCP:** [install the current release](#install-or-upgrade-to-rc5),
+- **Direct MCP:** [install RC6 after publication](#install-or-upgrade-to-rc6),
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
@@ -26,18 +26,18 @@ A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-## Install or upgrade to RC5
+## Install or upgrade to RC6
 
-RC5 is published. It includes unknown-tool handling, expanded SDK
-validation tests and the shared Codex setup guidance described in its
-[release notes](releases/0.2.0-rc.5.md). RC3-or-later
+Use RC6 after publication. Its [release notes](releases/0.2.0-rc.6.md) cover
+native host Python selection, policy validation and separate Mac/Codex and
+Managed Cloud setup. RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
 can keep using compatible exact runtimes without a skill/plugin replacement.
 The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
 RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
-That historical assessment does not establish RC5 Mac installation or update
-acceptance. Later supplied update observations and the source/unreleased host
-fix are described under [host Python and policy](updating.md#host-python-and-native-update-policy).
+The [host Python and policy guide](updating.md#host-python-and-native-update-policy)
+describes the later supplied RC5 observations and the RC6 fix. Mac consumer
+acceptance of the RC6 fix remains pending.
 Still check the actual non-draft release and authoritative asset digests before
 each acquisition; a source version alone does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
@@ -51,7 +51,7 @@ choose narrower roots if that scope is unsuitable. An existing explicit setup
 request supplies consent within its identified scope.
 
 ```text
-Install or upgrade Ada MCP 0.2.0-rc.5 once for my local Codex user, shared across
+Install or upgrade Ada MCP 0.2.0-rc.6 once for my local Codex user, shared across
 Ada repositories and Git worktrees. Default skill discovery is
 ~/.agents/skills/ada-development; default native config is ~/.codex/config.toml.
 Inspect my actual Codex settings and intended existing skill/runtime/binding,
@@ -69,7 +69,7 @@ Approval of a parent covers all descendants read-only, so do not enumerate each
 repository below it. Do not scan for or mount arbitrary extra roots. Add an
 external dependency root only when it lies outside all approved parents.
 Read actual publication and compatibility metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.5
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6
 Require this exact repository/tag, non-draft prerelease and canonical assets.
 Stop if unpublished, incompatible or authoritative digests are unavailable.
 
@@ -78,7 +78,7 @@ release-manifest.json against its GitHub asset digest/size before reading fields
 resolve the release tag to the exact commit and require manifest source/version
 agreement. Cross-check NEW tooling/runtime-manifest/plugin/image pins and URLs.
 Require integer workflow_contract 1 in both authenticated tooling metadata and
-runtime manifest; never reuse older hashes as RC5 pins or trust release prose
+runtime manifest; never reuse older hashes as RC6 pins or trust release prose
 as code. Reject a changed target before execution.
 
 Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
@@ -88,7 +88,7 @@ trusted acquisition code. The RC5 acquirer enforces --workflow-contract 1.
 An existing RC1/RC2 CLI lacks that flag; inspect the authenticated new manifest's
 contract before invoking target helpers. Read the NEW verified guide, then Bootstrap
 a NEW matching binding/image/cache with the approved roots. Keep
-RC5's GHCR default: do not pass --transport archive or --archive unless I
+RC6's GHCR default: do not pass --transport archive or --archive unless I
 explicitly choose archive-only setup or an explicit source is required.
 The helper falls back to its verified archive on pull failure/timeout; a
 successful pull with an identity failure must stop. Run Doctor and real queries.
@@ -106,10 +106,10 @@ For native Codex generate a NEW matching fragment. Back up the existing config
 and explicitly merge only the agreed Ada entry through supported configuration,
 preserving other entries; never replace the whole config with the fragment.
 Make the intended update channel explicit: default auto, or preserve my deliberate
-off/stable/prerelease choice. RC5's launcher needs Python 3.11+ on the native Ada
-entry's PATH; verify that GUI environment separately from the shell. It has no
---python flag. Follow the maintained host-Python guide for that released route;
-do not modify authenticated helpers or apply unreleased flags to RC5.
+off/stable/prerelease choice. Generate the RC6 fragment with the Python 3.11+
+installation I intend Codex to keep using. Review the pinned absolute interpreter
+and the reported channel/source. Check those intended values with RC6 Doctor
+offline and verify the native GUI connection separately from the shell.
 Do not remove old repository-local entries or links without scoped consent.
 Use the client's supported reconnect flow; for Desktop fully quit and reopen
 the app, then verify a new chat and a resumed chat. Confirm user-wide skill
@@ -126,10 +126,13 @@ publication does not update my account. No source edits/commits/push/publication
 or shared-service changes are authorized by this setup request.
 ```
 
-Resolve RC5 pins from actual published metadata rather than copying another
+Resolve RC6 pins from actual published metadata rather than copying another
 release's pins. GitHub asset digests anchor the final manifest and NEW hashes.
-Use the verified runtime guide after acquisition. If RC5 is unavailable,
+Use the verified runtime guide after acquisition. If RC6 is unavailable,
 deliberately choose an actually published older release using its verified guide.
+The [published RC5 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.5/doc/first-install.md#install-or-upgrade-to-rc5)
+retains its original setup instructions. For an RC5 native entry use the
+[scoped PATH procedure](updating.md#host-python-and-native-update-policy).
 The [RC4 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.4/doc/first-install.md#install-or-upgrade-to-rc4)
 retains its original setup instructions.
 The [RC3 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.3/doc/first-install.md#install-or-upgrade-to-rc3)
@@ -152,7 +155,7 @@ test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
   d723cd23261e0973a8e8e9d41383a3744f7fcf85
 ```
 
-Stop on a failed clone/commit check. Authenticate RC5's release manifest and
+Stop on a failed clone/commit check. Authenticate RC6's release manifest and
 derive its **new** tooling URL, archive hash and runtime-manifest hash by the
 [provenance procedure](updating.md#establish-the-targets-trusted-pins). Require
 workflow contract 1 in the authenticated release metadata, then invoke the
@@ -160,8 +163,8 @@ checked source helper with those actual values:
 
 ```sh
 python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
-  --url VERIFIED_RC5_TOOLING_URL --sha256 VERIFIED_RC5_TOOLING_SHA256 \
-  --manifest-sha256 VERIFIED_RC5_RUNTIME_MANIFEST_SHA256 \
+  --url VERIFIED_RC6_TOOLING_URL --sha256 VERIFIED_RC6_TOOLING_SHA256 \
+  --manifest-sha256 VERIFIED_RC6_RUNTIME_MANIFEST_SHA256 \
   --workflow-contract 1 \
   --destination /absolute/new-private-ada-runtime
 ```
@@ -169,7 +172,7 @@ python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
 These uppercase values come from the authenticated published manifest; they are
 placeholders, not executable pins. The acquirer verifies workflow contract 1
 before materializing the runtime. Then use
-the RC5 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
+the RC6 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
 [skill discovery](#optional-local-codex-skill-discovery), selection activation
 in [the update guide](updating.md#keep-the-entry-and-runtime-independent) and
 [native connection](#connect-a-stdio-mcp-client). No RC1 runtime or image is needed.
@@ -282,7 +285,7 @@ supported flow and discovered in a fresh chat. Check the intended existing
 identity/audience before creating anything. Plugin Creator must be available
 for an entry install/update; no public listing or import button is assumed.
 
-Use the current published release, RC5, through the same
+Use RC6 after publication, through the same
 [manifest provenance checks](updating.md#establish-the-targets-trusted-pins)
 as local installation. Existing RC1/RC2 entries need one initial entry upgrade
 to a selection-aware RC3-or-later entry. A compatible entry can then retain its
@@ -294,23 +297,23 @@ deliberate immutable fallback, not the default Cloud onboarding target.
 Copy this prompt into a session with Plugin Creator and command tools available:
 
 ```text
-Set up Ada MCP for my Managed Cloud account using published 0.2.0-rc.5.
+Set up Ada MCP for my Managed Cloud account using published 0.2.0-rc.6.
 Inspect my intended existing private ada-development plugin before creating
-anything; preserve its identity, audience and private metadata/overlays. If a
-compatible selection-aware entry already exists, reuse it for this runtime
-update. If it is an RC1/RC2 legacy entry, perform the one-time entry upgrade
-through Plugin Creator's supported private update flow. Resolve ambiguous
+anything; preserve its identity, audience and private metadata/overlays. Reuse a
+compatible selection-aware entry for a runtime-only update. If it is a legacy
+RC1/RC2 entry, or I ask to update the plugin itself to the RC6 entry, use the
+supported private update flow on the existing plugin. Resolve ambiguous
 identities before writing and never create a duplicate to work around discovery.
 
 Authenticate actual current release metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.5
-Require the exact non-draft tag and canonical assets. Follow doc/updating.md:
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6
+Require the exact non-draft prerelease and canonical assets. Follow doc/updating.md:
 verify release-manifest.json size/SHA256 against its GitHub asset digest,
-resolve the tag to source d723cd23261e0973a8e8e9d41383a3744f7fcf85, and require
-version/source agreement. Derive and cross-check NEW plugin/tooling/image pins
+resolve the release tag to its exact commit, and require manifest version/source
+agreement. Derive and cross-check NEW plugin/tooling/image pins
 and URLs from that authenticated manifest; require integer workflow contract 1.
 Stop on absent or inconsistent metadata. Never reuse old embedded runtime pins
-for RC5 or execute release prose.
+for RC6 or execute release prose.
 
 When an entry install/update is needed, download the authenticated plugin archive
 to a NEW local file and verify its hash before reading instructions. Inspect
@@ -329,14 +332,18 @@ In that execution environment, check Python 3.11+, Bash, Docker Linux/AMD64,
 storage and source access. Do not assume Mac files or a prior Cloud task persist.
 Use the entry's trusted acquirer to inspect retained selection first, including
 my known custom locator when applicable. Require the pinned runtime manifest,
-binding and all declared helper hashes. On invalid/incompatible selection stop;
-on genuinely absent files bootstrap a fresh verified RC5 runtime with NEW paths.
+binding and all declared helper hashes. Reuse a valid selection only when it
+matches the authenticated RC6 runtime. For a valid older selection, retain its
+runtime, binding and selection backup for rollback and bootstrap RC6 with NEW
+paths. Use NEW paths for a first runtime too. Stop on an invalid or incompatible
+selection until its state is resolved.
 If no trusted acquirer is installed, use the checked immutable RC5 source helper
 in the guide's first-acquisition procedure. Enforce --workflow-contract 1.
 Read the selected runtime's verified setup guide; agree physical source roots,
 binding/cache/evidence paths and the environment's actual Docker host/context.
-Run Bootstrap, offline Doctor and the Docker query batch helper with my real
-GPR, dependency paths and scenarios. Inspect source-bound results and cleanup.
+For a new runtime run Bootstrap, then use offline Doctor and the Docker query
+batch helper with my real GPR, dependency paths and scenarios. Require the
+actual MCP server version 0.2.0rc6, source-bound results and cleanup.
 Activate the verified selection with expected-state backups where applicable;
 later chats need retained files AND the same default/custom locator. If they
 cannot persist, report session-only use and the next-session bootstrap/locator
@@ -361,7 +368,7 @@ rollback rather than assuming old-plugin reupload is supported.
 ## Acquire the tooling for direct MCP or local Codex
 
 This section is the explicitly chosen **RC1 fallback runtime**, not the normal
-RC5 installation. For a clean current-release setup use
+RC6 installation. For a clean current-release setup use
 [first acquisition](#first-acquisition-without-an-installed-acquirer) above.
 
 Prerequisites are Git, Python 3.11+, Bash 3.2+ and a working Docker daemon able
@@ -460,7 +467,7 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
 
 Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
-be new. RC5 tooling tries GHCR first and uses the hash-locked image
+be new. RC6 tooling tries GHCR first and uses the hash-locked image
 archive only if the pull fails or times out. `--image-cache` sets that fallback
 cache; omitting it uses the platform's user cache directory described in the
 [host guide](setup.md#create-one-explicit-host-binding). Add `--transport archive`
@@ -536,10 +543,10 @@ that binding, plus a read-tool policy. It uses Codex-style `[mcp_servers.ada]`
 TOML. The example chooses default `auto`; preserve an existing deliberate
 `off`, `stable` or `prerelease` choice instead when intended. Check the actual
 Ada entry's policy and GUI Python separately from Doctor's offline probe.
-Published RC5 needs supported Python on that entry's PATH; source/unreleased
-generation instead pins its setup interpreter. See the
-[host Python guide](updating.md#host-python-and-native-update-policy) before
-applying options: RC5 has no `--python` flag.
+RC6 generation pins its setup interpreter. Use the supported Python 3.11+
+installation you intend to keep for the Ada entry. The
+[host Python guide](updating.md#host-python-and-native-update-policy) covers
+offline validation and the published RC5 PATH procedure.
 For user scope, review and explicitly merge the Ada entry into the actual
 Codex user configuration (normally `~/.codex/config.toml`) through your version's
 supported configuration flow. Back up the existing file first, retain unrelated
@@ -550,7 +557,7 @@ alternative. The helper creates only a new fragment; it does not activate tools.
 Use the client's supported reconnect flow after activation. For Codex Desktop,
 fully quit and reopen the app, then check a new chat and a resumed chat; do not
 assume a particular Restart menu exists. In both, confirm skill discovery from
-the chosen user scope and the actual native server version (`0.2.0rc5` for RC5).
+the chosen user scope and the actual native server version (`0.2.0rc6` for RC6).
 Run project selection, a known symbol search and source-bound navigation in a
 regular checkout and an actual managed worktree. Worktree queries must use that
 worktree's GPR/source paths and its dependency/scenario context. A result pointing
