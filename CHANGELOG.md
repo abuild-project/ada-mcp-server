@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+## 0.2.0-rc.5 — pilot prerelease
+
 - Reject unknown tool names before starting Ada Language Server, and report
   advertised tools without handlers accurately.
+- Expand the locked MCP SDK 1.30 input-validation test basis through real stdio
+  rejection/startup controls and bounded real-ALS integration checks, without
+  changing tool schemas, dependencies or supported behavior.
 - Clarify once-per-user Codex installation across Ada repositories and worktrees,
   including actual client-managed worktree roots, explicit configuration merges
   and RC4's GHCR default. Record bounded macOS/Codex Desktop RC4 acceptance;

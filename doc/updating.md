@@ -4,7 +4,7 @@ This workflow requires **RC2 or later**. Confirm that the target is actually
 published in the [release index](https://github.com/abuild-project/ada-mcp-server/releases)
 before acquiring it. Published RC1 archives have no notice hook and remain
 unchanged. They need one initial user-approved upgrade, using the
-[current installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc4).
+[current installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc5).
 No future artifact hash or source commit is supplied in advance.
 
 ## Keep the entry and runtime independent
@@ -16,12 +16,13 @@ and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
 
-RC4 has supplied post-publication Mac acceptance described in the maintained
-[support guide](support.md). Select it only after checking actual publication
-and pins; preserve older runtime/binding pairs for rollback. A compatible
-RC3-or-later entry may retain its own version while using RC4. Read the selected
-runtime's verified guide/catalog before using RC4's optional Boolean `refresh`;
-workflow contract 1 alone does not add that tool parameter to an older runtime.
+RC5 is the prepared target for the next Mac update check. Select it only after
+checking actual publication and pins; preserve older runtime/binding pairs for
+rollback. A compatible RC3-or-later entry may retain its own version while using
+RC5. The supplied Mac acceptance in the [support guide](support.md) remains
+specific to RC4 and does not establish RC5 update acceptance. Read the selected
+runtime's verified guide/catalog before using optional Boolean `refresh`, added
+in RC4; workflow contract 1 alone does not add that parameter to an older runtime.
 
 A compatible entry can then keep its own instructions/package version while
 using another exact verified runtime. Its supported workflow contract is integer
