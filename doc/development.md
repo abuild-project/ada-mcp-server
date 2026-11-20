@@ -133,8 +133,11 @@ progress controls check that pending metadata keeps its client and can later
 become ready, without changing semantic query guards. The
 [larger-project Mac timing check](assessments/project-selection-timing.md)
 is an optional later performance assessment. The
-[RC4 release plan](plans/release-0.2.0-rc.4.md) schedules a separate clean local
-Mac Codex/Arca installation and native-tool acceptance after publication.
+[RC4 release plan](plans/release-0.2.0-rc.4.md) records the original
+publication-before-Mac-test order. The supplied
+[RC4 Mac assessment](assessments/macos-codex-rc4.md) retains the later bounded
+evidence. The [RC5 release plan](plans/release-0.2.0-rc.5.md) prepares a new
+published target for a subsequent Mac update check, without claiming acceptance.
 
 The locked MCP SDK 1.30 validates advertised tool input schemas before server
 dispatch. `tests/host/test_input_validation_contract.py` checks that boundary

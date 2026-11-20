@@ -7,7 +7,7 @@ self-operated service. GitHub Releases supplies the artifacts.
 
 Choose one entry path:
 
-- **Direct MCP:** [install the current release](#install-or-upgrade-to-rc4),
+- **Direct MCP:** [install the current release](#install-or-upgrade-to-rc5),
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
@@ -25,15 +25,16 @@ A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-## Install or upgrade to RC4
+## Install or upgrade to RC5
 
-Use RC4 for a new installation. It includes explicit project refresh,
-imported-source view retention and the
-[bounded fixes in its release notes](releases/0.2.0-rc.4.md). RC3-or-later
+Use RC5 after its publication. It includes unknown-tool handling, expanded SDK
+validation tests and the shared Codex setup guidance described in its
+[release notes](releases/0.2.0-rc.5.md). RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
 can keep using compatible exact runtimes without a skill/plugin replacement.
 The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
 RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
+It does not establish RC5 Mac installation or update acceptance.
 Still check the actual non-draft release and authoritative asset digests before
 each acquisition; a source version alone does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
@@ -47,7 +48,7 @@ choose narrower roots if that scope is unsuitable. An existing explicit setup
 request supplies consent within its identified scope.
 
 ```text
-Install or upgrade Ada MCP 0.2.0-rc.4 once for my local Codex user, shared across
+Install or upgrade Ada MCP 0.2.0-rc.5 once for my local Codex user, shared across
 Ada repositories and Git worktrees. Default skill discovery is
 ~/.agents/skills/ada-development; default native config is ~/.codex/config.toml.
 Inspect my actual Codex settings and intended existing skill/runtime/binding,
@@ -65,7 +66,7 @@ Approval of a parent covers all descendants read-only, so do not enumerate each
 repository below it. Do not scan for or mount arbitrary extra roots. Add an
 external dependency root only when it lies outside all approved parents.
 Read actual publication and compatibility metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.4
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.5
 Require this exact repository/tag, non-draft prerelease and canonical assets.
 Stop if unpublished, incompatible or authoritative digests are unavailable.
 
@@ -74,7 +75,7 @@ release-manifest.json against its GitHub asset digest/size before reading fields
 resolve the release tag to the exact commit and require manifest source/version
 agreement. Cross-check NEW tooling/runtime-manifest/plugin/image pins and URLs.
 Require integer workflow_contract 1 in both authenticated tooling metadata and
-runtime manifest; never reuse older hashes as RC4 pins or trust release prose
+runtime manifest; never reuse older hashes as RC5 pins or trust release prose
 as code. Reject a changed target before execution.
 
 Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
@@ -85,7 +86,7 @@ An RC1/RC2 CLI has no workflow-contract flag; inspect the authenticated new
 manifest's contract before invoking target helpers. A compatible later acquirer
 can enforce --workflow-contract 1. Read the NEW verified guide, then Bootstrap
 a NEW matching binding/image/cache with the approved roots. Keep
-RC4's GHCR default: do not pass --transport archive or --archive unless I
+RC5's GHCR default: do not pass --transport archive or --archive unless I
 explicitly choose archive-only setup or an explicit source is required.
 The helper falls back to its verified archive on pull failure/timeout; a
 successful pull with an identity failure must stop. Run Doctor and real queries.
@@ -118,10 +119,12 @@ publication does not update my account. No source edits/commits/push/publication
 or shared-service changes are authorized by this setup request.
 ```
 
-Resolve RC4 pins from actual published metadata rather than copying another
+Resolve RC5 pins from actual published metadata rather than copying another
 release's pins. GitHub asset digests anchor the final manifest and NEW hashes.
-Use the verified runtime guide after acquisition. If RC4 is unavailable,
+Use the verified runtime guide after acquisition. If RC5 is unavailable,
 deliberately choose an actually published older release using its verified guide.
+The [RC4 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.4/doc/first-install.md#install-or-upgrade-to-rc4)
+retains its original setup instructions.
 The [RC3 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.3/doc/first-install.md#install-or-upgrade-to-rc3)
 retains its selection-aware setup. The explicit RC2/RC1 legacy procedures
 below remain available; never invent a compatible target. The maintained source
@@ -142,7 +145,7 @@ test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
   9fd401023eb990574b1806f0083799be0cb39d7f
 ```
 
-Stop on a failed clone/commit check. Authenticate RC4's release manifest and
+Stop on a failed clone/commit check. Authenticate RC5's release manifest and
 derive its **new** tooling URL, archive hash and runtime-manifest hash by the
 [provenance procedure](updating.md#establish-the-targets-trusted-pins). Require
 workflow contract 1 in the authenticated release metadata, then invoke the
@@ -150,15 +153,15 @@ checked source helper with those actual values:
 
 ```sh
 python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
-  --url VERIFIED_RC4_TOOLING_URL --sha256 VERIFIED_RC4_TOOLING_SHA256 \
-  --manifest-sha256 VERIFIED_RC4_RUNTIME_MANIFEST_SHA256 \
+  --url VERIFIED_RC5_TOOLING_URL --sha256 VERIFIED_RC5_TOOLING_SHA256 \
+  --manifest-sha256 VERIFIED_RC5_RUNTIME_MANIFEST_SHA256 \
   --destination /absolute/new-private-ada-runtime
 ```
 
 These uppercase values are placeholders, not executable pins. The legacy
 acquirer has no `--workflow-contract` option; inspect the acquired authenticated
 runtime manifest for integer contract 1 before executing its helpers. Then use
-the RC4 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
+the RC5 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
 [skill discovery](#optional-local-codex-skill-discovery), selection activation
 in [the update guide](updating.md#keep-the-entry-and-runtime-independent) and
 [native connection](#connect-a-stdio-mcp-client). No RC1 runtime or image is needed.
@@ -331,7 +334,7 @@ establish another account's import or native Cloud registration.
 ## Acquire the tooling for direct MCP or local Codex
 
 This section is the explicitly chosen **RC1 fallback runtime**, not the normal
-RC4 installation. For a clean current-release setup use
+RC5 installation. For a clean current-release setup use
 [first acquisition](#first-acquisition-without-an-installed-acquirer) above.
 
 Prerequisites are Git, Python 3.11+, Bash 3.2+ and a working Docker daemon able
@@ -430,7 +433,7 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
 
 Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
-be new. RC4 tooling tries GHCR first and uses the hash-locked image
+be new. RC5 tooling tries GHCR first and uses the hash-locked image
 archive only if the pull fails or times out. `--image-cache` sets that fallback
 cache; omitting it uses the platform's user cache directory described in the
 [host guide](setup.md#create-one-explicit-host-binding). Add `--transport archive`
@@ -512,7 +515,7 @@ alternative. The helper creates only a new fragment; it does not activate tools.
 Use the client's supported reconnect flow after activation. For Codex Desktop,
 fully quit and reopen the app, then check a new chat and a resumed chat; do not
 assume a particular Restart menu exists. In both, confirm skill discovery from
-the chosen user scope and the actual native server version (`0.2.0rc4` for RC4).
+the chosen user scope and the actual native server version (`0.2.0rc5` for RC5).
 Run project selection, a known symbol search and source-bound navigation in a
 regular checkout and an actual managed worktree. Worktree queries must use that
 worktree's GPR/source paths and its dependency/scenario context. A result pointing
