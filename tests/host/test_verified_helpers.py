@@ -264,7 +264,11 @@ def test_native_absolute_or_unspecified_cache_keeps_no_replace(installed, tmp_pa
     if cache:
         assert fragment[fragment.index("--update-cache") + 1] == str(tmp_path / cache)
     else:
-        assert "--update-cache" not in fragment
+        inherited = installed["env"].get("ADA_MCP_UPDATE_CACHE")
+        if inherited:
+            assert fragment[fragment.index("--update-cache") + 1] == inherited
+        else:
+            assert "--update-cache" not in fragment
     saved = output.read_bytes()
     assert run(installed, arguments, tmp_path).returncode == 1
     assert output.read_bytes() == saved

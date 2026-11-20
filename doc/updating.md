@@ -16,11 +16,12 @@ and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
 
-RC5 is the prepared target for the next Mac update check. Select it only after
-checking actual publication and pins; preserve older runtime/binding pairs for
+RC5 is published. Select it only after checking actual publication and pins;
+preserve older runtime/binding pairs for
 rollback. A compatible RC3-or-later entry may retain its own version while using
 RC5. The supplied Mac acceptance in the [support guide](support.md) remains
-specific to RC4 and does not establish RC5 update acceptance. Read the selected
+specific to RC4. Later supplied update observations are bounded below and do not
+establish acceptance of the unreleased host fix. Read the selected
 runtime's verified guide/catalog before using optional Boolean `refresh`, added
 in RC4; workflow contract 1 alone does not add that parameter to an older runtime.
 
@@ -186,13 +187,68 @@ python3 /absolute/notifier-runtime/scripts/ada_mcp_setup.py native-config \
   --update-cache /absolute/private-update-cache --output /absolute/new-client.toml
 ```
 
-The launcher also accepts these flags directly. If flags are omitted,
+The launcher also accepts these flags directly. In published RC5, if flags are omitted,
 `ADA_MCP_UPDATE_CHANNEL` and `ADA_MCP_UPDATE_CACHE` select the channel and an
 absolute cache directory in that host process's environment. Explicit flags
 take precedence; GUI clients may have a different PATH/environment. Python
-must be available to the host launcher for checks; missing Python suppresses
-only the advisory. Doctor and `--check` do no update networking. No setting
+3.11+ must be available to the host launcher for checks. Doctor and `--check`
+do no update networking. No setting
 edits global client/Docker configuration or the immutable binding schema.
+
+## Host Python and native update policy
+
+Inspect the actual Ada entry before diagnosing an absent notice. `off` is a
+valid deliberate opt-out; preserve it unless the user requests a change.
+`stable` excludes prereleases, so it will not announce RC5. `auto` follows the
+installed runtime's stable/prerelease status. An empty notice can also mean
+no newer cached result or an unavailable check; it is not proof of currency.
+Doctor deliberately disables its MCP probe's advisory to stay offline. That
+probe's `off` is independent of the intended native startup policy.
+
+Maintainer-supplied Mac RC4-to-RC5 observations showed a native Ada entry set
+to `off`, then GUI PATH selecting `/usr/bin/python3` 3.9.6 after enabling `auto`.
+The checker failed on unsupported Python syntax while MCP queries still worked;
+the released launcher discarded its stderr. Manual CLI use selected Python
+3.13.14. A scoped Ada-entry PATH correction plus `auto` restored the available
+RC5 notice and a successful native RC5 handshake after upgrade. The notice came
+from an existing fresh cache populated by an explicit search; this does not
+prove a fresh automatic network fetch or visible UI banner. These are supplied
+text observations, without an independently inspected Mac evidence archive.
+
+**Published RC5 route:** its launcher has no `--python` argument. Confirm the
+supported interpreter's absolute path/version from the working CLI, then
+explicitly preserve or change only the Ada entry's policy and supported client
+environment configuration. Where the client supports a per-server `env.PATH`,
+put that interpreter's directory before the existing PATH directories for the
+Ada entry. Preserve Docker discovery and unrelated environment/settings. Do
+not replace the global PATH, authenticated helpers or entire Codex config.
+Back up, merge explicitly, fully quit/reopen Desktop and verify the actual
+native MCP version, source-bound queries and notice metadata when available.
+A shell check alone does not establish the GUI environment. A deliberate
+automatic opt-out still permits one explicit `updates check --channel auto`.
+
+**Source/unreleased behavior:** newly generated `native-config` fragments pin
+the setup process's absolute `sys.executable` with launcher `--python`. Keep
+that supported Python installation available. One chosen interpreter is used;
+old fragments without a pin still use `python3` on their host PATH. Generation
+freezes the effective channel from explicit flag, environment, then default
+`auto`, and an inherited cache path when present. The JSON report identifies
+the channel's source and host Python path. `off` remains explicit and performs
+no advisory cache/network work. Generation writes a new fragment only; review
+and merge it into the intended Ada entry with a backup and reconnect.
+
+The new launcher's `--check` prints `update_channel`, selected `python`,
+`python_status` and version without running the checker or networking. With
+advisories enabled, missing/unsupported Python makes this check fail; ordinary
+MCP startup instead emits a bounded stderr diagnostic and continues. Checker
+process failure or oversized output also gets a bounded diagnostic. Protocol
+stdout and MCP stdin stay usable. Intentional `off` reports Python status `disabled` and requires no
+advisory interpreter. Source Doctor accepts `--python ABSOLUTE_EXECUTABLE` and
+`--update-channel` to validate the intended entry offline; its report separates
+that launch check from `doctor.probe_update_channel: "off"`. Supply the actual
+entry's intended values: Doctor does not read or rewrite your native config.
+These fixes await publication and an actual Mac consumer check. Do not pass
+their new options to released RC5 helpers or treat Linux tests as Mac acceptance.
 
 ## Ask once, then execute the approved update
 

@@ -280,6 +280,7 @@ def add_launch_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--log-dir")
     parser.add_argument("--update-channel", choices=["auto", "stable", "prerelease", "off"])
     parser.add_argument("--update-cache")
+    parser.add_argument("--python", default=sys.executable)
 
 
 def launcher_command(options: argparse.Namespace) -> list[str]:
@@ -293,6 +294,7 @@ def launcher_command(options: argparse.Namespace) -> list[str]:
         "uid",
         "gid",
         "name",
+        "python",
         "update_channel",
         "update_cache",
     ]:
@@ -300,6 +302,8 @@ def launcher_command(options: argparse.Namespace) -> list[str]:
         if value is not None:
             if attribute == "update_cache" and not Path(value).is_absolute():
                 raise ValueError("update cache directory must be absolute")
+            if attribute == "python" and not Path(value).is_absolute():
+                raise ValueError("host Python must be absolute")
             command.extend(["--" + attribute.replace("_", "-"), str(value)])
     return command
 
