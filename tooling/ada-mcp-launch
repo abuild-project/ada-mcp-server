@@ -42,15 +42,16 @@ probe_python() (
         'import sys; print(".".join(map(str, sys.version_info[:3]))); sys.exit(sys.version_info < (3, 11))' \
         </dev/null >"$probe_output" 2>/dev/null &
     probe_pid=$!
-    deadline=$((SECONDS + 2))
+    remaining=20
     while kill -0 "$probe_pid" 2>/dev/null; do
-        if [[ "$SECONDS" -ge "$deadline" ]]; then
+        if [[ "$remaining" -eq 0 ]]; then
             kill -KILL "$probe_pid" 2>/dev/null || :
             wait "$probe_pid" 2>/dev/null || :
             exit 124
         fi
         # Each foreground sleep is reaped; no background watchdog survives.
         sleep 0.1
+        remaining=$((remaining - 1))
     done
     probe_status=0
     wait "$probe_pid" 2>/dev/null || probe_status=$?
