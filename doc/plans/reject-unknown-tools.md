@@ -33,3 +33,19 @@ complete exact-source AMD64 Trixie/GNAT 14/pinned-ALS chain. Docker use awaits
 the coordinator's resource window. No external push, PR, merge, release, tag,
 archive action or history integration is authorized; the predecessor remains
 unchanged and its eventual main integration requires a separate decision.
+
+## 2026-11-20: Distinguish an advertised tool without a handler
+
+Decision: after early catalog rejection, the defensive dispatch fallback
+represents an advertised name without a handler. Report
+`Advertised tool has no handler: <name>` with `context.tool` and no
+available-tools hint. Preserve early unknown-name rejection, known handlers,
+SDK schema validation, the refresh guard, dependencies and schemas.
+
+Decision: add one behavioral unit test with a mocked catalog advertising a
+synthetic tool and harmless mocked client acquisition. Require the accurate
+fallback JSON error and tool context without using live ALS, source parsing,
+a duplicate catalog or a routing matrix. Demonstrate failure against an owned
+copy of the published runtime, then retain the existing startup and stdio
+controls. Update the final-state record and preserve published history with a
+separate bounded correction commit.

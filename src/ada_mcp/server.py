@@ -1176,8 +1176,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
 
             case _:
                 result = {
-                    "error": f"Unknown tool: {name}",
-                    "available_tools": "Use list_tools to see available tools",
+                    "error": f"Advertised tool has no handler: {name}",
+                    "context": {"tool": name},
                 }
 
         if name == "ada_project_info":

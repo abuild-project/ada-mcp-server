@@ -59,6 +59,28 @@ async def test_call_tool_unknown():
 
 
 @pytest.mark.asyncio
+async def test_call_tool_advertised_without_handler():
+    """Identify a missing handler for an advertised tool without calling ALS."""
+    from mcp.types import Tool
+
+    from ada_mcp.server import call_tool
+
+    tool = Tool(name="ada_unhandled_probe", inputSchema={"type": "object"})
+    with (
+        patch("ada_mcp.server.list_tools", new_callable=AsyncMock, return_value=[tool]),
+        patch("ada_mcp.server.get_als_client", new_callable=AsyncMock, return_value=object()),
+    ):
+        result = await call_tool(tool.name, {})
+
+    assert len(result) == 1
+    assert result[0].type == "text"
+    assert json.loads(result[0].text) == {
+        "error": "Advertised tool has no handler: ada_unhandled_probe",
+        "context": {"tool": "ada_unhandled_probe"},
+    }
+
+
+@pytest.mark.asyncio
 async def test_call_tool_goto_definition():
     """Test ada_goto_definition tool call."""
     from ada_mcp.server import call_tool
