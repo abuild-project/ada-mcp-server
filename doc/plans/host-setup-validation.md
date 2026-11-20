@@ -63,3 +63,15 @@ as successful. Preserve valid explicit flags, environment precedence, deliberate
 off and default auto. Verify the two defects with small hanging-interpreter and
 invalid-environment counterexamples against the prior immutable implementation;
 retain that published commit and add one following correction commit.
+
+## 2026-11-20: Require a valid supported probe version
+
+Offline interpreter acceptance requires both successful probe exit and a
+bounded, well-formed reported numeric Python version meeting the 3.11 minimum.
+An empty response, malformed version or zero-exit older version must fail
+validation; ordinary MCP startup keeps the existing bounded warning and
+advisory-only fallback. Preserve the two-second probe deadline, process reaping,
+private output cleanup, stdin/stdout and intentional off bypass. Check empty,
+malformed and older zero-exit counterexamples against the prior immutable
+implementation, retaining the real supported interpreter control. This is
+version-response validation, not executable authentication or interpreter search.

@@ -239,9 +239,11 @@ and merge it into the intended Ada entry with a backup and reconnect.
 
 The new launcher's `--check` prints `update_channel`, selected `python`,
 `python_status` and version without running the checker or networking. With
-advisories enabled, missing/unsupported Python makes this check fail; ordinary
-MCP startup instead emits a bounded stderr diagnostic and continues. Checker
-process failure or oversized output also gets a bounded diagnostic. Protocol
+advisories enabled, probe success requires exit zero and a bounded numeric
+`X.Y.Z` response meeting Python 3.11. Missing, malformed or older replies make
+the offline check fail. Ordinary MCP startup instead emits a bounded stderr
+diagnostic and continues. Checker process failure or oversized output also gets
+a bounded diagnostic. Protocol
 stdout and MCP stdin stay usable. The selected interpreter's version probe has
 an independent two-second host deadline; timeout kills and reaps that probe,
 cleans its private output and reports `python_status=timed-out`. No background

@@ -26,7 +26,9 @@ warn once and disable advisories during normal launcher/query use; generation,
 Doctor and `--check` remain strict.
 
 Offline launcher `--check` and Doctor validate the intended interpreter for an
-enabled advisory. Doctor reports its intended launch check separately from its
+enabled advisory. Probe acceptance requires both exit zero and a bounded numeric
+`X.Y.Z` response meeting Python 3.11; empty, malformed or older replies fail.
+Doctor reports its intended launch check separately from its
 forced-off MCP probe; deliberate `off` needs no advisory interpreter. No network
 request is introduced by these checks. Python 3.11 remains the minimum; binding
 schema, SDK/dependencies, workflow contract 1 and public tool behavior stay
@@ -44,9 +46,9 @@ correction route and cannot accept the unreleased `--python` option.
 The topic is based on `d723cd23261e0973a8e8e9d41383a3744f7fcf85`.
 Focused development tests cover GUI PATH, pinned/failing interpreters,
 protocol preservation, offline validation and generated policy; the added
-counterexamples reject that unchanged baseline. The probe/channel controls
-also reject the immutable `52018a9d636104266869c3b3dbe142245e94f1bd`
-implementation. Ruff, strict typing and
+counterexamples reject that unchanged baseline. Probe/channel controls also
+reject `52018a9d636104266869c3b3dbe142245e94f1bd`; version-response controls
+reject `769b8c1548430e4826994598a7bfb3062bb5bfc9`. Ruff, strict typing and
 maintained documentation checks pass. Exact-head canonical hosted validation
 and independent acceptance are recorded separately in the PR evidence.
 Published RC4/RC5 bytes, release notes and historical Mac assessments remain

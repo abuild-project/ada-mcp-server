@@ -115,8 +115,35 @@ def test_launcher_check_validates_python_offline(gui_launch, supported):
     metadata = dict(line.split("=", 1) for line in result.stdout.splitlines())
     assert metadata["update_channel"] == "auto"
     assert metadata["python_status"] == ("supported" if supported else "unavailable-or-unsupported")
+    if supported:
+        assert metadata["python_version"] == ".".join(map(str, sys.version_info[:3]))
     assert result.returncode == (0 if supported else 2)
     assert not capture.exists() and not marker.exists()
+
+
+@pytest.mark.parametrize("version", [None, "not-a-version", "3.9.6"])
+def test_zero_exit_probe_requires_a_supported_reported_version(gui_launch, tmp_path, version):
+    interpreter = "/bin/true"
+    if version is not None:
+        stub = tmp_path / "zero-exit-python"
+        stub.write_text(f"#!/bin/sh\nprintf '%s\\n' '{version}'\nexit 0\n")
+        stub.chmod(0o755)
+        interpreter = str(stub)
+    arguments = ["--python", interpreter, "--update-channel", "auto"]
+    checked = launch(gui_launch, [*arguments, "--check"])
+    assert checked.returncode == 2 and "Python 3.11+ required" in checked.stderr
+    assert "python_status=unavailable-or-unsupported" in checked.stdout
+    result = launch(gui_launch, arguments)
+    _, _, capture, marker = gui_launch
+    assert result.returncode == 0 and result.stdout == '{"jsonrpc":"2.0","id":1}\n'
+    assert "Python 3.11+ required" in result.stderr and len(result.stderr) < 256
+    assert notice(capture) == "" and not marker.exists()
+    if version is None:
+        disabled = launch(
+            gui_launch, ["--python", interpreter, "--update-channel", "off", "--check"]
+        )
+        assert disabled.returncode == 0 and disabled.stderr == ""
+        assert "python_status=disabled" in disabled.stdout
 
 
 def test_deliberate_off_needs_no_advisory_python(gui_launch):

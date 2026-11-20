@@ -56,7 +56,13 @@ probe_python() (
     wait "$probe_pid" 2>/dev/null || probe_status=$?
     [[ "$probe_status" -eq 0 ]] || exit 1
     version=''
-    IFS= read -r version <"$probe_output" || :
+    IFS= read -r -n 65 version <"$probe_output" || exit 1
+    [[ ${#version} -le 64 &&
+        "$version" =~ ^([3-9]|[1-9][0-9]+)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+    major="${BASH_REMATCH[1]}"
+    minor="${BASH_REMATCH[2]}"
+    # Canonical decimal components permit this minimum check without overflow.
+    [[ "$major" != 3 || ( ${#minor} -ge 2 && "$minor" != 10 ) ]] || exit 1
     printf '%.64s' "$version"
     exit 0
 )
