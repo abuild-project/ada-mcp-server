@@ -76,3 +76,15 @@ revisions and the four scoped mocked-launcher calls. The documentation-only
 completion still requires the complete exact-head container chain and
 independent review before submission. Preserve earlier refs and primary
 evidence, and stop at the checked PR before merge or release.
+
+## 2026-11-19: Archive substitution for superseded validation
+
+Decision: the maintainer authorized retaining the earlier validation snapshot
+through an annotated archive tag instead of its temporary branch. Verify the
+remote tag object, exact source and effective protection against
+updates/deletion before deleting the unchanged branch. The later validation
+head is already reachable from main and its redundant temporary branch may
+be removed after checking unchanged head and inactive work. The
+[retention ledger](../assessments/validation-ref-retention.md) holds both exact
+sources and the archive mapping. Preserve earlier text, published commits,
+counters and separately retained evidence; tags do not extend CI retention.

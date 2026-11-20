@@ -94,6 +94,12 @@ installed-version evidence requirement.
   texts.
 - Post each head's validation as a new short comment; never rewrite
   an earlier validation comment.
+- After merge, temporary validation-ref cleanup needs maintainer authorization
+  for that occasion's named refs and permitted actions; later cleanups need new
+  authorization. Preserve active work and open-PR refs, and never move or
+  overwrite archive tags. Follow the detailed
+  [cleanup safeguards](doc/development.md#validation-reference-retention).
+  Do not repeat approval requests for the same already-authorized operations.
 - Write records around the final problem, behavior, scope, validation at an
   identified revision and remaining limits. Size records to the change: a
   few-line fix needs about 100–250 words. For substantial changes, use

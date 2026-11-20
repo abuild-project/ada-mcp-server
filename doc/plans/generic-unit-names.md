@@ -67,3 +67,15 @@ typing, docs and regression checks before the required actual-head managed
 chain and independent roles. The local phase remains closed at 1/3; this
 separate PR phase is at 1/3. No history rewrite, external developer write,
 native host check, harness/fixture expansion or unrelated change is allowed.
+
+## 2026-11-19: Archive substitution for superseded validation
+
+Decision: the maintainer authorized preserving the initial immutable snapshot
+through an annotated archive tag instead of its earlier validation branch.
+Verify the remote tag object, exact source and effective protection against
+updates/deletion before deleting the unchanged branch. The later validation
+head is already reachable from main and its redundant temporary branch may
+be removed after checking unchanged head and inactive work. The
+[retention ledger](../assessments/validation-ref-retention.md) holds both exact
+sources and the archive mapping. Preserve all earlier text, published commits,
+counters and separately retained evidence; tags do not extend CI retention.
