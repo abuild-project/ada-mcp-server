@@ -48,3 +48,16 @@ Record the published public CI-evidence archive and its immutable identity in
 the assessment, dating the protection/access observation and distinguishing
 connector-serialized logs from original validation ZIP bytes. Keep raw evidence
 outside main and leave workflow retention, runtime, tests and versions unchanged.
+
+## 2026-11-20: Future evidence-storage decision
+
+Decision: retain the six small annotated source-snapshot tags as required by
+the existing cleanup safeguards. Treat the separate binary CI-evidence Git
+archive as a one-off exception. Prefer release assets outside Git object
+history for future CI evidence, because normal clones fetch the archived blobs.
+
+Decision: require an explicit maintainer decision on storage method and
+destination before the next CI-evidence archive. Leave the destination
+undecided here and respect immutable product releases and update-feed behavior.
+Preserve the existing protected evidence tag/archive and all earlier decisions;
+make no migration, release publication or workflow-retention change.

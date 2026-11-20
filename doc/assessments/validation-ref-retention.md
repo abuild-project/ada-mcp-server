@@ -86,3 +86,17 @@ The CI workflow's `validation-evidence` and `release-candidate` artifacts have
 fourteen-day retention. Creating a source archive tag does not extend that
 period or automatically preserve Actions logs; the separate evidence archive
 explicitly stores the selected bytes.
+
+## 2026-11-20: Storage decision before another evidence archive
+
+The six small source-snapshot tags in the inventory remain required to preserve
+superseded source heads. The separate binary CI-evidence tag
+`archive/ci-evidence/2026-11-19` is a one-off storage exception. A fresh default
+clone was verified to fetch its binary archive blobs even though those files
+are outside main's working tree, adding to ordinary clone storage.
+
+Prefer release assets outside Git object history for future CI evidence.
+Before the next CI-evidence archive, obtain an explicit maintainer decision
+on storage method and destination. No destination is selected here; the
+decision must respect immutable product releases and update-feed behavior.
+Keep the existing protected tag and archive unchanged.

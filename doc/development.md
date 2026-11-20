@@ -313,6 +313,14 @@ history or counters. The
 [retention assessment](assessments/validation-ref-retention.md) identifies the
 specifically authorized source inventory and separately archived CI evidence.
 
+Small source-snapshot tags remain required for superseded heads. The binary
+CI-evidence Git archive identified in the assessment is a one-off exception.
+Prefer release assets outside Git object history for future CI evidence.
+Before the next CI-evidence archive, obtain an explicit maintainer decision
+on storage method and destination; the destination has not been selected.
+That decision must respect immutable product releases and update-feed behavior.
+Preserve the existing protected archive unchanged.
+
 ## Release and hosted review
 
 Prepare coherent unpublished commits before the first submission. The PR

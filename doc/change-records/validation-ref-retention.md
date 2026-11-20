@@ -1,24 +1,23 @@
 # Validation reference retention
 
-Temporary validation branches can remain after merge, while superseded heads
-may still carry source snapshots required by earlier retention decisions.
-Cleanup requires maintainer authorization for that occasion's named refs and
-permitted actions; later cleanups require new authorization. The same
-already-authorized operations need no repeat request. AGENTS.md states this
-boundary and links the development guide's safeguards: preserve active work
-and open pull requests, confirm exact-source reachability for merged heads,
-and retain superseded heads with annotated archive tags before guarded branch
-deletion. Verify remote targets and effective protection against archive
-updates/deletion first. Archive tags must never move or overwrite snapshots.
+Temporary validation branches can outlive merged work, while superseded heads
+may carry snapshots required by earlier retention decisions. Cleanup requires
+maintainer authorization for that occasion's named refs and actions; later
+cleanups need new authorization. The same authorized operations need no repeat
+request. AGENTS.md links safeguards for active work, exact-source reachability,
+annotated source tags, verified remote protection and guarded deletion. Archive
+tags never move or overwrite snapshots.
 
 The [retention assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/validation-ref-retention.md)
-records thirteen audited source heads, six verified annotated source tags and
-the published public CI-evidence archive outside main. It identifies immutable
-objects and hash receipts, dates protection/access observations and distinguishes
-connector-serialized logs from original validation ZIPs. Dated plan additions
-replace branch retention with source preservation without altering earlier
-text or counters. Source tags do not extend the workflow's fourteen-day
-artifact lifetime.
+records thirteen audited source heads, six required annotated source-snapshot
+tags and the separate published CI-evidence archive. The binary CI Git archive
+is a one-off exception. Prefer release assets outside Git object history for
+future CI evidence; an explicit maintainer decision on storage and destination
+is required before the next archive. No destination is selected here, and the
+existing protected archive remains unchanged. Immutable identities, hash
+receipts, dated protection/access observations and evidence-format boundaries
+are detailed in the assessment. Append-only plan additions preserve earlier
+text and counters. Workflow artifact retention remains fourteen days.
 
 This changes internal process documentation only, with no runtime, helper,
 dependency, version, workflow or support change. Documentation/link/index and
