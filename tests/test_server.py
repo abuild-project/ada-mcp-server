@@ -44,14 +44,40 @@ async def test_list_tools():
 
 @pytest.mark.asyncio
 async def test_call_tool_unknown():
-    """Test that calling unknown tool returns error."""
+    """Reject unknown tools before acquiring an ALS client."""
     from ada_mcp.server import call_tool
 
-    result = await call_tool("unknown_tool", {})
+    with patch("ada_mcp.server.get_als_client", new_callable=AsyncMock) as acquire:
+        result = await call_tool("unknown_tool", {})
 
+    acquire.assert_not_called()
     assert len(result) == 1
     data = json.loads(result[0].text)
-    assert "error" in data
+    assert data["error"] == "Unknown tool: unknown_tool"
+    assert data["context"]["tool"] == "unknown_tool"
+    assert data["available_tools"]
+
+
+@pytest.mark.asyncio
+async def test_call_tool_advertised_without_handler():
+    """Identify a missing handler for an advertised tool without calling ALS."""
+    from mcp.types import Tool
+
+    from ada_mcp.server import call_tool
+
+    tool = Tool(name="ada_unhandled_probe", inputSchema={"type": "object"})
+    with (
+        patch("ada_mcp.server.list_tools", new_callable=AsyncMock, return_value=[tool]),
+        patch("ada_mcp.server.get_als_client", new_callable=AsyncMock, return_value=object()),
+    ):
+        result = await call_tool(tool.name, {})
+
+    assert len(result) == 1
+    assert result[0].type == "text"
+    assert json.loads(result[0].text) == {
+        "error": "Advertised tool has no handler: ada_unhandled_probe",
+        "context": {"tool": "ada_unhandled_probe"},
+    }
 
 
 @pytest.mark.asyncio
