@@ -1268,7 +1268,7 @@ def main() -> int:
                         + toml_string_array(launcher_arguments(binding) + notice_arguments)
                         + "\nstartup_timeout_sec = 60\n"
                         "tool_timeout_sec = 120\nenabled_tools = "
-                        + toml_string_array(sorted(read_tools))
+                        + toml_string_array(sorted(read_tools | {"ada_rename_symbol"}))
                         + "\n"
                     )
                     write_new(target, content)

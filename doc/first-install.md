@@ -550,7 +550,7 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py native-config
 ```
 
 The fragment contains the stdio launcher command and arguments derived from
-that binding, plus a read-tool policy. It uses Codex-style `[mcp_servers.ada]`
+that binding, plus a tool policy. It uses Codex-style `[mcp_servers.ada]`
 TOML. The example chooses default `auto`; preserve an existing deliberate
 `off`, `stable` or `prerelease` choice instead when intended. Check the actual
 Ada entry's policy and GUI Python separately from Doctor's offline probe.
@@ -564,6 +564,12 @@ supported configuration flow. Back up the existing file first, retain unrelated
 settings and resolve any existing Ada entry explicitly. Do not copy the fragment
 over the entire configuration. Repository-local configuration is an explicit
 alternative. The helper creates only a new fragment; it does not activate tools.
+
+The unreleased generator also enables `ada_rename_symbol` for preview queries
+under normal Codex policy; published RC6 fragments retain their 16 read tools.
+Follow the [rename-preview activation steps](setup.md#native-rename-previews) when using
+a verified runtime containing that change. Ask for `preview=true`; proposals
+return `applied=false` and do not write source files.
 
 Use the client's supported reconnect flow after activation. For Codex Desktop,
 fully quit and reopen the app, then check a new chat and a resumed chat; do not
@@ -595,8 +601,9 @@ For every native client, enumerate its actual tools, select the real GPR view,
 run source-bound queries and verify disconnect/EOF cleanup in that client.
 The public plugin cannot add native server configuration that it does not
 contain. The server's 19 advertised tools do not promise support for every tool;
-the distribution's 16-tool native read policy and [support matrix](support.md)
-still apply. The [assessment](assessments/macos-codex-rc4.md) distinguishes the
+the [native tool policy](setup.md#native-rename-previews) and
+[support matrix](support.md) still apply. The
+[assessment](assessments/macos-codex-rc4.md) distinguishes the
 project-local Arca run from user-wide Spawn runs and records the evidence limits.
 It establishes neither all-tool functionality nor concurrent different-branch
 queries. Native-host ALS and fresh Cloud registration remain in development.

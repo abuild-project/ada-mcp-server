@@ -296,10 +296,31 @@ Never replace a whole user config with the fragment. Reconnect afterward; for
 Codex Desktop, fully quit/reopen and verify new and resumed chats, user-wide
 discovery, actual MCP version and real queries in a regular checkout and a
 managed worktree. Generation is not registration or lifecycle
-proof. The fragment exposes read tools; write rename/format/build are excluded.
+proof. New fragments from this source expose the 16 read tools and
+rename previews, as described below; formatting and builds remain excluded.
 The command client allows rename only as explicit preview. Availability is not
 a support promise for every tool; see [support.md](support.md), included and
 hash-verified beside this setup guide in the standalone bundle.
+
+### Native rename previews
+
+This unreleased generator adds `ada_rename_symbol` to `enabled_tools` using
+normal Codex policy. It adds no tool-specific approval override. The server
+marks this proposal-only tool with MCP `readOnlyHint=true`. This metadata is a
+hint, and explicit client approval and trust policies still apply.
+Request `preview=true` and review the proposed edits. The server defaults omitted
+`preview` to true, rejects false and returns `applied=false`. Apply any chosen
+change separately through your normal editing and review workflow.
+
+Published RC6 fragments still enable only the 16 read tools. Existing users need
+a verified runtime containing this generator change before regenerating a new
+fragment. Back up and explicitly merge its Ada entry using the flow above,
+including `enabled_tools`, then reconnect. Preserve deliberate client policies
+and unrelated settings. Do not edit authenticated installed helpers in place. Mac acceptance
+of this configuration remains pending: check new and resumed Desktop chats,
+17 native tools including rename, no special rename prompt under normal policy,
+`applied=false` and unchanged before/after source hashes. Explicit client
+policies still apply. Earlier RC4/RC6 observations retain their original limits.
 
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery

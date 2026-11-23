@@ -72,7 +72,19 @@ an empty unscoped diagnostic cache is not a successful compilation.
 
 Use only documented candidate support. A catalog tool name is not a support
 promise. The query client forbids write rename/format/build; rename preview
-requires explicit preview=true. Run the project's prescribed compiler, tests,
+requires explicit preview=true. Newly generated native fragments from source
+containing the rename-preview change expose ada_rename_symbol under normal
+Codex policy without a tool-specific approval override. The server annotates
+only rename with readOnlyHint=true. Explicit client approval/trust policies still
+apply. Request preview=true and inspect applied=false proposals.
+Published RC6 fragments still expose 16 read
+tools. Existing users must acquire a verified runtime containing the change,
+regenerate a new fragment, back up and explicitly merge only the Ada entry,
+then reconnect. Follow references/setup.md. Never patch authenticated helpers.
+Mac acceptance of the changed configuration remains pending: verify 17 native
+tools including rename in new/resumed Desktop chats, no special rename prompt
+under normal policy, applied=false and unchanged before/after source hashes.
+Other tools' support remains bounded. Run the project's prescribed compiler, tests,
 coverage and documentation separately. MCP does not replace CI.
 
 Supplied RC4 Mac/Codex Desktop evidence covers bounded user-wide queries,

@@ -10,6 +10,7 @@ import tomllib
 import acquire
 import artifacts
 import image_identity
+import mcp_client
 import pytest
 from image_fixtures import metadata_archive
 from test_update_bytecode import environment, poison, snapshot
@@ -101,6 +102,38 @@ def run(installed, arguments, tmp_path):
         capture_output=True,
         timeout=10,
     )
+
+
+def test_packaged_native_config_enables_rename_preview_without_policy_override(installed, tmp_path):
+    target = tmp_path / "native.toml"
+    result = run(
+        installed,
+        [
+            sys.executable,
+            str(installed["scripts"] / "ada_mcp_setup.py"),
+            "native-config",
+            "--binding",
+            str(installed["binding"]),
+            "--output",
+            str(target),
+            "--update-channel",
+            "off",
+        ],
+        tmp_path,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    document = tomllib.loads(target.read_text())
+    native = document["mcp_servers"]["ada"]
+    assert len(mcp_client.READ_TOOLS) == 16
+    assert "ada_rename_symbol" not in mcp_client.READ_TOOLS
+    assert set(native["enabled_tools"]) == mcp_client.READ_TOOLS | {"ada_rename_symbol"}
+    assert len(native["enabled_tools"]) == 17
+    assert {"ada_build", "ada_format_file"}.isdisjoint(native["enabled_tools"])
+    assert "tools" not in native
+    assert "approval_mode" not in native
+    assert "default_tools_approval_mode" not in native
+    assert "tools" not in document
+    assert "default_tools_approval_mode" not in document
 
 
 @pytest.mark.parametrize(
