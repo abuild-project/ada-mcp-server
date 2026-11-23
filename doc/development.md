@@ -250,8 +250,9 @@ preview_root=$(mktemp -d)
 Open <http://127.0.0.1:8000/ada-mcp-server/>. CI also retains the built files in
 the `user-documentation-preview` artifact. To preview those files, extract
 them into the `ada-mcp-server` subdirectory of the directory you serve.
-Publication is separate. After Pages is configured to use GitHub Actions,
-an authorized maintainer can run **Publish user documentation** from main.
+After a maintainer configures Pages to use GitHub Actions, the separate
+**Publish user documentation** workflow deploys on pushes to `main`.
+An authorized maintainer can also run it manually from `main`.
 
 ### Task-subunit fixture check
 

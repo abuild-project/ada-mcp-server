@@ -91,3 +91,14 @@ canonical GitHub main links. Keep advanced references on GitHub and retain
 the existing treatment of tagged links, external links and fragments for
 other file types. Link to the named server catalog declaration without a
 line number on main.
+
+## 2026-11-23 — maintainer-authorized Pages trigger
+
+The maintainer directed Pages to publish on pushes to `main`, as in Arca
+and Spawn. This supersedes the manual-only trigger and retains manual
+dispatch from `main`. The pull request preview continues to run in CI.
+
+This separate adjustment applies only to `.github/workflows/pages.yml`,
+`doc/development.md`, this plan and its change record. Local corrections
+remain at 1/3 and PR corrections at 3/3. Repository configuration and live
+deployment are separate actions.

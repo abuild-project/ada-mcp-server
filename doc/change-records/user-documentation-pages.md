@@ -22,8 +22,9 @@ and GitHub main links to rendered and advanced guides. They verify navigation
 at the project subpath, unchanged GitHub reference and tag URLs, and rejection
 of missing pages and heading fragments. Development checks also cover shell
 and JSON examples and packaging contracts. CI retains the site in
-`user-documentation-preview`. Publication uses a separate manual workflow on
-main after an authorized maintainer configures Pages to use GitHub Actions.
+`user-documentation-preview`. After a maintainer configures Pages to use
+GitHub Actions, a separate workflow publishes on pushes to `main` and allows
+manual dispatch from the same branch.
 See the [dated plan](../plans/user-documentation-pages.md).
 
 Co-Authored-By: Codex (GPT-6.2) <codex@openai.com>
