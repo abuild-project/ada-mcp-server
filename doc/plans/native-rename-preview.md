@@ -59,3 +59,10 @@ revise the unreleased-generator wording in [setup.md](../setup.md),
 [first-install.md](../first-install.md), [support.md](../support.md) and
 [integrations/full-skill.md](../../integrations/full-skill.md). The coordinator
 handles hosted delivery. This correction authorizes no release or merge.
+
+## 2026-11-23: Public migration clarification
+
+The intermediate rename-specific prompt override existed only on this topic
+branch. Public migration instructions address published RC6's 16-tool fragment
+and the new normal-policy 17-tool configuration. Preserve the superseded
+decisions above as history.

@@ -315,10 +315,8 @@ change separately through your normal editing and review workflow.
 Published RC6 fragments still enable only the 16 read tools. Existing users need
 a verified runtime containing this generator change before regenerating a new
 fragment. Back up and explicitly merge its Ada entry using the flow above,
-including `enabled_tools`, then reconnect. If migrating the earlier prompt
-configuration, explicitly remove only its rename-specific approval override
-when you intend normal policy. Preserve deliberate client policies and unrelated
-settings. Do not edit authenticated installed helpers in place. Mac acceptance
+including `enabled_tools`, then reconnect. Preserve deliberate client policies
+and unrelated settings. Do not edit authenticated installed helpers in place. Mac acceptance
 of this configuration remains pending: check new and resumed Desktop chats,
 17 native tools including rename, no special rename prompt under normal policy,
 `applied=false` and unchanged before/after source hashes. Explicit client

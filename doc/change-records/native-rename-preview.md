@@ -14,10 +14,8 @@ The server still defaults to preview, rejects application and returns
 
 Published RC6 artifacts remain unchanged. Existing users need a verified
 runtime containing the generator change, a newly generated fragment, an
-explicit backed-up merge of only the Ada entry, and reconnection. Earlier
-rename-specific prompt overrides need an explicit removal when normal policy
-is intended. The [plan](../plans/native-rename-preview.md) records scope and
-activation limits.
+explicit backed-up merge of only the Ada entry, and reconnection.
+The [plan](../plans/native-rename-preview.md) records these boundaries.
 
 Regressions reject the missing rename tool at the original base and the prompt
 override and absent serialized read-only hint at `fc913de`. They check the exact
