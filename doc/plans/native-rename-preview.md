@@ -33,3 +33,29 @@ separate tester's exact-source AMD64 Trixie chain and independent review.
 The coordinator assigns developer, tester and reviewer without recursive
 delegation and handles hosted delivery. This new topic starts at local 0/3
 and later PR 0/3.
+
+## 2026-11-23: Maintainer-approved normal policy
+
+The maintainer supersedes the initial rename-specific prompt choice. Keep all
+17 native tools, remove that approval override and annotate only
+`ada_rename_symbol` with the locked SDK's `ToolAnnotations(readOnlyHint=True)`.
+Normal Codex approval and trust policy applies. Preserve explicit policies.
+Keep the helper's separate allowlist and explicit Boolean preview guard, server
+default preview, false rejection and `applied=false` behavior unchanged.
+
+Mac acceptance remains pending. Check normal configuration in new and resumed
+Desktop chats, 17 direct native tools including rename, no special rename
+prompt, `applied=false` and identical before/after source hashes. These are
+acceptance criteria. Earlier published RC6 STDIO proposals and the missing
+Desktop tool remain the observed Mac evidence. Cloud roles cannot rerun
+Desktop on Mac.
+
+Require negative controls against published parent
+`fc913deeeadeb80949ff02ad8457b0cb7abba812` for both the generated TOML override
+and serialized MCP catalog annotation. Reuse existing server behavior tests
+and the exact-source Trixie chain. This is PR correction 1/3; local remains 0/3.
+When preparing the first release containing this change, its release PR must
+revise the unreleased-generator wording in [setup.md](../setup.md),
+[first-install.md](../first-install.md), [support.md](../support.md) and
+[integrations/full-skill.md](../../integrations/full-skill.md). The coordinator
+handles hosted delivery. This correction authorizes no release or merge.

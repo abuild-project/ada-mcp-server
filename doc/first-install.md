@@ -565,9 +565,9 @@ settings and resolve any existing Ada entry explicitly. Do not copy the fragment
 over the entire configuration. Repository-local configuration is an explicit
 alternative. The helper creates only a new fragment; it does not activate tools.
 
-The unreleased generator also enables `ada_rename_symbol` with per-tool approval
-for preview queries; published RC6 fragments retain their 16 read tools. Follow
-the [rename-preview activation steps](setup.md#native-rename-previews) when using
+The unreleased generator also enables `ada_rename_symbol` for preview queries
+under normal Codex policy; published RC6 fragments retain their 16 read tools.
+Follow the [rename-preview activation steps](setup.md#native-rename-previews) when using
 a verified runtime containing that change. Ask for `preview=true`; proposals
 return `applied=false` and do not write source files.
 

@@ -4,8 +4,9 @@ import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from mcp.types import ListToolsRequest
 
-from ada_mcp.server import call_tool, list_tools
+from ada_mcp.server import call_tool, list_tools, server
 from ada_mcp.tools.refactoring import handle_rename_symbol
 
 UNSUPPORTED = {
@@ -92,6 +93,14 @@ async def test_catalog_describes_preview_only_without_changing_boolean_schema():
     assert preview["type"] == "boolean" and preview["default"] is True
     assert "false" in preview["description"] and "unsupported" in preview["description"]
     assert "enum" not in preview
+
+
+@pytest.mark.asyncio
+async def test_serialized_mcp_catalog_marks_rename_read_only():
+    result = await server.request_handlers[ListToolsRequest](ListToolsRequest(method="tools/list"))
+    catalog = json.loads(result.model_dump_json(by_alias=True, exclude_none=True))
+    tool = next(tool for tool in catalog["tools"] if tool["name"] == "ada_rename_symbol")
+    assert tool["annotations"]["readOnlyHint"] is True
 
 
 @pytest.mark.asyncio

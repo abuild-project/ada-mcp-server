@@ -11,7 +11,7 @@ from typing import Any
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.types import TextContent, Tool, ToolAnnotations
 
 from ada_mcp import __version__
 from ada_mcp._version import VERSION
@@ -826,6 +826,7 @@ async def list_tools() -> list[Tool]:
         # Phase 5: Refactoring
         Tool(
             name="ada_rename_symbol",
+            annotations=ToolAnnotations(readOnlyHint=True),
             description=(
                 "Preview an Ada symbol rename across the project; application is not supported"
             ),

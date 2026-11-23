@@ -296,7 +296,7 @@ Never replace a whole user config with the fragment. Reconnect afterward; for
 Codex Desktop, fully quit/reopen and verify new and resumed chats, user-wide
 discovery, actual MCP version and real queries in a regular checkout and a
 managed worktree. Generation is not registration or lifecycle
-proof. New fragments from this source expose the 16 read tools and prompted
+proof. New fragments from this source expose the 16 read tools and
 rename previews, as described below; formatting and builds remain excluded.
 The command client allows rename only as explicit preview. Availability is not
 a support promise for every tool; see [support.md](support.md), included and
@@ -304,28 +304,25 @@ hash-verified beside this setup guide in the standalone bundle.
 
 ### Native rename previews
 
-This unreleased generator adds `ada_rename_symbol` to `enabled_tools` and requests
-approval for that tool through Codex's supported per-tool setting:
-
-```toml
-[mcp_servers.ada.tools.ada_rename_symbol]
-approval_mode = "prompt"
-```
-
-Keep server settings such as `enabled_tools`, command arguments and any `env`
-table in their own scope; the approval setting belongs only to this tool table.
+This unreleased generator adds `ada_rename_symbol` to `enabled_tools` using
+normal Codex policy. It adds no tool-specific approval override. The server
+marks this proposal-only tool with MCP `readOnlyHint=true`. This metadata is a
+hint, and explicit client approval and trust policies still apply.
 Request `preview=true` and review the proposed edits. The server defaults omitted
-`preview` to true, rejects false and returns `applied=false`; approval permits
-the proposal query, not writing the edits. Apply any chosen change separately
-through your normal editing and review workflow.
+`preview` to true, rejects false and returns `applied=false`. Apply any chosen
+change separately through your normal editing and review workflow.
 
 Published RC6 fragments still enable only the 16 read tools. Existing users need
 a verified runtime containing this generator change before regenerating a new
 fragment. Back up and explicitly merge its Ada entry using the flow above,
-including both `enabled_tools` and the tool approval table, then reconnect.
-Do not edit authenticated installed helpers in place. The changed fragment has
-not yet been accepted on Mac/Codex Desktop; earlier RC4/RC6 observations retain
-their original limits.
+including `enabled_tools`, then reconnect. If migrating the earlier prompt
+configuration, explicitly remove only its rename-specific approval override
+when you intend normal policy. Preserve deliberate client policies and unrelated
+settings. Do not edit authenticated installed helpers in place. Mac acceptance
+of this configuration remains pending: check new and resumed Desktop chats,
+17 native tools including rename, no special rename prompt under normal policy,
+`applied=false` and unchanged before/after source hashes. Explicit client
+policies still apply. Earlier RC4/RC6 observations retain their original limits.
 
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery

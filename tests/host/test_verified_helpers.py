@@ -104,7 +104,7 @@ def run(installed, arguments, tmp_path):
     )
 
 
-def test_packaged_native_config_enables_prompted_rename_preview(installed, tmp_path):
+def test_packaged_native_config_enables_rename_preview_without_policy_override(installed, tmp_path):
     target = tmp_path / "native.toml"
     result = run(
         installed,
@@ -129,9 +129,11 @@ def test_packaged_native_config_enables_prompted_rename_preview(installed, tmp_p
     assert set(native["enabled_tools"]) == mcp_client.READ_TOOLS | {"ada_rename_symbol"}
     assert len(native["enabled_tools"]) == 17
     assert {"ada_build", "ada_format_file"}.isdisjoint(native["enabled_tools"])
-    assert native["tools"] == {"ada_rename_symbol": {"approval_mode": "prompt"}}
+    assert "tools" not in native
     assert "approval_mode" not in native
+    assert "default_tools_approval_mode" not in native
     assert "tools" not in document
+    assert "default_tools_approval_mode" not in document
 
 
 @pytest.mark.parametrize(

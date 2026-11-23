@@ -42,9 +42,10 @@ each tool's `inputSchema`. The repository declares the catalog in
 [`list_tools` in `src/ada_mcp/server.py`](https://github.com/abuild-project/ada-mcp-server/blob/main/src/ada_mcp/server.py).
 
 - **Codex Desktop** uses the native entry's `enabled_tools` setting. The
-  unreleased generator enables 16 read tools plus `ada_rename_symbol` with
-  per-tool approval for previews (17 total). Published RC6 fragments retain
-  16 read tools; existing users need explicit
+  unreleased generator enables 16 read tools plus `ada_rename_symbol` for
+  previews (17 total) under normal Codex policy. Only rename is annotated
+  `readOnlyHint=true`; explicit client policies still apply. Published RC6
+  fragments retain 16 read tools; existing users need explicit
   [regeneration, merge and reconnect](setup.md#native-rename-previews).
 - **Managed Cloud and direct Docker** use the Docker query helper. The Cloud
   skill runs it for you. The helper lists all 19 server tools and limits
