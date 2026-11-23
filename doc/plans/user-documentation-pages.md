@@ -77,3 +77,17 @@ and argument schemas and how the Desktop and Docker helper call policies
 differ. Give readers a source check for their first query and an alternate
 setup route when Managed Cloud plugin creation is unavailable. Keep the
 README and landing page unchanged.
+
+## 2026-11-23 — maintainer-authorized link validation
+
+The maintainer authorized this limited exception with local corrections at
+1/3 and PR corrections at 3/3. The counters remain unchanged. The permitted
+edits cover `scripts/build_pages.py` and `tests/host/test_build_pages.py` for
+heading checks on linked repository Markdown, `doc/support.md` for the
+server catalog source link, and this plan and its change record.
+
+Validate headings in the candidate source for both relative links and
+canonical GitHub main links. Keep advanced references on GitHub and retain
+the existing treatment of tagged links, external links and fragments for
+other file types. Link to the named server catalog declaration without a
+line number on main.

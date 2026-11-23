@@ -18,11 +18,12 @@ technical references. The [RC6 consumer assessment](../assessments/rc6-consumer.
 retains the supplied Mac and Cloud observations and their evidence limits.
 
 The site contains the original MIT license text. Host tests cover relative
-and GitHub main links, immutable tag URLs and rejection of missing pages
-and heading fragments. Development checks cover the rendered navigation,
-advanced reference anchors, shell and JSON examples and packaging contracts.
-CI retains the same site in `user-documentation-preview`. Publication uses
-a separate manual workflow on main after an authorized maintainer configures
-Pages to use GitHub Actions. See the [dated plan](../plans/user-documentation-pages.md).
+and GitHub main links to rendered and advanced guides. They verify navigation
+at the project subpath, unchanged GitHub reference and tag URLs, and rejection
+of missing pages and heading fragments. Development checks also cover shell
+and JSON examples and packaging contracts. CI retains the site in
+`user-documentation-preview`. Publication uses a separate manual workflow on
+main after an authorized maintainer configures Pages to use GitHub Actions.
+See the [dated plan](../plans/user-documentation-pages.md).
 
 Co-Authored-By: Codex (GPT-6.2) <codex@openai.com>

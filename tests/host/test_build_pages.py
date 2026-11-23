@@ -64,3 +64,30 @@ def test_pages_rejects_broken_link(pages_source: Path, target: str, message: str
     (pages_source / "doc/user/index.md").write_text(f"# Start\n\n[Broken link]({target})\n")
     with pytest.raises(ValueError, match=message):
         build_pages.build(pages_source / "ada-mcp-server")
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "../advanced.md",
+        "https://github.com/abuild-project/ada-mcp-server/blob/main/doc/advanced.md",
+    ],
+    ids=["relative", "github-main"],
+)
+def test_pages_checks_advanced_reference_headings(pages_source: Path, target: str) -> None:
+    (pages_source / "doc/advanced.md").write_text("# Advanced guide\n\n## Set up, then verify\n")
+    start = pages_source / "doc/user/index.md"
+    start.write_text(f"# Start\n\n[Advanced guide]({target}#set-up-then-verify)\n")
+    output = pages_source / "ada-mcp-server"
+    build_pages.build(output)
+
+    expected = (
+        "https://github.com/abuild-project/ada-mcp-server/blob/main/"
+        "doc/advanced.md#set-up-then-verify"
+    )
+    assert f'<a href="{expected}">Advanced guide</a>' in (output / "index.html").read_text()
+    assert not (output / "advanced.html").exists()
+
+    start.write_text(f"# Start\n\n[Advanced guide]({target}#missing)\n")
+    with pytest.raises(ValueError, match=r"unknown documentation anchor.*#missing"):
+        build_pages.build(pages_source / "broken")

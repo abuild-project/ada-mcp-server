@@ -39,7 +39,7 @@ python3 /path/to/runtime/scripts/ada_mcp_setup.py query \
 
 The JSON `tools` array contains the server's `tools/list` results, including
 each tool's `inputSchema`. The repository declares the catalog in
-[`list_tools` in `src/ada_mcp/server.py`](https://github.com/abuild-project/ada-mcp-server/blob/main/src/ada_mcp/server.py#L457).
+[`list_tools` in `src/ada_mcp/server.py`](https://github.com/abuild-project/ada-mcp-server/blob/main/src/ada_mcp/server.py).
 
 - **Codex Desktop** can call the 16 tools listed in the generated native
   entry's `enabled_tools` setting.

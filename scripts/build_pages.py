@@ -45,7 +45,13 @@ def heading_ids(tokens: list[Token]) -> dict[str, str]:
     return headings
 
 
-def resolve_link(href: str, source: Path, anchors: dict[Path, dict[str, str]]) -> str:
+def resolve_link(
+    href: str,
+    source: Path,
+    rendered: set[Path],
+    anchors: dict[Path, dict[str, str]],
+    parser: MarkdownIt,
+) -> str:
     """Resolve a guide URL and verify its local destination."""
     repo_link = href.startswith(SOURCE)
     origin = ROOT if repo_link else source.parent
@@ -56,9 +62,12 @@ def resolve_link(href: str, source: Path, anchors: dict[Path, dict[str, str]]) -
     path = (origin / unquote(url.path)).resolve() if url.path else source
     if not path.is_relative_to(ROOT) or not path.is_file():
         raise ValueError(f"{source.name}: broken documentation link {href!r}")
-    if path in anchors:
-        if url.fragment and unquote(url.fragment) not in anchors[path]:
+    if url.fragment and path.suffix.lower() == ".md":
+        if path not in anchors:
+            anchors[path] = heading_ids(parser.parse(path.read_text(encoding="utf-8")))
+        if unquote(url.fragment) not in anchors[path]:
             raise ValueError(f"{source.name}: unknown documentation anchor {href!r}")
+    if path in rendered:
         html_path = f"{path.stem}.html" if url.path else ""
         return urlunsplit(("", "", html_path, url.query, url.fragment))
     if repo_link:
@@ -119,13 +128,14 @@ def build(output: Path) -> None:
     parser = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"])
     sources = [ROOT / "doc/user" / f"{name}.md" for name in GUIDES]
     documents = {path: parser.parse(path.read_text(encoding="utf-8")) for path in sources}
+    rendered = set(documents)
     anchors = {source: heading_ids(tokens) for source, tokens in documents.items()}
     pages: dict[str, str] = {}
     for source, tokens in documents.items():
         for block in tokens:
             for token in block.children or []:
                 if token.type == "link_open" and isinstance(href := token.attrGet("href"), str):
-                    token.attrSet("href", resolve_link(href, source, anchors))
+                    token.attrSet("href", resolve_link(href, source, rendered, anchors, parser))
         body = parser.renderer.render(tokens, parser.options, {})
         pages[source.stem] = render_page(source.stem, body, anchors[source])
 
