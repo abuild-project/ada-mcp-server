@@ -4,8 +4,11 @@ The README and five user guides lead with the tasks readers came to do.
 Choose Mac with Codex Desktop, Codex in Managed Cloud or direct Docker,
 then query a real Ada project. Short setup prompts, a terminal example and
 plain-language help cover the differences between Desktop's direct tools
-and the Cloud skill's Docker helper. The guides explain how to approve an
-update and restore a working runtime, binding or client entry.
+and the Cloud skill's Docker helper. The guides give an alternate setup
+when Plugin Creator is unavailable and show how to verify the selected
+project and a known symbol. The optional tool reference explains how to
+inspect the installed catalog and which tools the client routes can call.
+The guides also cover approved updates and rollback.
 
 GitHub Pages renders the Markdown in `doc/user/` at the project subpath.
 The advanced installation, host setup, update and support references keep

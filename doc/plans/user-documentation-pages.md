@@ -68,3 +68,12 @@ skill, published release links and developer guidance. Move the detailed RC6
 observations and their evidence limits to a maintainer assessment. Preserve
 the support scope and the manual install/update procedures. No runtime,
 release or archive-generation code changes are needed.
+
+## 2026-11-23 — tool reference and first-query guidance
+
+Add one optional link from everyday use to technical support on GitHub and
+preserve the section anchor. Explain how to inspect the installed catalog
+and argument schemas and how the Desktop and Docker helper call policies
+differ. Give readers a source check for their first query and an alternate
+setup route when Managed Cloud plugin creation is unavailable. Keep the
+README and landing page unchanged.

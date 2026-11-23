@@ -49,6 +49,10 @@ checks which files are available before reusing an installation. See the
 [private plugin instructions](../first-install.md#managed-cloud-create-your-private-copy)
 for activation and reuse.
 
+If you need Plugin Creator and it is unavailable, use
+[Direct Docker](#direct-docker) in an environment with Docker access. If
+Docker is unavailable in Cloud, try [Codex Desktop on a Mac](#mac-with-codex-desktop).
+
 ## Direct Docker
 
 1. Have Git, Python 3.11+, Bash 3.2+ and access to Docker that can run

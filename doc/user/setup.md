@@ -7,13 +7,16 @@ Open the checkout you want to inspect. Give Codex the actual project file
 
 ```text
 Select app.gpr and list the symbols in src/app.ads.
-Show the file names, line numbers and any warnings.
+Show the selected project file, source paths, line numbers and any warnings.
 ```
 
 Replace the example paths with files in your checkout. If your project needs
 dependency search paths or scenario values such as a release build mode,
 include them. On Mac, Codex uses the connected Ada tools. In Managed Cloud,
 ask the Ada skill to use the Docker query helper.
+
+Check that the selected `.gpr` is the one in your checkout and that at least
+one symbol you know is listed at the correct source file and line.
 
 ## Direct Docker query
 
@@ -40,6 +43,7 @@ python3 /path/to/runtime/scripts/ada_mcp_setup.py query \
   --binding /path/to/ada-binding.json batch /path/to/first-query.json
 ```
 
+Check the reported project and a known symbol's location in the output.
 For projects with extra dependency paths or scenario values, see the
 [full batch example](../first-install.md#shared-docker-binding-and-first-queries).
 
@@ -53,3 +57,5 @@ Give the file and position for navigation or hover. When you change projects
 or worktrees, select the new checkout's project file and sources. Compare
 paths and locations in the answer with your checkout.
 [Get help with incomplete results](support.md#the-answer-is-empty-or-incomplete).
+
+[Tool reference for Desktop and Cloud](../support.md#project-readiness-and-tool-support)

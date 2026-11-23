@@ -27,6 +27,36 @@ uses the container's Python 3.13; host setup records its actual Python version.
 
 ## Project readiness and tool support
 
+### Tool reference
+
+The query helper from your installed runtime shows the full server catalog
+and each tool's argument schema. Run it with the matching binding.
+
+```sh
+python3 /path/to/runtime/scripts/ada_mcp_setup.py query \
+  --binding /path/to/ada-binding.json tools
+```
+
+The JSON `tools` array contains the server's `tools/list` results, including
+each tool's `inputSchema`. The repository declares the catalog in
+[`list_tools` in `src/ada_mcp/server.py`](https://github.com/abuild-project/ada-mcp-server/blob/main/src/ada_mcp/server.py#L457).
+
+- **Codex Desktop** can call the 16 tools listed in the generated native
+  entry's `enabled_tools` setting.
+- **Managed Cloud and direct Docker** use the Docker query helper. The Cloud
+  skill runs it for you. The helper lists all 19 server tools and limits
+  calls to the 16 names in `client_read_tools` plus rename proposals with
+  explicit `preview=true`.
+
+The supported workflow covers project selection, symbol queries, definition
+and hover lookups, and per-file diagnostics. Catalog entries for references,
+implementations, call hierarchy, dependency graphs, completions, signatures,
+code actions and spec selection remain in development beyond their individual
+test coverage. Applying renames, formatting, builds and Alire integration are
+outside the supported workflow.
+
+### Project readiness
+
 For `ada_project_info`, `complete=true` means that the requested GPR metadata
 and source membership were evaluated successfully. The separate Boolean
 `indexing_complete` confirms observed, quiescent indexing; false means pending
@@ -41,15 +71,6 @@ no longer waits on the former 25-second indexing gate; the 30-second per-ALS-RPC
 timeout and 25-second guarded semantic wait remain. The supplied
 [post-publication Mac acceptance](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/macos-codex-rc4.md) is separate
 from the optional [larger-project timing assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/project-selection-timing.md).
-
-The server advertises 19 tools. The read-only client policy permits 16 tools
-and explicit rename preview, but the catalog alone does not prove correctness
-or support for all those functions. References, implementations, call hierarchy,
-dependency graphs, completions, signatures, code actions and spec selection
-remain in development beyond their individual unit/probe coverage. Write
-rename, formatting, build and Alire integration are not supported by this
-read-only distribution workflow. They are never described as safe substitutes
-for review or compiler CI.
 
 The [additional-tool regression assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/additional-tool-capabilities.md)
 adds bounded internal evidence without expanding this support matrix. Three
