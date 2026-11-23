@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Include XML/Ada development packages in the standalone image so projects
+  importing XML/Ada can resolve its GPR projects and Ada sources.
 - Enable rename previews in newly generated Codex native configurations under
   normal client policy and mark the proposal-only tool read-only in MCP metadata.
   Existing users must regenerate and explicitly merge the

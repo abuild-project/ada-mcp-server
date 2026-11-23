@@ -658,6 +658,52 @@ async def run_integration_tests() -> bool:
                     "Known forms fixture inputs unchanged", forms_input_hashes() == before_forms
                 )
 
+        print("\n[9d] Checking built-in XML/Ada development exports...")
+        with tempfile.TemporaryDirectory(prefix="ada-mcp-xmlada-") as temporary:
+            owned = Path(temporary) / "xmlada_project"
+            shutil.copytree(project_root / "tests/fixtures/xmlada_project", owned)
+            inputs = (owned / "xmlada_probe.gpr", owned / "src/xmlada_probe.adb")
+            before_xmlada = {
+                path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in inputs
+            }
+            command = ["gprbuild", "-P", str(inputs[0]), "-p", "-c", "-u", inputs[1].name]
+            try:
+                compiled = await asyncio.to_thread(
+                    subprocess.run,
+                    command,
+                    cwd=owned,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    timeout=60,
+                    check=False,
+                )
+                artifact = owned / "obj/xmlada_probe.ali"
+                print(
+                    json.dumps(
+                        {
+                            "command": command,
+                            "exit_code": compiled.returncode,
+                            "output": compiled.stdout.decode("utf-8", errors="replace"),
+                            "input_sha256": before_xmlada,
+                            "artifact_sha256": (
+                                hashlib.sha256(artifact.read_bytes()).hexdigest()
+                                if artifact.is_file()
+                                else None
+                            ),
+                        }
+                    )
+                )
+                test_result(
+                    "XML/Ada aggregate and all development exports compile",
+                    compiled.returncode == 0 and artifact.is_file(),
+                )
+            finally:
+                test_result(
+                    "Known XML/Ada fixture inputs unchanged",
+                    {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in inputs}
+                    == before_xmlada,
+                )
+
     except Exception as e:
         print(f"\n    ✗ Test error: {e}")
         import traceback

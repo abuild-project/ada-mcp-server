@@ -17,7 +17,7 @@ LABEL io.abuild-project.license-scope="Own source MIT; dependencies retain indiv
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        ca-certificates curl git gcc gnat gnat-14=14.2.0-19 gprbuild=2025.0.0-4 \
-       make python3 python3-venv \
+       libxmlada-schema-dev=25.0.0-4 make python3 python3-venv \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --uid 1000 --shell /usr/sbin/nologin ada-mcp
 

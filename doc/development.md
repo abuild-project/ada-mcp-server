@@ -98,6 +98,13 @@ The initial state's comment line is serialized metadata; no-target calls
 exercise the changed state. These mocked controls do not establish live proof.
 The documentation checker also enforces alphabetical change-record titles.
 
+The integration runner also compiles a fresh copy of
+`tests/fixtures/xmlada_project`, importing the installed `xmlada` aggregate and
+Schema, DOM, SAX, Input and Unicode units. Compiler output, the resulting ALI
+hash and unchanged known input hashes establish the image's development exports.
+This fixture uses no external project checkout. A real consumer still needs its
+own GPR dependencies prepared before semantic queries.
+
 The additional-tool control requires exact fixture-derived call edges and
 native call-site ranges, qualified members, signatures, code-action discovery,
 single- and cross-unit rename previews, spec targets, formatting edits,
