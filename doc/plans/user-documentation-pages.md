@@ -46,3 +46,11 @@ The direct Docker route starts with RC6 acquisition and points to the retained
 runtime/binding pair for rollback. A compatible skill or Cloud entry can restore
 its runtime selection through the existing guarded activation procedure. The
 site carries an unchanged copy of the project's MIT license.
+
+## 2026-11-23 — Pages link regression checks
+
+An owned Markdown fixture exercises the actual site builder independently of
+the maintained guides. Check that relative and GitHub main guide links resolve
+at the project subpath, that a tagged guide retains its immutable GitHub URL,
+and that missing pages and fragments fail the build. Keep these checks in the
+ordinary host test suite.

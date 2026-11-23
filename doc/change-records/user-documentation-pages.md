@@ -21,10 +21,11 @@ checks that remain open. Published RC6 assets and release notes retain their
 original contents.
 
 Development checks covered Markdown examples, links, dependency pins, Ruff,
-strict typing and the rendered site at the project subpath. The complete CI
-chain builds the same preview and retains it as the
-`user-documentation-preview` artifact. Publication uses a separate manual
-workflow on main after an authorized maintainer configures Pages to use
-GitHub Actions. See the [dated plan](../plans/user-documentation-pages.md).
+strict typing and the rendered site at the project subpath. The host tests
+cover relative and GitHub main guide links, immutable tag URLs and rejection
+of broken links and fragments. The complete CI chain builds the same preview
+and retains it as the `user-documentation-preview` artifact. Publication uses
+a separate manual workflow on main after an authorized maintainer configures
+Pages to use GitHub Actions. See the [dated plan](../plans/user-documentation-pages.md).
 
 Co-Authored-By: Codex (GPT-6.2) <codex@openai.com>
