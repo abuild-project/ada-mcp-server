@@ -25,6 +25,8 @@ uses the container's Python 3.13; host setup records its actual Python version.
 | EOF/exit/container removal | exact-name inspect receipts in host acceptance | Unknown state fails; no broad cleanup |
 | Versioned package/skill/image correspondence | scripts/artifacts.py and metadata/version tests; published RC1 public asset/hash verification | Later releases need their own publication and consumer checks |
 
+## Project readiness and tool support
+
 For `ada_project_info`, `complete=true` means that the requested GPR metadata
 and source membership were evaluated successfully. The separate Boolean
 `indexing_complete` confirms observed, quiescent indexing; false means pending
@@ -61,6 +63,8 @@ requests. The shared server connection may already be initialized. The shipped
 client continues to require explicit rename preview and deny build/formatting
 calls. Owned compiler, formatting
 and manifest probes do not establish a consumer editing or Alire workflow.
+
+## Earlier client observations
 
 A supplied managed Cloud batch of 15 concrete requests and results was
 independently checked against Arca source commit
@@ -101,16 +105,44 @@ These are supplied curated results, not independently rerun Mac logs. See the
 [sanitized assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/macos-codex-rc4.md)
 for archive identity, source coordinates, LSP category normalization and limits.
 Later supplied RC4-to-RC5 observations cover a scoped PATH correction and
-cached notice. Actual Mac acceptance of RC6's host Python and policy changes
-requires a separate source and published consumer check. See the
-[host Python guidance](updating.md#host-python-and-native-update-policy).
+cached notice. See the [host Python guidance](updating.md#host-python-and-native-update-policy).
+
+## RC6 consumer observations
+
+The maintainer supplied these observations for the
+[published RC6 pilot](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6).
+They cover the specific configurations and requests below.
+
+- **Mac offline check:** The RC6 launcher `--check` ran under Bash 3.2 on
+  macOS 26.5.1 arm64, inspecting the retained RC5 image without starting a
+  container. It accepted Python 3.13.14, rejected the system Python 3.9.6
+  when advisories were enabled, and reported Python disabled with policy `off`.
+- **Mac RC6 runtime and native connection:** The subsequent RC6 GHCR download
+  and Doctor check used an installed fixed Python 3.13.14 interpreter,
+  `auto` update policy and two read-only mounts. After fully restarting
+  Codex Desktop, a resumed Arca chat reported the direct MCP handshake
+  `0.2.0rc6` and that the skill was available. The selected `arca.gpr` view
+  used the release scenario. The workspace-symbol search for `CPIO_Make_Symlink`
+  was complete and untruncated. Definition and implementation queries matched
+  the specification at line 72, column 14 and the body at line 368, column 14.
+  A fresh RC6 chat and visual skill discovery remain separate checks.
+- **Managed Cloud runtime reuse:** A fresh task in another configured
+  execution environment reused the retained selection and verified runtime.
+  It reported handshake `0.2.0rc6`, complete `arca.gpr` validation, and a
+  complete, untruncated workspace symbol result for `Arca` at line 3,
+  column 9. A fresh prerelease check returned `up_to_date`. The task used
+  the skill and Docker query helper with retained files. Cold acquisition,
+  third-party account import and native Cloud registration remain separate
+  checks.
+
+## Other hosts and clients
 
 Other macOS/client versions, Colima, native-host ALS, Claude, OpenCode and
 separate-account private plugin import remain in development until tested
 directly. Native Cloud registration and other accounts' runtime
 behavior require their own evidence beyond the reported workflow and public
-artifact-byte access. Registry acceptance above applies to the tested RC4 host;
-other releases/hosts need their own evidence.
+artifact-byte access. The reported Mac registry acquisition covers the tested
+RC4 and RC6 configurations. Other releases and hosts need their own evidence.
 Local CLI discovery or a temporary app-server proves neither the current Cloud
 catalog nor another client's behavior. Configuration examples prepare those
 tests rather than promising compatibility.

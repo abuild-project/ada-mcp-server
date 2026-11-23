@@ -15,11 +15,14 @@ File diagnostics complement your project's compiler and tests. See the
 
 ## Install, connect and use
 
+Start with the [user documentation](doc/index.md) to choose your setup,
+run a first query, or find update and rollback instructions.
+
 You need Git, Python 3.11+, Bash 3.2+ and Docker able to run Linux/AMD64
 containers. Use a nonroot account with Docker access and readable project
 sources. You do not need to build Ada MCP or run this repository's CI.
 
-1. [Install or upgrade to RC6 after publication](doc/first-install.md#install-or-upgrade-to-rc6).
+1. [Install or upgrade to the published RC6 pilot](doc/first-install.md#install-or-upgrade-to-rc6).
    The guide verifies published downloads and creates one shared Docker binding
    for your approved workspace and client worktree roots. RC6 uses GHCR by
    default, with a verified image archive as fallback.
@@ -67,8 +70,9 @@ RC5 adds [unknown-tool handling and expanded validation tests](doc/releases/0.2.
 and packages the shared Codex setup guidance.
 RC6 adds [host Python and update-policy validation](doc/releases/0.2.0-rc.6.md)
 and guidance for separate Mac/Codex and Managed Cloud installations. The
-historical Mac assessment covers RC4. Mac consumer acceptance of the RC6 fix
-remains pending.
+[RC6 consumer observations](doc/support.md#rc6-consumer-observations) cover
+a resumed Mac/Codex Desktop chat and a fresh Managed Cloud task that reused
+verified runtime files.
 
 ## Contributing
 

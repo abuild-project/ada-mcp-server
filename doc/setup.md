@@ -21,7 +21,7 @@ is reported; the bundle lacks a fresh-session discovered-skill inventory. See
 [support.md](support.md) for the exact scope and limits. Other clients and
 native-host ALS remain in development.
 
-After publication, the [RC6 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
+The [published RC6 prerelease](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
 provides version-specific artifact metadata. Authenticate the release manifest
 and new pins using the [provenance procedure](updating.md).
 The explicit RC1 fallback retains its immutable published bytes.

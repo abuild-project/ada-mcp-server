@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a user documentation start page for Mac/Codex, Managed Cloud and direct
+  Docker, with first queries, updates and rollback. Prepare a GitHub Pages
+  build from the maintained guides and record the supplied RC6 consumer checks.
+
 ## 0.2.0-rc.6 — pilot prerelease
 
 - Pin the working host Python in new native configurations, make update policy

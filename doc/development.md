@@ -139,8 +139,8 @@ publication-before-Mac-test order. The supplied
 evidence. The [RC5 release plan](plans/release-0.2.0-rc.5.md) prepares a new
 published target for a subsequent Mac update check, without claiming acceptance.
 The [RC6 release plan](plans/release-0.2.0-rc.6.md) packages the host Python and
-policy fixes for the Managed Cloud update. The actual Mac source and published
-consumer checks remain pending.
+policy fixes. The [RC6 consumer observations](support.md#rc6-consumer-observations)
+record the subsequent supplied Mac and Managed Cloud checks.
 
 The locked MCP SDK 1.30 validates advertised tool input schemas before server
 dispatch. `tests/host/test_input_validation_contract.py` checks that boundary
@@ -227,6 +227,27 @@ These host checks are labeled as development evidence; they do not replace the
 container chain. Update input requirements and regenerate the hash lock
 deliberately. Python package notices and exact Debian/ALS versions are retained
 in the image's component index; see licensing.md.
+
+## Preview the user documentation
+
+The website renders the [user start page](index.md) and four guides directly
+from `doc/`. Edit the Markdown to update both GitHub and Pages. Planning,
+contributor and release documents stay on GitHub.
+
+After installing the locked development dependencies, serve a local build
+under the same project subpath GitHub Pages uses:
+
+```sh
+preview_root=$(mktemp -d)
+.venv/bin/python scripts/build_pages.py --output "$preview_root/ada-mcp-server"
+.venv/bin/python -m http.server --bind 127.0.0.1 --directory "$preview_root" 8000
+```
+
+Open <http://127.0.0.1:8000/ada-mcp-server/>. CI also retains the built files in
+the `user-documentation-preview` artifact. To preview those files, extract
+them into the `ada-mcp-server` subdirectory of the directory you serve.
+Publication is separate. After Pages is configured to use GitHub Actions,
+an authorized maintainer can run **Publish user documentation** from main.
 
 ### Task-subunit fixture check
 
