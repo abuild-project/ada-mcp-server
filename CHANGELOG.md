@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Enable rename previews in newly generated Codex native configurations with
+  per-tool approval. Existing users must regenerate and explicitly merge the
+  Ada entry, then reconnect; rename application remains unsupported.
 - Add short guides for installing and using Ada MCP on Mac/Codex, Managed
   Cloud and direct Docker, including first queries, updates and rollback.
   Prepare a GitHub Pages build from the Markdown user guides.

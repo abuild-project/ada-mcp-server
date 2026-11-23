@@ -296,10 +296,36 @@ Never replace a whole user config with the fragment. Reconnect afterward; for
 Codex Desktop, fully quit/reopen and verify new and resumed chats, user-wide
 discovery, actual MCP version and real queries in a regular checkout and a
 managed worktree. Generation is not registration or lifecycle
-proof. The fragment exposes read tools; write rename/format/build are excluded.
+proof. New fragments from this source expose the 16 read tools and prompted
+rename previews, as described below; formatting and builds remain excluded.
 The command client allows rename only as explicit preview. Availability is not
 a support promise for every tool; see [support.md](support.md), included and
 hash-verified beside this setup guide in the standalone bundle.
+
+### Native rename previews
+
+This unreleased generator adds `ada_rename_symbol` to `enabled_tools` and requests
+approval for that tool through Codex's supported per-tool setting:
+
+```toml
+[mcp_servers.ada.tools.ada_rename_symbol]
+approval_mode = "prompt"
+```
+
+Keep server settings such as `enabled_tools`, command arguments and any `env`
+table in their own scope; the approval setting belongs only to this tool table.
+Request `preview=true` and review the proposed edits. The server defaults omitted
+`preview` to true, rejects false and returns `applied=false`; approval permits
+the proposal query, not writing the edits. Apply any chosen change separately
+through your normal editing and review workflow.
+
+Published RC6 fragments still enable only the 16 read tools. Existing users need
+a verified runtime containing this generator change before regenerating a new
+fragment. Back up and explicitly merge its Ada entry using the flow above,
+including both `enabled_tools` and the tool approval table, then reconnect.
+Do not edit authenticated installed helpers in place. The changed fragment has
+not yet been accepted on Mac/Codex Desktop; earlier RC4/RC6 observations retain
+their original limits.
 
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery

@@ -1268,8 +1268,9 @@ def main() -> int:
                         + toml_string_array(launcher_arguments(binding) + notice_arguments)
                         + "\nstartup_timeout_sec = 60\n"
                         "tool_timeout_sec = 120\nenabled_tools = "
-                        + toml_string_array(sorted(read_tools))
-                        + "\n"
+                        + toml_string_array(sorted(read_tools | {"ada_rename_symbol"}))
+                        + "\n\n[mcp_servers.ada.tools.ada_rename_symbol]\n"
+                        'approval_mode = "prompt"\n'
                     )
                     write_new(target, content)
                     report["native_config"] = str(target)
