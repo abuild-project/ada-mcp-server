@@ -41,4 +41,5 @@
 - [Shared user-wide Codex installation](shared-codex-installation.md)
 - [Signature selection result contract](signature-selection-contract.md)
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)
+- [User documentation on GitHub Pages](user-documentation-pages.md)
 - [Validation reference retention](validation-ref-retention.md)

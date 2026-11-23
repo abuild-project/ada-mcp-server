@@ -1,5 +1,9 @@
 # First installation
 
+For a quick setup by client, use the [user installation guide](user/first-install.md).
+This reference covers the complete manual and agent-assisted procedures,
+including older published fallback releases.
+
 Choose a published pilot release to evaluate the pinned Ada MCP workflow. It runs Ada Language Server in a Linux/AMD64 Debian Trixie container;
 read the [support limits](support.md) before choosing a host or client.
 You need no private publisher plugin ID, public plugin-directory listing or
@@ -7,7 +11,7 @@ self-operated service. GitHub Releases supplies the artifacts.
 
 Choose one entry path:
 
-- **Direct MCP:** [install RC6 after publication](#install-or-upgrade-to-rc6),
+- **Direct MCP:** [install the published RC6 pilot](#install-or-upgrade-to-rc6),
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
@@ -28,7 +32,8 @@ compiler/test workflow remains separate.
 
 ## Install or upgrade to RC6
 
-Use RC6 after publication. Its [release notes](releases/0.2.0-rc.6.md) cover
+[Published RC6](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
+is a pilot prerelease. Its [release notes](releases/0.2.0-rc.6.md) cover
 native host Python selection, policy validation and separate Mac/Codex and
 Managed Cloud setup. RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
@@ -36,15 +41,18 @@ can keep using compatible exact runtimes without a skill/plugin replacement.
 The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
 RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
 The [host Python and policy guide](updating.md#host-python-and-native-update-policy)
-describes the later supplied RC5 observations and the RC6 fix. Mac consumer
-acceptance of the RC6 fix remains pending.
+describes the later supplied RC5 observations and the RC6 fix.
+See the [RC6 consumer observations](support.md#rc6-consumer-observations)
+for the offline check, restarted Mac Desktop connection and Cloud runtime reuse.
 Still check the actual non-draft release and authoritative asset digests before
 each acquisition; a source version alone does not establish publication.
 RC1/RC2 below remain immutable public baselines. Their existing entries need
 one initial entry update to gain selection; direct MCP use needs no plugin.
 
 Copy this prompt to an agent with HTTPS and local command tools. It defaults
-to one persistent installation for your local Codex user. Choose your physical
+to one persistent installation for your local Codex user. For direct Docker,
+ask for the verified runtime and query helper only, and skip skill discovery,
+selection activation and native Codex configuration. Choose your physical
 workspace and worktree roots with the agent before Bootstrap. Your approval of
 a parent grants read-only access to all descendants, including future checkouts;
 choose narrower roots if that scope is unsuitable. An existing explicit setup
@@ -155,8 +163,10 @@ test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
   d723cd23261e0973a8e8e9d41383a3744f7fcf85
 ```
 
-Stop on a failed clone/commit check. Authenticate RC6's release manifest and
-derive its **new** tooling URL, archive hash and runtime-manifest hash by the
+Stop on a failed clone/commit check. Use the
+[published RC6 release metadata](https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6)
+to authenticate the release manifest and derive its **new** tooling URL,
+archive hash and runtime-manifest hash by the
 [provenance procedure](updating.md#establish-the-targets-trusted-pins). Require
 workflow contract 1 in the authenticated release metadata, then invoke the
 checked source helper with those actual values:
@@ -171,11 +181,11 @@ python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
 
 These uppercase values come from the authenticated published manifest; they are
 placeholders, not executable pins. The acquirer verifies workflow contract 1
-before materializing the runtime. Then use
-the RC6 runtime for the [shared binding](#shared-docker-binding-and-first-queries),
-[skill discovery](#optional-local-codex-skill-discovery), selection activation
-in [the update guide](updating.md#keep-the-entry-and-runtime-independent) and
-[native connection](#connect-a-stdio-mcp-client). No RC1 runtime or image is needed.
+before materializing the runtime. For direct Docker, use the acquired RC6
+runtime to [create the shared binding and run your first queries](#shared-docker-binding-and-first-queries).
+Local Codex can also set up [skill discovery](#optional-local-codex-skill-discovery),
+[runtime selection](updating.md#keep-the-entry-and-runtime-independent)
+and a [native connection](#connect-a-stdio-mcp-client).
 
 ## Install or upgrade to RC2
 
@@ -285,7 +295,7 @@ supported flow and discovered in a fresh chat. Check the intended existing
 identity/audience before creating anything. Plugin Creator must be available
 for an entry install/update; no public listing or import button is assumed.
 
-Use RC6 after publication, through the same
+Use the published RC6 pilot through the same
 [manifest provenance checks](updating.md#establish-the-targets-trusted-pins)
 as local installation. Existing RC1/RC2 entries need one initial entry upgrade
 to a selection-aware RC3-or-later entry. A compatible entry can then retain its
@@ -359,9 +369,10 @@ routine steps; report unavailable capabilities as concrete blockers.
 ```
 
 **Import into a separate third-party account remains unverified.** Public
-download verification and the supplied managed Cloud Arca helper batch do not
-establish another account's plugin import, activation or native Cloud
-registration. See the [evidence limits](support.md). A provider may refuse lower
+download verification and the [supplied Cloud results](support.md#rc6-consumer-observations)
+cover release bytes and the configured Docker helper workflow. Account import,
+activation and native Cloud registration need their own evidence.
+A provider may refuse lower
 package versions; preserve a verified old runtime/binding for operational
 rollback rather than assuming old-plugin reupload is supported.
 

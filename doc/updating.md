@@ -16,11 +16,11 @@ and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
 
-Select RC6 after checking actual publication and pins. Preserve older
+Select the published RC6 pilot after checking its metadata and pins. Preserve older
 runtime/binding pairs for rollback. A compatible RC3-or-later entry may
-retain its own version while using RC6. The supplied Mac acceptance in the
-[support guide](support.md) covers RC4. Mac acceptance of the RC6 host fix
-remains pending. Read the selected runtime's verified guide/catalog before
+retain its own version while using RC6. See the
+[RC6 consumer observations](support.md#rc6-consumer-observations) for the
+supplied Mac and Cloud results. Read the selected runtime's verified guide/catalog before
 using optional Boolean `refresh`, added in RC4; workflow contract 1 alone does
 not add that parameter to an older runtime.
 
@@ -87,9 +87,8 @@ current `selection show` and a **new** absolute `--backup` path. This preserves
 the old record before an atomic record switch. Unexpected state, occupied backup
 or adjacent `.lock` means stop; never delete a lock automatically. Existing
 runtime, binding, image and cache are retained. A failed replacement leaves the
-old selection active; a backup may remain for inspection. Rollback validates
-the old pair and activates it using the current expected record hash plus
-another new backup. Confirm selected version and real queries after each switch.
+old selection active; a backup may remain for inspection. Confirm selected
+version and real queries after each switch.
 
 For compatible runtime releases, keep the full/local skill and private Cloud
 plugin unchanged. Update the entry only when its own instructions, permissions
@@ -98,6 +97,16 @@ overlays. Selection does not change a running native client's config; explicit
 supported merge/reconnect and real verification still apply. If state cannot
 persist or reconnect/provider capability is unavailable, report session-only,
 staged and activated results accurately with the necessary user action.
+
+### Restore a compatible runtime selection
+
+Keep the compatible skill or Cloud plugin installed. Read the active record
+with `selection show`, then use the `selection activate` procedure above
+with the retained verified runtime, its trusted manifest hash and its matching
+binding. Pass the current record hash as `--expected-sha256` and use a new
+`--backup` path. Confirm the selected version and run a real project query.
+If a native client uses its own stdio configuration,
+[restore its Ada entry and reconnect](#switch-native-clients-or-a-private-cloud-copy).
 
 ## What the notice does
 
@@ -259,8 +268,9 @@ interpreter. RC6 Doctor accepts `--python ABSOLUTE_EXECUTABLE` and
 `--update-channel` to validate the intended entry offline; its report separates
 that launch check from `doctor.probe_update_channel: "off"`. Supply the actual
 entry's intended values: Doctor does not read or rewrite your native config.
-Use these options with verified RC6 tooling. The actual Mac consumer check
-remains pending.
+Use these options with verified RC6 tooling. The
+[Mac consumer observations](support.md#rc6-consumer-observations) record the
+offline check and a separate restarted Desktop connection.
 
 ## Ask once, then execute the approved update
 
@@ -353,10 +363,15 @@ until the active route has actually been checked. This is an agent-executed
 update after consent, not an unattended updater executable.
 
 For direct command-line use, activation means deliberately changing the helper
-path and `--binding` in your commands to the verified new pair. Operational
-rollback means using the retained old helper and its matching old binding.
-Keep both images available; restoring a missing old image uses its recorded
-immutable source. Do not delete old caches/images during the trial.
+path and `--binding` in your commands to the verified new pair.
+
+### Restore the direct Docker runtime and binding
+
+To roll back, run `scripts/ada_mcp_setup.py` from the retained verified runtime
+with `--binding` pointing to its matching retained binding. Run Doctor and a
+real query to confirm the prior version and project view. Keep both images and
+caches available during the trial. Restore a missing image from the binding's
+recorded immutable source.
 
 ## Switch a local skill without losing its old target
 

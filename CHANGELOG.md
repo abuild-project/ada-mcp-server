@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add short guides for installing and using Ada MCP on Mac/Codex, Managed
+  Cloud and direct Docker, including first queries, updates and rollback.
+  Prepare a GitHub Pages build from the Markdown user guides.
+
 ## 0.2.0-rc.6 — pilot prerelease
 
 - Pin the working host Python in new native configurations, make update policy

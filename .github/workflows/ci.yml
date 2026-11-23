@@ -27,6 +27,13 @@ jobs:
         run: docker/build --tag ada-mcp-server:candidate
       - name: Complete unit, quality, coverage, package, docs and actual ALS chain
         run: docker/check ada-mcp-server:candidate
+      - name: Upload user documentation preview
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: user-documentation-preview
+          path: build/check/pages/
+          if-no-files-found: error
+          retention-days: 14
       - name: Package the same tested image and Python distributions
         run: python3 scripts/artifacts.py --image ada-mcp-server:candidate --output "$RUNNER_TEMP/release"
       - name: Obtain public pinned Arca, Spawn and Anet source cases
