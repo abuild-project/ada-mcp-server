@@ -16,12 +16,12 @@ TAGGED_GUIDE = (
 @pytest.fixture
 def pages_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(build_pages, "ROOT", tmp_path)
-    docs = tmp_path / "doc"
-    docs.mkdir()
+    docs = tmp_path / "doc/user"
+    docs.mkdir(parents=True)
     for name in build_pages.GUIDES:
         (docs / f"{name}.md").write_text(f"# {name}\n")
     (docs / "first-install.md").write_text("# Installation\n\n## Install the runtime\n")
-    (docs / "pages.css").write_text("body { color: black; }\n")
+    (tmp_path / "doc/pages.css").write_text("body { color: black; }\n")
     (tmp_path / "LICENSE").write_text("Fixture license notice\n")
     return tmp_path
 
@@ -31,12 +31,12 @@ def pages_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     [
         "first-install.md#install-the-runtime",
         "https://github.com/abuild-project/ada-mcp-server/blob/main/"
-        "doc/first-install.md#install-the-runtime",
+        "doc/user/first-install.md#install-the-runtime",
     ],
     ids=["relative", "github-main"],
 )
 def test_pages_guide_links_resolve_at_project_path(pages_source: Path, current_guide: str) -> None:
-    (pages_source / "doc/index.md").write_text(
+    (pages_source / "doc/user/index.md").write_text(
         f"# Start\n\n[Current guide]({current_guide})\n\n[Published guide]({TAGGED_GUIDE})\n"
     )
     output = pages_source / "ada-mcp-server"
@@ -61,6 +61,6 @@ def test_pages_guide_links_resolve_at_project_path(pages_source: Path, current_g
     ],
 )
 def test_pages_rejects_broken_link(pages_source: Path, target: str, message: str) -> None:
-    (pages_source / "doc/index.md").write_text(f"# Start\n\n[Broken link]({target})\n")
+    (pages_source / "doc/user/index.md").write_text(f"# Start\n\n[Broken link]({target})\n")
     with pytest.raises(ValueError, match=message):
         build_pages.build(pages_source / "ada-mcp-server")

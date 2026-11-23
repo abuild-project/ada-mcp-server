@@ -139,8 +139,8 @@ publication-before-Mac-test order. The supplied
 evidence. The [RC5 release plan](plans/release-0.2.0-rc.5.md) prepares a new
 published target for a subsequent Mac update check, without claiming acceptance.
 The [RC6 release plan](plans/release-0.2.0-rc.6.md) packages the host Python and
-policy fixes. The [RC6 consumer observations](support.md#rc6-consumer-observations)
-record the subsequent supplied Mac and Managed Cloud checks.
+policy fixes. The [RC6 consumer assessment](assessments/rc6-consumer.md)
+records the subsequent supplied Mac and Managed Cloud checks.
 
 The locked MCP SDK 1.30 validates advertised tool input schemas before server
 dispatch. `tests/host/test_input_validation_contract.py` checks that boundary
@@ -230,9 +230,13 @@ in the image's component index; see licensing.md.
 
 ## Preview the user documentation
 
-The website renders the [user start page](index.md) and four guides directly
-from `doc/`. Edit the Markdown to update both GitHub and Pages. Planning,
-contributor and release documents stay on GitHub.
+The website renders the [user start page](user/index.md) and four guides
+directly from `doc/user/`. Edit those files to update the same guides on
+GitHub and Pages. Keep the advanced [installation](first-install.md),
+[host setup](setup.md), [updates](updating.md) and [support](support.md)
+references available at their existing paths. The tooling bundle copies the
+last three into its `references/` directory. Planning, contributor, release
+and assessment documents stay on GitHub.
 
 After installing the locked development dependencies, serve a local build
 under the same project subpath GitHub Pages uses:

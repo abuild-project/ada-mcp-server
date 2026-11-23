@@ -17,10 +17,10 @@ REPOSITORY = "https://github.com/abuild-project/ada-mcp-server"
 SOURCE = f"{REPOSITORY}/blob/main/"
 GUIDES = {
     "index": "Start",
-    "first-install": "Installation",
-    "setup": "Host setup",
-    "updating": "Updates and rollback",
-    "support": "Support",
+    "first-install": "Install",
+    "setup": "Use",
+    "updating": "Updates",
+    "support": "Help",
 }
 
 
@@ -117,7 +117,7 @@ def render_page(name: str, body: str, headings: dict[str, str]) -> str:
 def build(output: Path) -> None:
     """Build the allowlisted guides in a new output directory."""
     parser = MarkdownIt("commonmark", {"html": False}).enable(["table", "strikethrough"])
-    sources = [ROOT / "doc" / f"{name}.md" for name in GUIDES]
+    sources = [ROOT / "doc/user" / f"{name}.md" for name in GUIDES]
     documents = {path: parser.parse(path.read_text(encoding="utf-8")) for path in sources}
     anchors = {source: heading_ids(tokens) for source, tokens in documents.items()}
     pages: dict[str, str] = {}

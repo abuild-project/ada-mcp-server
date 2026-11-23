@@ -1,5 +1,9 @@
 # First installation
 
+For a quick setup by client, use the [user installation guide](user/first-install.md).
+This reference covers the complete manual and agent-assisted procedures,
+including older published fallback releases.
+
 Choose a published pilot release to evaluate the pinned Ada MCP workflow. It runs Ada Language Server in a Linux/AMD64 Debian Trixie container;
 read the [support limits](support.md) before choosing a host or client.
 You need no private publisher plugin ID, public plugin-directory listing or

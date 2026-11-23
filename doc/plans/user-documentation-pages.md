@@ -54,3 +54,17 @@ the maintained guides. Check that relative and GitHub main guide links resolve
 at the project subpath, that a tagged guide retains its immutable GitHub URL,
 and that missing pages and fragments fail the build. Keep these checks in the
 ordinary host test suite.
+
+## 2026-11-23 — task-oriented user guides
+
+Render the short English guides from `doc/user/` at the existing Pages
+filenames. The README leads with setup. The site takes readers from a choice
+of Mac, Managed Cloud or direct Docker to a real query, then covers routine
+use, approved updates, rollback and help. Link to advanced setup and recovery
+at the steps that need them.
+
+Keep the advanced reference paths and inbound anchors used by the distributed
+skill, published release links and developer guidance. Move the detailed RC6
+observations and their evidence limits to a maintainer assessment. Preserve
+the support scope and the manual install/update procedures. No runtime,
+release or archive-generation code changes are needed.

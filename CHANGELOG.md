@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Add a user documentation start page for Mac/Codex, Managed Cloud and direct
-  Docker, with first queries, updates and rollback. Prepare a GitHub Pages
-  build from the maintained guides and record the supplied RC6 consumer checks.
+- Add short guides for installing and using Ada MCP on Mac/Codex, Managed
+  Cloud and direct Docker, including first queries, updates and rollback.
+  Prepare a GitHub Pages build from the Markdown user guides.
 
 ## 0.2.0-rc.6 — pilot prerelease
 
