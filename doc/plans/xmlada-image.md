@@ -30,3 +30,22 @@ the managed environment's VFS storage and limited free space.
 Keep core server behavior, SDK, workflows, version and Trixie unchanged.
 A project-build-derived image is a later release recommendation outside this
 implementation. The coordinator handles hosted delivery.
+
+## 2026-11-24: Required XML/Ada source navigation
+
+The maintainer accepts a repository-owned real STDIO navigation control as
+required image acceptance. Keep the existing compilation control unchanged.
+Select the exact fixture GPR with explicit empty search paths and scenarios,
+then derive the installed DOM.Core source independently from Debian package
+metadata and require source-bound definition navigation. Reuse session logs,
+input hashes and normal EOF cleanup, retaining evidence on failure.
+
+Run the identical committed harness and fixture against installed published
+RC6, mounting only the test inputs read-only. Isolated Python must use RC6's
+installed server and reach genuine project selection before checking package
+exports. Corroborate missing-import attribution with that image's exact
+missing-`xmlada` compiler diagnostic and absent development packages.
+
+Prepared Abuild navigation is optional additional consumer acceptance.
+Its project dependencies still need normal preparation. The project-build-derived
+image remains a later release recommendation outside this implementation.

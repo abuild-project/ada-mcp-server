@@ -22,8 +22,12 @@ the same fixture specifically because the `xmlada` GPR is missing, producing
 no ALI.
 
 The supplemental prepared-Abuild navigation pilot with `project_paths=[]`
-remains pending because loading the exact candidate image exceeded safe local
-Docker VFS storage. Abuild's own project dependencies still need preparation.
+is optional additional consumer acceptance after normal dependency preparation.
+The added real STDIO control requires complete selection with empty project
+paths, then exact navigation from the fixture's `DOM.Core` import to the
+independently located installed package declaration. It retains protocol,
+stderr, input hashes and cleanup evidence on failure. Its candidate and
+published-RC6 runs remain to be verified.
 
 The [plan](../plans/xmlada-image.md) records the scope. A project-build-derived
 image remains a later release recommendation.

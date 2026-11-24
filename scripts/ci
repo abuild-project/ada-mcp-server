@@ -18,7 +18,8 @@ mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license
     scripts/promote.py scripts/real_diagnostics.py \
     scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py \
     scripts/additional_support.py scripts/observe_additional.py scripts/additional_oracles.py \
-    scripts/additional_native.py scripts/real_additional.py scripts/real_imported_view.py
+    scripts/additional_native.py scripts/real_additional.py scripts/real_imported_view.py \
+    scripts/real_xmlada.py
 python -m pytest tests -m 'not integration' -q --tb=short \
     --cov=ada_mcp --cov=tooling --cov-report=term-missing \
     --cov-report="xml:$output/coverage.xml" --cov-report="html:$output/htmlcov"
@@ -27,6 +28,8 @@ python -m twine check "$output"/python-dist/*
 python scripts/check_docs.py
 python scripts/build_pages.py --output "$output/pages"
 python scripts/test_integration.py > "$output/real-als-probe.log" 2>&1
+python scripts/real_xmlada.py --output "$output/xmlada-control" \
+    > "$output/real-xmlada.log" 2>&1
 python scripts/real_parent_view.py > "$output/real-parent-view.log" 2>&1
 python scripts/real_imported_view.py --output "$output/imported-view-control" \
     > "$output/real-imported-view.log" 2>&1
