@@ -99,10 +99,18 @@ def inside() -> None:
         cwd=output / "control/fixture",
         env=environment,
     )
-    package_command = ["dpkg-query", "-L"] + [
-        "libxmlada-" + name + "-dev" for name in ("schema", "dom", "sax", "input", "unicode")
-    ]
-    package = execute(package_command)
+    packages: list[dict[str, Any]] = []
+    for name in ("schema", "dom", "sax", "input", "unicode"):
+        command = ["dpkg-query", "-W", "-f=${Status}\n", "libxmlada-" + name + "-dev"]
+        package = execute(command)
+        packages.append(
+            {
+                "argv": command,
+                "exit_code": package.returncode,
+                "stdout": package.stdout,
+                "stderr": package.stderr,
+            }
+        )
     observation = {
         "harness_exit": run.returncode,
         "project_payload": payload,
@@ -111,12 +119,7 @@ def inside() -> None:
             "stdout": compiler.stdout,
             "stderr": compiler.stderr,
         },
-        "package": {
-            "argv": package_command,
-            "exit_code": package.returncode,
-            "stdout": package.stdout,
-            "stderr": package.stderr,
-        },
+        "packages": packages,
         "uid": os.getuid(),
         "gid": os.getgid(),
         "input_sha256": inputs,
@@ -125,7 +128,7 @@ def inside() -> None:
     assert compiler.returncode != 0
     assert 'imported project file "xmlada" not found' in compiler.stderr
     assert not (output / "control/fixture/obj/xmlada_probe.ali").exists()
-    assert package.returncode != 0 and not package.stdout
+    assert all("install ok installed" not in item["stdout"].splitlines() for item in packages)
     assert not Path("/usr/share/gpr/xmlada.gpr").exists()
     assert hashes(fixture) == inputs
     assert all(
