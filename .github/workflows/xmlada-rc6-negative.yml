@@ -1,0 +1,41 @@
+name: XMLAda RC6 negative control
+
+on:
+  push:
+    branches: [codex/validation/xmlada-image-pr-2-rc6]
+
+permissions:
+  contents: read
+
+jobs:
+  rc6-negative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the immutable navigation candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 2872442e1963f1b9c00ffb1eb84bac7f7163aeb5
+          path: candidate
+          persist-credentials: false
+      - name: Obtain this immutable validation driver
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: validation
+          sparse-checkout: .github/validation/xmlada_rc6_negative.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Require genuine installed RC6 missing-import failure
+        run: |
+          python3 validation/.github/validation/xmlada_rc6_negative.py \
+            --source "$GITHUB_WORKSPACE/candidate" \
+            --output "$RUNNER_TEMP/xmlada-rc6-negative"
+      - name: Retain raw protocol, package, compiler and cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: xmlada-rc6-negative
+          path: ${{ runner.temp }}/xmlada-rc6-negative/
+          if-no-files-found: error
+          retention-days: 14
