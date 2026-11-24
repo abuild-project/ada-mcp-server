@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.0 — first stable release
+
+- Deliver the first stable standalone Linux/AMD64 Trixie distribution with
+  coordinated server, Python, image and skill/tooling metadata. Existing
+  project, navigation, diagnostics and platform support limits still apply.
 - Include XML/Ada development packages in the standalone image so projects
   importing XML/Ada can resolve its GPR projects and Ada sources.
 - Enable rename previews in newly generated Codex native configurations under

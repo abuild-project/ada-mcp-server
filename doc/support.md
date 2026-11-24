@@ -1,6 +1,6 @@
 # Support and evidence matrix
 
-Version: pilot prerelease `0.2.0-rc.6` (Python `0.2.0rc6`). The table defines
+Version: `0.2.0` (Python/MCP `0.2.0`). The table defines
 its acceptance scope; new artifacts still require the documented checks at
 their exact immutable revision. The
 [published RC1 release](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.1)
@@ -13,7 +13,7 @@ Python 3.11 is the minimum syntax/runtime requirement, not a claim that every
 Python version/platform combination was accepted. The complete server chain
 uses the container's Python 3.13; host setup records its actual Python version.
 
-| Candidate contract | Required repeatable evidence | Limits |
+| Runtime contract | Required repeatable evidence | Limits |
 | --- | --- | --- |
 | Linux/AMD64 Trixie, GNAT 14, pinned GPRbuild/ALS | docker/build, docker/check, runtime package/license index | No host-compiler substitute; other architectures in development |
 | Exact GPR/search-path/scenario view selection | inherited pool tests, real ALS probe and host acceptance | Prerequisites/generated GPR inputs must exist |
@@ -42,7 +42,7 @@ each tool's `inputSchema`. The repository declares the catalog in
 [`list_tools` in `src/ada_mcp/server.py`](https://github.com/abuild-project/ada-mcp-server/blob/main/src/ada_mcp/server.py).
 
 - **Codex Desktop** uses the native entry's `enabled_tools` setting. The
-  unreleased generator enables 16 read tools plus `ada_rename_symbol` for
+  0.2.0 generator enables 16 read tools plus `ada_rename_symbol` for
   previews (17 total) under normal Codex policy. Only rename is annotated
   `readOnlyHint=true`; explicit client policies still apply. Published RC6
   fragments retain 16 read tools; existing users need explicit
@@ -140,6 +140,16 @@ fresh Managed Cloud task using a retained runtime. The checks cover the
 reported configurations and requests. Fresh Mac chat and visual skill
 discovery, Cloud cold acquisition, third-party import and native Cloud
 registration remain separate checks.
+
+## Pre-stable Mac consumer observations
+
+The [supplied pre-stable assessment](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/pre-stable-consumer.md)
+records macOS 26.5.1 arm64 checks against the accepted implementation:
+prepared Abuild XML/Ada navigation and direct native rename previews in fresh
+and resumed Desktop chats, with unchanged sources and `applied=false`.
+The raw files remain on the maintainer's Mac. This adds bounded implementation
+evidence, separately from independent Mac replay or published 0.2.0 consumer
+acquisition. Other tool/client limits above continue to apply.
 
 ## Other hosts and clients
 
