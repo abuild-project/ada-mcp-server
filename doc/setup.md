@@ -8,7 +8,7 @@ rules and locally generated artifact setup. The released archives retain their
 original documentation; the maintained guide does not replace release bytes.
 See [release checks, approved updates and rollback](updating.md) for the
 RC2-or-later notifier and the initial approved upgrade needed by RC1 installations.
-RC6 acquisition requires actual publication and digest verification.
+Stable 0.2.0 acquisition requires actual publication and digest verification.
 Previously released archives and already installed skills retain their
 original verified bytes.
 
@@ -21,9 +21,11 @@ is reported; the bundle lacks a fresh-session discovered-skill inventory. See
 [support.md](support.md) for the exact scope and limits. Other clients and
 native-host ALS remain in development.
 
-The [published RC6 prerelease](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
-provides version-specific artifact metadata. Authenticate the release manifest
-and new pins using the [provenance procedure](updating.md).
+The stable 0.2.0 metadata is a publication target until the actual release
+and downloads are verified. The [published RC6 prerelease](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
+remains an immutable fallback with its own version-specific artifact metadata.
+Authenticate the release manifest and new pins using the
+[provenance procedure](updating.md).
 The explicit RC1 fallback retains its immutable published bytes.
 During development, use
 the artifacts generated from the checked source revision by scripts/artifacts.py.
@@ -304,7 +306,7 @@ hash-verified beside this setup guide in the standalone bundle.
 
 ### Native rename previews
 
-This unreleased generator adds `ada_rename_symbol` to `enabled_tools` using
+The 0.2.0 generator adds `ada_rename_symbol` to `enabled_tools` using
 normal Codex policy. It adds no tool-specific approval override. The server
 marks this proposal-only tool with MCP `readOnlyHint=true`. This metadata is a
 hint, and explicit client approval and trust policies still apply.
@@ -316,11 +318,12 @@ Published RC6 fragments still enable only the 16 read tools. Existing users need
 a verified runtime containing this generator change before regenerating a new
 fragment. Back up and explicitly merge its Ada entry using the flow above,
 including `enabled_tools`, then reconnect. Preserve deliberate client policies
-and unrelated settings. Do not edit authenticated installed helpers in place. Mac acceptance
-of this configuration remains pending: check new and resumed Desktop chats,
-17 native tools including rename, no special rename prompt under normal policy,
-`applied=false` and unchanged before/after source hashes. Explicit client
-policies still apply. Earlier RC4/RC6 observations retain their original limits.
+and unrelated settings. Do not edit authenticated installed helpers in place.
+Supplied [pre-stable Mac reports](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/assessments/pre-stable-consumer.md)
+cover direct native rename previews in fresh and resumed Desktop chats with
+`applied=false` and unchanged source hashes. Explicit client policies still
+apply. These implementation reports are separate from published stable-artifact
+consumer acceptance. Earlier RC4/RC6 observations retain their original limits.
 
 `install-skill --destination NEW_ABSOLUTE_DIRECTORY` copies verified resources
 and atomically publishes a no-replace symlink in a supported local discovery

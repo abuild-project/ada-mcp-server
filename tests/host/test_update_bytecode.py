@@ -153,18 +153,21 @@ def test_direct_status_fetch_child_and_launcher_are_source_only(tmp_path, kind, 
     cache = tmp_path / "private-launch-cache"
     cache.mkdir(mode=0o700)
     now = int(time.time())
-    state = {
-        "schema": 1,
-        "channel": "prerelease",
-        "attempted_at": now,
-        "checked_at": now,
-        "next_check_at": now + 86400,
-        "last_status": "ok",
-        "complete": True,
-        "candidate": "0.3.0",
-    }
-    (cache / "prerelease.json").write_text(json.dumps(state))
-    (cache / "prerelease.json").chmod(0o600)
+    candidates = {"stable": "0.3.0", "prerelease": "0.4.0-rc.1"}
+    for channel, candidate in candidates.items():
+        state = {
+            "schema": 1,
+            "channel": channel,
+            "attempted_at": now,
+            "checked_at": now,
+            "next_check_at": now + 86400,
+            "last_status": "ok",
+            "complete": True,
+            "candidate": candidate,
+        }
+        path = cache / (channel + ".json")
+        path.write_text(json.dumps(state))
+        path.chmod(0o600)
     binary = tmp_path / "bin"
     binary.mkdir()
     docker = binary / "docker"
@@ -207,7 +210,12 @@ def test_direct_status_fetch_child_and_launcher_are_source_only(tmp_path, kind, 
         if arg.startswith("ADA_MCP_UPDATE_NOTICE=")
     ]
     if kind == "bundle":
-        assert len(notices) == 1 and json.loads(notices[0])["available_version"] == "0.3.0"
+        version = json.loads((scripts / "runtime-manifest.json").read_text())["project_version"]
+        expected_channel = "prerelease" if "-rc." in version else "stable"
+        assert len(notices) == 1
+        notice = json.loads(notices[0])
+        assert notice["current_version"] == version and notice["channel"] == expected_channel
+        assert notice["available_version"] == candidates[expected_channel]
     else:
         # A contributor tree without installed version metadata still launches.
         assert notices == [""]
