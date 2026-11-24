@@ -1,31 +1,31 @@
 # XML/Ada image dependencies
 
-The standalone image contained XML/Ada runtime libraries but lacked the
-development exports needed to resolve GPR projects and Ada sources for
-projects importing `xmlada`.
+The standalone image lacked the XML/Ada development exports needed by projects
+importing `xmlada`. Add pinned Trixie `libxmlada-schema-dev=25.0.0-4`, supplying
+Schema and installing DOM, SAX, Input and Unicode development dependencies.
+Independent archive inspection
+verifies all five development packages, six GPR files and retained Debian
+notices and component source links.
 
-Install pinned Trixie `libxmlada-schema-dev=25.0.0-4` in the existing package
-step. Its dependencies supply Schema, DOM, SAX, Input and Unicode development
-projects and sources. Independent archive inspection verifies all five development
-packages at `25.0.0-4`, six XML/Ada GPR files and the original Debian notices
-and component source links.
+At `2872442e1963f1b9c00ffb1eb84bac7f7163aeb5`,
+[complete AMD64 Debian Trixie CI](https://github.com/abuild-project/ada-mcp-server/actions/runs/45342790725)
+passed 1,412 tests, one E2E test, 32/32 real integration checks and both Linux
+identities `1000:1000` and `501:20`. The XML/Ada fixture compiled and produced
+ALI. The independently reviewed STDIO probe selected its exact GPR completely
+with `project_paths=[]` and empty scenarios. Definition navigation from `Core`
+at fixture position 2:10 reached the independently located package-owned
+`/usr/share/ada/adainclude/xmlada_dom/dom-core.ads:38:9`, with the exact
+declaration preview, unchanged fixture hashes and clean EOF shutdown.
 
-A small repository-owned fixture imports the XML/Ada aggregate and all five
-package families. The existing real integration runner compiles a fresh copy,
-retaining compiler output, ALI and known-input hashes. At
-`f72e9381fb709e6dbd0c225c074586505a314fd6`, the
-[canonical AMD64 Debian Trixie CI](https://github.com/abuild-project/ada-mcp-server/actions/runs/45332249867)
-passed 1,412 tests, one E2E test and 32/32 real integration checks with 79.34%
-coverage. Identity checks covered Linux `1000:1000` and `501:20`. The
-matching-source XML/Ada fixture compiled and produced ALI. Published RC6 fails
-the same fixture specifically because the `xmlada` GPR is missing, producing
-no ALI.
+The [published RC6 countercheck](https://github.com/abuild-project/ada-mcp-server/actions/runs/45344330337)
+runs the identical harness against the installed release. Genuine ALS selection
+returns `project-load-failed` (`-32603`) before package or navigation oracles.
+The same-image compiler reports
+`imported project file "xmlada" not found` with no ALI. Raw MCP/stderr,
+unchanged input hashes and EOF exit zero corroborate this negative control.
 
-The supplemental prepared-Abuild navigation pilot with `project_paths=[]`
-remains pending because loading the exact candidate image exceeded safe local
-Docker VFS storage. Abuild's own project dependencies still need preparation.
-
-The [plan](../plans/xmlada-image.md) records the scope. A project-build-derived
-image remains a later release recommendation.
+Prepared Abuild navigation remains optional additional consumer acceptance
+after its normal dependency preparation. The [plan](../plans/xmlada-image.md)
+retains the scope and later project-build-derived image recommendation.
 
 Co-Authored-By: Codex (GPT-6.2) <codex@openai.com>
