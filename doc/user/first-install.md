@@ -1,5 +1,6 @@
 # Install Ada MCP
 
+Use stable 0.2.0 only after its published metadata and downloads are verified.
 Choose the project, dependency and worktree folders you want Ada MCP to read.
 An approved folder includes all its subfolders, including future checkouts.
 
@@ -11,7 +12,7 @@ An approved folder includes all its subfolders, including future checkouts.
 
    ```text
    Set up Ada MCP for this Mac. Follow the local Codex instructions in:
-   https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc6
+   https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-020
    Verify the published downloads. Ask which project and worktree folders
    to share read-only. Install the Ada skill once for my user account and
    back up my Codex settings before merging the Ada tool entry.
@@ -22,7 +23,7 @@ An approved folder includes all its subfolders, including future checkouts.
 
 The local skill guides Codex through Ada work. The separate Ada tool entry
 connects Desktop directly to the server. For manual setup, see the
-[local installation reference](../first-install.md#install-or-upgrade-to-rc6).
+[local installation reference](../first-install.md#install-or-upgrade-to-020).
 
 ## Codex in Managed Cloud
 

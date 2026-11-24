@@ -138,7 +138,9 @@ def test_note_identifiers_are_validated_before_git(tmp_path, monkeypatch, source
         promote.read_release_notes(source, version, tmp_path)
 
 
-def test_published_notes_file_is_not_a_release_asset(tmp_path, monkeypatch):
+@pytest.mark.parametrize("version", [VERSION, "0.2.0"])
+def test_published_notes_file_is_not_a_release_asset(tmp_path, monkeypatch, version):
+    notes = NOTES.replace(VERSION.encode(), version.encode())
     stage = tmp_path / "stage"
     stage.mkdir()
     for number in range(13):
@@ -157,17 +159,20 @@ def test_published_notes_file_is_not_a_release_asset(tmp_path, monkeypatch):
 
     def publish(command, *, check):
         assert check is True
-        assert command[:4] == ["gh", "release", "create", "v" + VERSION]
+        assert command[:4] == ["gh", "release", "create", "v" + version]
+        assert "--verify-tag" in command
+        assert ("--prerelease" in command) is (version == VERSION)
+        assert ("--latest" in command) is (version == "0.2.0")
         assert "--notes" not in command
         note_path = Path(command[command.index("--notes-file") + 1])
         assert note_path.parent == stage.parent and not note_path.is_relative_to(stage)
-        assert note_path.read_bytes() == NOTES
+        assert note_path.read_bytes() == notes
         assert command[command.index("--notes-file") + 2 :] == [
             str(path) for path in sorted(stage.iterdir())
         ]
         captured.append(note_path)
 
     monkeypatch.setattr(subprocess, "run", publish)
-    promote.publish_release(stage, "v" + VERSION, NOTES)
+    promote.publish_release(stage, "v" + version, notes)
     assert len(captured) == 1 and not captured[0].exists()
     assert snapshot() == before and len(before) == 13

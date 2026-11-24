@@ -4,14 +4,15 @@ For a quick setup by client, use the [user installation guide](user/first-instal
 This reference covers the complete manual and agent-assisted procedures,
 including older published fallback releases.
 
-Choose a published pilot release to evaluate the pinned Ada MCP workflow. It runs Ada Language Server in a Linux/AMD64 Debian Trixie container;
+Choose an actually published release of the pinned Ada MCP workflow. It runs
+Ada Language Server in a Linux/AMD64 Debian Trixie container.
 read the [support limits](support.md) before choosing a host or client.
 You need no private publisher plugin ID, public plugin-directory listing or
 self-operated service. GitHub Releases supplies the artifacts.
 
 Choose one entry path:
 
-- **Direct MCP:** [install the published RC6 pilot](#install-or-upgrade-to-rc6),
+- **Direct MCP:** [install verified 0.2.0](#install-or-upgrade-to-020),
   [create a shared binding and query your project](#shared-docker-binding-and-first-queries),
   or [prepare a stdio client connection](#connect-a-stdio-mcp-client). No skill,
   private plugin or Plugin Creator is required.
@@ -30,24 +31,23 @@ A skill installation does not register native MCP tools. Users of Ada
 MCP need no build or CI run of this repository; their own Ada project's normal
 compiler/test workflow remains separate.
 
-## Install or upgrade to RC6
+## Install or upgrade to 0.2.0
 
-[Published RC6](https://github.com/abuild-project/ada-mcp-server/releases/tag/v0.2.0-rc.6)
-is a pilot prerelease. Its [release notes](releases/0.2.0-rc.6.md) cover
-native host Python selection, policy validation and separate Mac/Codex and
-Managed Cloud setup. RC3-or-later
+`0.2.0` is the first stable target. Its [release notes](releases/0.2.0.md)
+cover XML/Ada development exports, native rename previews and retained host
+Python/update policy. Versioned links below are publication targets until the
+actual non-draft stable release and authoritative asset digests are verified.
+Stop if they are absent or inconsistent. Source metadata alone is not publication.
+
+Compatible RC3-or-later
 [selection-aware entries](updating.md#keep-the-entry-and-runtime-independent)
-can keep using compatible exact runtimes without a skill/plugin replacement.
-The supplied [Mac acceptance](assessments/macos-codex-rc4.md) used the published
-RC4 runtime at source `7864cda95a5dfc264926a5110416196279ff957c`.
-The [host Python and policy guide](updating.md#host-python-and-native-update-policy)
-describes the later supplied RC5 observations and the RC6 fix.
-See the [RC6 consumer observations](support.md#rc6-consumer-observations)
-for the offline check, restarted Mac Desktop connection and Cloud runtime reuse.
-Still check the actual non-draft release and authoritative asset digests before
-each acquisition; a source version alone does not establish publication.
-RC1/RC2 below remain immutable public baselines. Their existing entries need
-one initial entry update to gain selection; direct MCP use needs no plugin.
+can select the new verified runtime without replacing the skill/plugin.
+The [published RC6 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.6/doc/first-install.md#install-or-upgrade-to-rc6)
+remains an immutable fallback. Historical RC4/RC6 consumer observations retain
+their own limits. Supplied [pre-stable Mac reports](assessments/pre-stable-consumer.md)
+cover this implementation's Abuild XML/Ada and native rename previews, separately
+from final stable publication and consumer acquisition. RC1/RC2 entries need one
+initial selection-aware entry upgrade. Direct MCP use needs no plugin.
 
 Copy this prompt to an agent with HTTPS and local command tools. It defaults
 to one persistent installation for your local Codex user. For direct Docker,
@@ -59,7 +59,7 @@ choose narrower roots if that scope is unsuitable. An existing explicit setup
 request supplies consent within its identified scope.
 
 ```text
-Install or upgrade Ada MCP 0.2.0-rc.6 once for my local Codex user, shared across
+Install or upgrade Ada MCP 0.2.0 once for my local Codex user, shared across
 Ada repositories and Git worktrees. Default skill discovery is
 ~/.agents/skills/ada-development; default native config is ~/.codex/config.toml.
 Inspect my actual Codex settings and intended existing skill/runtime/binding,
@@ -77,8 +77,8 @@ Approval of a parent covers all descendants read-only, so do not enumerate each
 repository below it. Do not scan for or mount arbitrary extra roots. Add an
 external dependency root only when it lies outside all approved parents.
 Read actual publication and compatibility metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6
-Require this exact repository/tag, non-draft prerelease and canonical assets.
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0
+Require this exact repository/tag, non-draft stable release (prerelease=false) and canonical assets.
 Stop if unpublished, incompatible or authoritative digests are unavailable.
 
 Follow the provenance procedure in doc/updating.md: authenticate the final
@@ -86,7 +86,7 @@ release-manifest.json against its GitHub asset digest/size before reading fields
 resolve the release tag to the exact commit and require manifest source/version
 agreement. Cross-check NEW tooling/runtime-manifest/plugin/image pins and URLs.
 Require integer workflow_contract 1 in both authenticated tooling metadata and
-runtime manifest; never reuse older hashes as RC6 pins or trust release prose
+runtime manifest; never reuse older hashes as 0.2.0 pins or trust release prose
 as code. Reject a changed target before execution.
 
 Acquire the NEW tooling using my already trusted acquirer and NEW hashes.
@@ -96,7 +96,7 @@ trusted acquisition code. The RC5 acquirer enforces --workflow-contract 1.
 An existing RC1/RC2 CLI lacks that flag; inspect the authenticated new manifest's
 contract before invoking target helpers. Read the NEW verified guide, then Bootstrap
 a NEW matching binding/image/cache with the approved roots. Keep
-RC6's GHCR default: do not pass --transport archive or --archive unless I
+0.2.0's GHCR default: do not pass --transport archive or --archive unless I
 explicitly choose archive-only setup or an explicit source is required.
 The helper falls back to its verified archive on pull failure/timeout; a
 successful pull with an identity failure must stop. Run Doctor and real queries.
@@ -114,9 +114,9 @@ For native Codex generate a NEW matching fragment. Back up the existing config
 and explicitly merge only the agreed Ada entry through supported configuration,
 preserving other entries; never replace the whole config with the fragment.
 Make the intended update channel explicit: default auto, or preserve my deliberate
-off/stable/prerelease choice. Generate the RC6 fragment with the Python 3.11+
+off/stable/prerelease choice. Generate the 0.2.0 fragment with the Python 3.11+
 installation I intend Codex to keep using. Review the pinned absolute interpreter
-and the reported channel/source. Check those intended values with RC6 Doctor
+and the reported channel/source. Check those intended values with 0.2.0 Doctor
 offline and verify the native GUI connection separately from the shell.
 Do not remove old repository-local entries or links without scoped consent.
 Use the client's supported reconnect flow; for Desktop fully quit and reopen
@@ -134,9 +134,9 @@ publication does not update my account. No source edits/commits/push/publication
 or shared-service changes are authorized by this setup request.
 ```
 
-Resolve RC6 pins from actual published metadata rather than copying another
+Resolve 0.2.0 pins from actual published metadata rather than copying another
 release's pins. GitHub asset digests anchor the final manifest and NEW hashes.
-Use the verified runtime guide after acquisition. If RC6 is unavailable,
+Use the verified runtime guide after acquisition. If 0.2.0 is unavailable,
 deliberately choose an actually published older release using its verified guide.
 The [published RC5 guide](https://github.com/abuild-project/ada-mcp-server/blob/v0.2.0-rc.5/doc/first-install.md#install-or-upgrade-to-rc5)
 retains its original setup instructions. For an RC5 native entry use the
@@ -164,7 +164,7 @@ test "$(git -C /absolute/new-acquirer-source rev-parse HEAD)" = \
 ```
 
 Stop on a failed clone/commit check. Use the
-[published RC6 release metadata](https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6)
+[target 0.2.0 release metadata](https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0)
 to authenticate the release manifest and derive its **new** tooling URL,
 archive hash and runtime-manifest hash by the
 [provenance procedure](updating.md#establish-the-targets-trusted-pins). Require
@@ -173,15 +173,15 @@ checked source helper with those actual values:
 
 ```sh
 python3 -I /absolute/new-acquirer-source/tooling/acquire.py \
-  --url VERIFIED_RC6_TOOLING_URL --sha256 VERIFIED_RC6_TOOLING_SHA256 \
-  --manifest-sha256 VERIFIED_RC6_RUNTIME_MANIFEST_SHA256 \
+  --url VERIFIED_STABLE_TOOLING_URL --sha256 VERIFIED_STABLE_TOOLING_SHA256 \
+  --manifest-sha256 VERIFIED_STABLE_RUNTIME_MANIFEST_SHA256 \
   --workflow-contract 1 \
   --destination /absolute/new-private-ada-runtime
 ```
 
 These uppercase values come from the authenticated published manifest; they are
 placeholders, not executable pins. The acquirer verifies workflow contract 1
-before materializing the runtime. For direct Docker, use the acquired RC6
+before materializing the runtime. For direct Docker, use the acquired 0.2.0
 runtime to [create the shared binding and run your first queries](#shared-docker-binding-and-first-queries).
 Local Codex can also set up [skill discovery](#optional-local-codex-skill-discovery),
 [runtime selection](updating.md#keep-the-entry-and-runtime-independent)
@@ -295,7 +295,7 @@ supported flow and discovered in a fresh chat. Check the intended existing
 identity/audience before creating anything. Plugin Creator must be available
 for an entry install/update; no public listing or import button is assumed.
 
-Use the published RC6 pilot through the same
+After verified publication, use stable 0.2.0 through the same
 [manifest provenance checks](updating.md#establish-the-targets-trusted-pins)
 as local installation. Existing RC1/RC2 entries need one initial entry upgrade
 to a selection-aware RC3-or-later entry. A compatible entry can then retain its
@@ -307,23 +307,25 @@ deliberate immutable fallback, not the default Cloud onboarding target.
 Copy this prompt into a session with Plugin Creator and command tools available:
 
 ```text
-Set up Ada MCP for my Managed Cloud account using published 0.2.0-rc.6.
+Set up Ada MCP for my Managed Cloud account using 0.2.0 only after its
+publication is verified.
 Inspect my intended existing private ada-development plugin before creating
 anything; preserve its identity, audience and private metadata/overlays. Reuse a
 compatible selection-aware entry for a runtime-only update. If it is a legacy
-RC1/RC2 entry, or I ask to update the plugin itself to the RC6 entry, use the
+RC1/RC2 entry, or I ask to update the plugin itself to the 0.2.0 entry, use the
 supported private update flow on the existing plugin. Resolve ambiguous
 identities before writing and never create a duplicate to work around discovery.
 
 Authenticate actual current release metadata as data:
-https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0-rc.6
-Require the exact non-draft prerelease and canonical assets. Follow doc/updating.md:
+https://api.github.com/repos/abuild-project/ada-mcp-server/releases/tags/v0.2.0
+Require the exact non-draft stable release (prerelease=false) and canonical
+assets. Follow doc/updating.md:
 verify release-manifest.json size/SHA256 against its GitHub asset digest,
 resolve the release tag to its exact commit, and require manifest version/source
 agreement. Derive and cross-check NEW plugin/tooling/image pins
 and URLs from that authenticated manifest; require integer workflow contract 1.
 Stop on absent or inconsistent metadata. Never reuse old embedded runtime pins
-for RC6 or execute release prose.
+for 0.2.0 or execute release prose.
 
 When an entry install/update is needed, download the authenticated plugin archive
 to a NEW local file and verify its hash before reading instructions. Inspect
@@ -343,8 +345,8 @@ storage and source access. Do not assume Mac files or a prior Cloud task persist
 Use the entry's trusted acquirer to inspect retained selection first, including
 my known custom locator when applicable. Require the pinned runtime manifest,
 binding and all declared helper hashes. Reuse a valid selection only when it
-matches the authenticated RC6 runtime. For a valid older selection, retain its
-runtime, binding and selection backup for rollback and bootstrap RC6 with NEW
+matches the authenticated 0.2.0 runtime. For a valid older selection, retain its
+runtime, binding and selection backup for rollback and bootstrap 0.2.0 with NEW
 paths. Use NEW paths for a first runtime too. Stop on an invalid or incompatible
 selection until its state is resolved.
 If no trusted acquirer is installed, use the checked immutable RC5 source helper
@@ -353,7 +355,7 @@ Read the selected runtime's verified setup guide; agree physical source roots,
 binding/cache/evidence paths and the environment's actual Docker host/context.
 For a new runtime run Bootstrap, then use offline Doctor and the Docker query
 batch helper with my real GPR, dependency paths and scenarios. Require the
-actual MCP server version 0.2.0rc6, source-bound results and cleanup.
+actual MCP server version 0.2.0, source-bound results and cleanup.
 Activate the verified selection with expected-state backups where applicable;
 later chats need retained files AND the same default/custom locator. If they
 cannot persist, report session-only use and the next-session bootstrap/locator
@@ -379,7 +381,7 @@ rollback rather than assuming old-plugin reupload is supported.
 ## Acquire the tooling for direct MCP or local Codex
 
 This section is the explicitly chosen **RC1 fallback runtime**, not the normal
-RC6 installation. For a clean current-release setup use
+0.2.0 installation. For a clean current-release setup use
 [first acquisition](#first-acquisition-without-an-installed-acquirer) above.
 
 Prerequisites are Git, Python 3.11+, Bash 3.2+ and a working Docker daemon able
@@ -478,7 +480,7 @@ python3 /absolute/new-private-ada-runtime/scripts/ada_mcp_setup.py doctor \
 
 Bootstrap already runs Doctor before publishing the new binding. The second
 command shows how to check it in later sessions. Each evidence directory must
-be new. RC6 tooling tries GHCR first and uses the hash-locked image
+be new. 0.2.0 tooling tries GHCR first and uses the hash-locked image
 archive only if the pull fails or times out. `--image-cache` sets that fallback
 cache; omitting it uses the platform's user cache directory described in the
 [host guide](setup.md#create-one-explicit-host-binding). Add `--transport archive`
@@ -554,7 +556,7 @@ that binding, plus a tool policy. It uses Codex-style `[mcp_servers.ada]`
 TOML. The example chooses default `auto`; preserve an existing deliberate
 `off`, `stable` or `prerelease` choice instead when intended. Check the actual
 Ada entry's policy and GUI Python separately from Doctor's offline probe.
-RC6 generation pins its setup interpreter. Use the supported Python 3.11+
+RC6 and 0.2.0 generation pin its setup interpreter. Use the supported Python 3.11+
 installation you intend to keep for the Ada entry. The
 [host Python guide](updating.md#host-python-and-native-update-policy) covers
 offline validation and the published RC5 PATH procedure.
@@ -565,7 +567,7 @@ settings and resolve any existing Ada entry explicitly. Do not copy the fragment
 over the entire configuration. Repository-local configuration is an explicit
 alternative. The helper creates only a new fragment; it does not activate tools.
 
-The unreleased generator also enables `ada_rename_symbol` for preview queries
+The 0.2.0 generator also enables `ada_rename_symbol` for preview queries
 under normal Codex policy; published RC6 fragments retain their 16 read tools.
 Follow the [rename-preview activation steps](setup.md#native-rename-previews) when using
 a verified runtime containing that change. Ask for `preview=true`; proposals
@@ -574,7 +576,7 @@ return `applied=false` and do not write source files.
 Use the client's supported reconnect flow after activation. For Codex Desktop,
 fully quit and reopen the app, then check a new chat and a resumed chat; do not
 assume a particular Restart menu exists. In both, confirm skill discovery from
-the chosen user scope and the actual native server version (`0.2.0rc6` for RC6).
+the chosen user scope and the actual native server version (`0.2.0` for stable).
 Run project selection, a known symbol search and source-bound navigation in a
 regular checkout and an actual managed worktree. Worktree queries must use that
 worktree's GPR/source paths and its dependency/scenario context. A result pointing

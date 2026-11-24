@@ -4,7 +4,7 @@ This workflow requires **RC2 or later**. Confirm that the target is actually
 published in the [release index](https://github.com/abuild-project/ada-mcp-server/releases)
 before acquiring it. Published RC1 archives have no notice hook and remain
 unchanged. They need one initial user-approved upgrade, using the
-[current installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-rc6).
+[current installation prompt](https://github.com/abuild-project/ada-mcp-server/blob/main/doc/first-install.md#install-or-upgrade-to-020).
 No future artifact hash or source commit is supplied in advance.
 
 ## Keep the entry and runtime independent
@@ -16,9 +16,11 @@ and their [RC2 workflow](https://github.com/abuild-project/ada-mcp-server/blob/v
 as the legacy route. One initial entry update is necessary to gain selection.
 A prepared candidate with an unchanged version label is not a new public release.
 
-Select the published RC6 pilot after checking its metadata and pins. Preserve older
-runtime/binding pairs for rollback. A compatible RC3-or-later entry may
-retain its own version while using RC6. See the
+Select stable 0.2.0 only after its non-draft stable metadata and pins are
+verified. Versioned stable paths remain publication targets until then. Preserve
+older runtime/binding pairs for rollback. Compatible RC3-or-later entries may
+retain their version with the verified stable runtime. Regenerate and explicitly
+merge the native Ada entry, then reconnect, to expose rename previews. See the
 [RC6 consumer observations](support.md#rc6-consumer-observations) for the
 supplied Mac and Cloud results. Read the selected runtime's verified guide/catalog before
 using optional Boolean `refresh`, added in RC4; workflow contract 1 alone does
@@ -236,7 +238,7 @@ native MCP version, source-bound queries and notice metadata when available.
 A shell check alone does not establish the GUI environment. A deliberate
 automatic opt-out still permits one explicit `updates check --channel auto`.
 
-**RC6 behavior.** Newly generated `native-config` fragments pin
+**RC6 and 0.2.0 behavior.** Newly generated `native-config` fragments pin
 the setup process's absolute `sys.executable` with launcher `--python`. Keep
 that supported Python installation available. One chosen interpreter is used;
 old fragments without a pin still use `python3` on their host PATH. Generation
@@ -268,7 +270,7 @@ interpreter. RC6 Doctor accepts `--python ABSOLUTE_EXECUTABLE` and
 `--update-channel` to validate the intended entry offline; its report separates
 that launch check from `doctor.probe_update_channel: "off"`. Supply the actual
 entry's intended values: Doctor does not read or rewrite your native config.
-Use these options with verified RC6 tooling. The
+Use these options with verified RC6 or 0.2.0 tooling. The
 [Mac consumer observations](support.md#rc6-consumer-observations) record the
 offline check and a separate restarted Desktop connection.
 

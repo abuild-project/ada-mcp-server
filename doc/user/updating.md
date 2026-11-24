@@ -8,7 +8,11 @@ when you connect. To check right away, ask the Ada skill:
 > Check now for a newer Ada MCP release. Tell me what's installed, what's
 > available and what switching would change. Wait for me before installing.
 
-Checking only looks for a release. To check from a terminal, use the
+Stable 0.2.0 adds XML/Ada development exports and native rename previews.
+An existing native entry needs explicit regeneration, backed-up Ada-entry merge
+and reconnect to expose rename. Existing private plugins are unchanged.
+
+Checking only looks for an actually published release. To check from a terminal, use the
 [release check command](../updating.md#check-status-or-change-the-policy).
 
 ## Apply an approved update

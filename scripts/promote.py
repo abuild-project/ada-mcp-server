@@ -50,6 +50,9 @@ def read_release_notes(source_sha: str, version: str, root: Path | None = None) 
 
 def publish_release(stage: Path, tag: str, notes: bytes) -> None:
     """Publish reviewed notes separately from the unchanged staged asset set."""
+    release_flags = (
+        ["--prerelease"] if re.fullmatch(r"v\d+\.\d+\.\d+-rc\.\d+", tag) else ["--latest"]
+    )
     with tempfile.NamedTemporaryFile(
         prefix="ada-mcp-notes-", suffix=".md", dir=stage.parent
     ) as notes_file:
@@ -64,7 +67,7 @@ def publish_release(stage: Path, tag: str, notes: bytes) -> None:
                 "--repo",
                 REPOSITORY,
                 "--verify-tag",
-                "--prerelease",
+                *release_flags,
                 "--title",
                 tag,
                 "--notes-file",

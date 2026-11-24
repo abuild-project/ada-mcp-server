@@ -7,17 +7,20 @@ updates need the maintainer's authorization; a reviewed PR alone is not that
 authorization. Ordinary CI only builds/tests and uploads CI artifacts.
 The promotion workflow is manually invoked for the approved release.
 
-The coordinated `0.2.0-rc.6` candidate remains a pilot prerelease with bounded
-client support. Its [release notes](releases/0.2.0-rc.6.md) describe the changes
-and client/platform limits. Older published releases remain immutable fallbacks.
+The coordinated `0.2.0` target is the first stable release with bounded
+client support. Its [release notes](releases/0.2.0.md) describe the changes,
+source-delivery directions and client/platform limits. Publication remains
+conditional on the exact gates below. Older published releases remain immutable
+fallbacks. The [dated stable plan](plans/release-0.2.0.md) records this delivery.
 The [public repository assessment](assessments/public-release.md) distinguishes
 observed settings from policy and unavailable administrative evidence.
 
 ## Artifact trust and version
 
-The canonical SemVer is read from src/ada_mcp/_version.py. Python converts
-`0.2.0-rc.6` to `0.2.0rc6`; package metadata and MCP initialization report that
-project version, not the MCP SDK version. The SDK stays pinned by the lock.
+The canonical SemVer is read from src/ada_mcp/_version.py. Stable `0.2.0`
+remains `0.2.0` in Python and MCP metadata. Prereleases convert, for example,
+`0.2.0-rc.6` to `0.2.0rc6`. Metadata reports the project version, separately
+from the MCP SDK version. The SDK stays pinned by the lock.
 Tooling/skill/container/source metadata uses the coordinated SemVer.
 
 CI builds the source image once, runs the full check chain and packages that
@@ -62,7 +65,7 @@ metadata and checksums record the digest and exact tested artifact hashes.
    notes hash, command and output. Publication passes those reviewed bytes via
    a temporary notes file outside the release assets; it adds no artifact.
 2. With merge/release authority supplied, create the intended immutable tag
-   `v0.2.0-rc.6` on that same approved revision and verify the tag target.
+   `v0.2.0` on that same approved revision and verify the tag target.
    Verify repository/GitHub Actions permissions, release protection,
    GHCR publication rights and the exact redistributed components' required
    source delivery under [licensing](licensing.md). A declared environment name
@@ -71,6 +74,8 @@ metadata and checksums record the digest and exact tested artifact hashes.
    workflow takes the verified `run_id` and `source_sha`; keep
    `execute_publication` false for its plan-only invocation.
 3. Promote the selected tested artifacts to GitHub Releases/GHCR. Do not rebuild.
+   Supported `-rc.N` tags use `--prerelease`. Stable tags use `--latest`, matching
+   the release updater's stable/prerelease metadata contract.
    Retain the actual pushed registry digest and compare the config image ID
    with the tested image ID. If administration is blocked, report the exact
    setting and permission failure instead of assuming success.
@@ -114,7 +119,8 @@ RC4's historical Mac assessment without treating it as RC5 acceptance.
 
 For RC6, follow the [RC6 plan](plans/release-0.2.0-rc.6.md) for publication
 and the subsequent update, installation and verification of the existing
-private Managed Cloud plugin. The actual Mac consumer check remains pending.
+private Managed Cloud plugin. The [RC6 consumer assessment](assessments/rc6-consumer.md)
+retains the subsequent supplied checks and their limits.
 
 Registry behavior reference:
 https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
