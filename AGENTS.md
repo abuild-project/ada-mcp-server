@@ -43,7 +43,8 @@ installed-version evidence requirement.
   checks run on their intended host; Linux UID tests do not prove macOS.
 - scripts/ci defines the complete check chain, including unit tests, Ruff,
   strict typing, coverage, packaging, documentation and real ALS/MCP probes.
-  New tests must reject the original defect or a targeted invalid input.
+  New or changed checks must reject the original defect or a targeted
+  invalid input.
 - Triage findings by a reproducible or plausible defect in promised behavior
   or evidence, and value versus harness complexity. Fix or escalate an
   invalidated existing boundary even when exposed by a mock or malformed input.
@@ -75,18 +76,22 @@ installed-version evidence requirement.
 
 Report each of these findings as P1.
 
-- The change record cites validation evidence from a revision other than the
-  PR head.
+- A change record or validation comment uses evidence from a different
+  revision to claim the PR head passed. Earlier negative controls and
+  development evidence may be cited with the revisions they tested. Post
+  actual PR-head results in that head's own validation comment.
 - A new or changed check would also pass against the previous behavior because
   it lacks an effective lower bound, negative control or other way to detect
-  the difference.
+  the difference. See the sensitivity requirement in
+  [Validation and roles](#validation-and-roles).
 - A merge integrating `main` includes changes beyond conflict resolution.
 - `AGENTS.md`, the guides, the active plan or the change record contradict one
   another.
 - The change relies on an external pin, version or upstream behavior without
   recording how it was verified in the change record. This includes action
   SHAs, image digests, ALS behavior and SDK behavior.
-- The PR body differs from the change record committed at its head.
+- The PR body differs from the change record committed at the PR head when
+  trailing whitespace is ignored.
 
 ## History, records and external actions
 
@@ -106,9 +111,10 @@ Report each of these findings as P1.
   including fixes needed for the combined state, in a separate following commit.
 - Add doc/change-records/<topic>.md and its sorted index entry. Derive the topic
   from the branch by dropping the first prefix and replacing other slashes
-  with hyphens. The PR description is the record verbatim. End the record with
-  the same accurate coauthor attribution. Keep ticket identifiers out of these
-  texts.
+  with hyphens. Use the committed record verbatim to submit the PR description.
+  Ignore trailing whitespace when comparing the posted body with the record.
+  End the record with the same accurate coauthor attribution. Keep ticket
+  identifiers out of these texts.
 - Post each head's validation as a new short comment; never rewrite
   an earlier validation comment.
 - After merge, temporary validation-ref cleanup needs maintainer authorization

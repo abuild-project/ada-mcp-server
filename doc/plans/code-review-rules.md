@@ -15,3 +15,18 @@ The scope covers AGENTS.md, this plan, the change record and its index entry.
 Check maintained documentation and diff whitespace during development. The
 tester and independent reviewer verify the same immutable candidate before
 submission. Record validation against that head in its own PR comment.
+
+## 2026-11-25 — Maintainer decision
+
+Apply Rule 1 when a change record or validation comment uses evidence from
+another revision to claim the PR head passed. Attribute earlier negative
+controls and development evidence to the revisions they tested. Post actual
+PR-head results in that head's own validation comment.
+
+Apply the sensitivity requirement in
+[Validation and roles](../../AGENTS.md#validation-and-roles) to new or changed
+checks and reference it from Rule 2. For Rule 6, compare the PR body with the
+change record committed at the PR head, ignoring trailing whitespace. Use
+the committed record verbatim when submitting the PR description.
+
+Limit this correction to AGENTS.md, this plan and the change record.
