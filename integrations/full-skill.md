@@ -50,8 +50,8 @@ HOME/CODEX_HOME. An approved update may switch only its identified client entry
 with a no-clobber backup; Docker daemon/global configuration stays unchanged.
 Inspect the intended native update policy separately from Doctor's offline
 MCP probe, which uses off. Preserve deliberate off; default new setup to auto
-unless flags/environment/user choice specify otherwise. RC6
-native generation pins its working Python 3.11+ interpreter and reports the
+unless flags/environment/user choice specify otherwise. Native generation in
+RC6 and 0.2.0 pins its working Python 3.11+ interpreter and reports the
 effective channel/source. Offline launcher --check and Doctor can validate
 that chosen interpreter; enabled-advisory startup failure stays fail-open with
 bounded stderr diagnostics. Its version probe has an independent two-second
@@ -70,20 +70,21 @@ global project in the shared installation. Anchor later symbol/navigation calls
 to an absolute Ada file in that view. Check complete/truncated/scope and source coordinates;
 an empty unscoped diagnostic cache is not a successful compilation.
 
-Use only documented candidate support. A catalog tool name is not a support
+Use only documented support. A catalog tool name is not a support
 promise. The query client forbids write rename/format/build; rename preview
-requires explicit preview=true. Newly generated native fragments from source
-containing the rename-preview change expose ada_rename_symbol under normal
-Codex policy without a tool-specific approval override. The server annotates
+requires explicit preview=true. New 0.2.0 native fragments expose
+ada_rename_symbol under normal Codex policy without a tool-specific approval
+override. The server annotates
 only rename with readOnlyHint=true. Explicit client approval/trust policies still
 apply. Request preview=true and inspect applied=false proposals.
 Published RC6 fragments still expose 16 read
 tools. Existing users must acquire a verified runtime containing the change,
 regenerate a new fragment, back up and explicitly merge only the Ada entry,
 then reconnect. Follow references/setup.md. Never patch authenticated helpers.
-Mac acceptance of the changed configuration remains pending: verify 17 native
-tools including rename in new/resumed Desktop chats, no special rename prompt
-under normal policy, applied=false and unchanged before/after source hashes.
+Supplied pre-stable Mac reports cover direct native rename previews in fresh
+and resumed Desktop chats with applied=false and unchanged source hashes.
+See references/support.md for their bounded implementation evidence, separate
+from final published stable-artifact consumer checks.
 Other tools' support remains bounded. Run the project's prescribed compiler, tests,
 coverage and documentation separately. MCP does not replace CI.
 
