@@ -71,6 +71,23 @@ installed-version evidence requirement.
   required short change record.
   Both test and independent-review evidence must cover the final candidate.
 
+## Code Review Rules
+
+Report each of these findings as P1.
+
+- The change record cites validation evidence from a revision other than the
+  PR head.
+- A new or changed check would also pass against the previous behavior because
+  it lacks an effective lower bound, negative control or other way to detect
+  the difference.
+- A merge integrating `main` includes changes beyond conflict resolution.
+- `AGENTS.md`, the guides, the active plan or the change record contradict one
+  another.
+- The change relies on an external pin, version or upstream behavior without
+  recording how it was verified in the change record. This includes action
+  SHAs, image digests, ALS behavior and SDK behavior.
+- The PR body differs from the change record committed at its head.
+
 ## History, records and external actions
 
 - Use Conventional Commit subjects of at most 50 characters. Capitalize the
