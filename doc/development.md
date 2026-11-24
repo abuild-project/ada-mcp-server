@@ -98,6 +98,28 @@ The initial state's comment line is serialized metadata; no-target calls
 exercise the changed state. These mocked controls do not establish live proof.
 The documentation checker also enforces alphabetical change-record titles.
 
+The integration runner also compiles a fresh copy of
+`tests/fixtures/xmlada_project`, importing the installed `xmlada` aggregate and
+Schema, DOM, SAX, Input and Unicode units. Compiler output, the resulting ALI
+hash and unchanged known input hashes establish the image's development exports.
+This fixture uses no external project checkout. A real consumer still needs its
+own GPR dependencies prepared before semantic queries.
+
+`scripts/real_xmlada.py --output /absolute/new-xmlada-control` separately runs
+the installed server over STDIO, selecting a fresh fixture copy's exact GPR
+with `project_paths=[]` and empty scenarios. Complete selection precedes the
+independent `dpkg-query -L libxmlada-dom-dev` source lookup. Navigation from
+`Core` in `with DOM.Core;` must identify the package-owned physical
+`dom-core.ads` declaration outside the fixture, including its source token and
+exact preview. Raw MCP envelopes, stderr, input hashes and EOF cleanup survive
+failed runs. The same committed scripts/client helper/fixture can be mounted
+read-only into published RC6. The child uses `python -I -B -m ada_mcp`, so its
+installed server cannot import candidate source from the harness or PYTHONPATH.
+RC6 must reach project selection before any package oracle. Its missing-import
+failure is corroborated by the existing same-image compiler negative control
+and absent development exports. Prepared Abuild navigation is optional
+additional consumer acceptance after preparing that project's dependencies.
+
 The additional-tool control requires exact fixture-derived call edges and
 native call-site ranges, qualified members, signatures, code-action discovery,
 single- and cross-unit rename previews, spec targets, formatting edits,

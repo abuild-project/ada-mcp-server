@@ -44,3 +44,4 @@
 - [Upload artifact action update](github_actions-main-actions-upload-artifact-7.0.2.md)
 - [User documentation on GitHub Pages](user-documentation-pages.md)
 - [Validation reference retention](validation-ref-retention.md)
+- [XML/Ada image dependencies](xmlada-image.md)
