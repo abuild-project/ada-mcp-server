@@ -25,6 +25,7 @@
 - [Permission-test identity preconditions](permission-test-ergonomics.md)
 - [Pilot prerelease preparation](release-0-2-0-rc-1.md)
 - [Public installation and approved updates](third-party-installation.md)
+- [Pull request record check](pr-record-check.md)
 - [Pydantic hash lock update](pip-main-pydantic-2.14.3.md)
 - [pytest-asyncio hash lock update](pip-main-pytest-asyncio-1.5.0.md)
 - [RC2 prerelease preparation](release-0.2.0-rc.2.md)

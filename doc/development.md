@@ -386,10 +386,19 @@ Preserve the existing protected archive unchanged.
 ## Release and hosted review
 
 Prepare coherent unpublished commits before the first submission. The PR
-description is the change record verbatim; post later head validation in a
-short PR comment. Hosted CI must test the same head; read all Copilot feedback
-and preserve the separate PR correction counter.
+description is the committed change record verbatim. Keep the body in sync
+when a correction updates the record. Post validation for each exact PR head
+in a new short comment. Hosted CI must test the same head. Read all Copilot
+feedback and preserve the separate PR correction counter.
 Stop at the checked PR until merge/release permission is supplied.
+
+The separate **Check PR record** job checks the exact head on opens, edits,
+new head commits, reopens and transitions to ready for review. It derives the
+record path from the head branch and compares the body with that file after
+normalizing CRLF and ignoring whitespace at the end of the text. Dependabot
+PRs follow the same rule. Commit the canonical record for a new Dependabot
+PR and use it to replace the generated body. Making the check required for
+merging is a separate repository settings action.
 
 Every PR is merged with a merge commit, including release and dependency PRs.
 Squash and rebase merges are disabled by repository policy. Retain the tested
