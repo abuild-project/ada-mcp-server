@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Compare a pull request body with the canonical record at its checked-out head."""
+"""Compare a pull request body with its record in the working directory's checkout."""
 
 import json
 import os
@@ -9,7 +9,6 @@ from difflib import unified_diff
 from itertools import islice
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
 _DIFF_LINES = 40
 _DIFF_WIDTH = 240
 
@@ -30,6 +29,9 @@ def check_record(root: Path, head_ref: str, body: str) -> int:
     topic = head_ref.split("/", 1)[-1].replace("/", "-")
     if not topic or "\\" in topic or "\0" in topic:
         print("The pull request head ref does not identify a change record.", file=sys.stderr)
+        return 1
+    if topic in {"CLAUDE", "CLAUDE.local"}:
+        print(f"{topic} is a reserved change record name. Choose another topic.", file=sys.stderr)
         return 1
 
     relative = Path("doc/change-records") / f"{topic}.md"
@@ -70,7 +72,7 @@ def check_record(root: Path, head_ref: str, body: str) -> int:
 
 
 def main() -> int:
-    """Read pull request input from the GitHub Actions event file."""
+    """Read the Actions event and check the record from the head checkout's cwd."""
     try:
         event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
         head_ref = event["pull_request"]["head"]["ref"]
@@ -80,7 +82,7 @@ def main() -> int:
     except (KeyError, OSError, TypeError, ValueError):
         print("Cannot read pull request head and body from GITHUB_EVENT_PATH.", file=sys.stderr)
         return 1
-    return check_record(ROOT, head_ref, body or "")
+    return check_record(Path.cwd(), head_ref, body or "")
 
 
 if __name__ == "__main__":

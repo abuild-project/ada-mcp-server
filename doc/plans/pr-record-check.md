@@ -25,3 +25,25 @@ event input. Demonstrate sensitivity with an exact comparison and a broken
 branch derivation. Use the complete local chain and independent review on the
 immutable candidate, then post PR-head validation in its own comment. Requiring
 the workflow check in repository settings is a separate maintainer action.
+
+## 2026-11-26 — Use the base checker with the head record
+
+The first workflow runs the proposed checker, so a head can remove or weaken
+the check itself. Keep the dedicated read-only `pull_request` workflow and
+check out the event's exact base and head with the existing pin and credential
+persistence disabled. Run the base checker with the head checkout as its
+working directory.
+Log the head-checker fallback when the base has no checker, as on first
+adoption. Fail the job for an unusable base checker or a failed comparison.
+Review changes to the workflow definition through the usual PR process.
+
+Reserve the exact derived topics `CLAUDE` and `CLAUDE.local` to align with the
+sibling Arca Claude review workflow, which removes those Markdown filenames
+from its review checkout.
+
+Exercise the workflow command with different base and head records, an absent
+or weakened head checker, and absent or unusable base checkers. Include a
+matching record for each reserved name. Replay the new regressions against
+published revision `eb8f80e46e20fa47d915360ea6271de41116502d` to confirm they
+detect the previous behavior. Post actual validation of the corrected PR head
+in a new comment for that revision.

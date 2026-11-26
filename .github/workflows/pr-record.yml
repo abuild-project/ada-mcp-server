@@ -17,10 +17,33 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Check out the immutable PR base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
       - name: Check out the immutable PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          path: head
           persist-credentials: false
       - name: Compare the PR body with its change record
-        run: python3 -I scripts/check_pr_record.py
+        working-directory: head
+        shell: bash
+        run: |
+          checker=../base/scripts/check_pr_record.py
+          if [[ -L ../base/scripts ]]; then
+            printf '%s\n' 'PR base checker directory is a symlink.' >&2
+            exit 1
+          fi
+          if [[ ! -e "$checker" && ! -L "$checker" ]]; then
+            printf '%s\n' 'PR base has no record checker. Using the PR head checker.'
+            checker=scripts/check_pr_record.py
+          fi
+          if [[ ! -f "$checker" || ! -r "$checker" || -L "$checker" || -L "${checker%/*}" ]]; then
+            printf 'Cannot read PR record checker: %s\n' "$checker" >&2
+            exit 1
+          fi
+          python3 -I "$checker"
