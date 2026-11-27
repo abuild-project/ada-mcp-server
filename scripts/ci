@@ -13,7 +13,8 @@ gprbuild --version > "$output/gprbuild-version.txt"
 ruff check src tests tooling scripts
 ruff format --check src tests tooling scripts
 mypy src/ada_mcp tooling scripts/version.py scripts/artifacts.py scripts/license_index.py \
-    scripts/build_pages.py scripts/check_docs.py scripts/check_requirements.py \
+    scripts/build_pages.py scripts/check_docs.py scripts/check_pr_record.py \
+    scripts/check_requirements.py \
     scripts/host_acceptance.py \
     scripts/promote.py scripts/real_diagnostics.py \
     scripts/distribution_receipt.py scripts/public_notice_acceptance.py scripts/real_reading.py \
