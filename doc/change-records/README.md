@@ -20,6 +20,7 @@
 - [Minimum Python probe deadline](probe-deadline-minimum.md)
 - [Native rename previews](native-rename-preview.md)
 - [Optional development dependency baseline](dev-dependency-baseline.md)
+- [Pages publishing action updates](pages-actions-v5.md)
 - [Parameter selection result contract](parameter-selection-contract.md)
 - [Patched MCP 1.x dependency baseline](security-mcp-1-30.md)
 - [Permission-test identity preconditions](permission-test-ergonomics.md)
