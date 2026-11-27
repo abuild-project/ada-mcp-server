@@ -40,6 +40,7 @@
 - [Retire optional additional-tool exploration](retire-exploration.md)
 - [Review follow-up evidence](review-followups.md)
 - [Routine update documentation](routine-update-docs.md)
+- [Ruff 0.17.6 hash lock update](pip-main-ruff-0.17.6.md)
 - [Ruff hash lock update](pip-main-ruff-0.17.5.md)
 - [Separate task-body dependency owners](separate-task-bodies.md)
 - [Shared user-wide Codex installation](shared-codex-installation.md)
